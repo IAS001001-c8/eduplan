@@ -322,36 +322,44 @@ export function SeatingPlanEditor({
 
     // If the seat is occupied by the dragged student, do nothing
     if (currentStudentIdInSeat === studentId) {
-      setDraggedStudent(null) // Clear dragged student state
+      setDraggedStudent(null)
       return
     }
 
     const newAssignments = new Map(assignments)
 
-    // IMPORTANT: Remove the student from their current seat if they're already placed
-    // This prevents duplicate placements
+    // Find where the dragged student was sitting (if anywhere)
     const existingSeat = Array.from(newAssignments.entries()).find(
       ([_, id]) => id === studentId
     )?.[0]
-    if (existingSeat !== undefined) {
-      newAssignments.delete(existingSeat)
+
+    // If the target seat has another student, SWAP their positions
+    if (currentStudentIdInSeat && existingSeat !== undefined) {
+      // Swap: move the other student to the dragged student's old seat
+      newAssignments.set(existingSeat, currentStudentIdInSeat)
+      newAssignments.set(seatNumber, studentId)
+      
+      const otherStudent = students.find((s) => s.id === currentStudentIdInSeat)
+      toast({
+        title: "Élèves échangés",
+        description: `${studentToPlace.first_name} et ${otherStudent?.first_name || 'l\'élève'} ont échangé leurs places.`,
+      })
+    } else {
+      // Normal placement
+      if (existingSeat !== undefined) {
+        newAssignments.delete(existingSeat)
+      }
+      newAssignments.set(seatNumber, studentId)
+      
+      toast({
+        title: "Élève placé",
+        description: `${studentToPlace.first_name} ${studentToPlace.last_name} a été placé sur la place ${seatNumber}.`,
+      })
     }
 
-    // If the seat is occupied by another student, remove that student
-    if (currentStudentIdInSeat && currentStudentIdInSeat !== studentId) {
-      newAssignments.delete(seatNumber)
-    }
-
-    newAssignments.set(seatNumber, studentId)
     setAssignments(newAssignments)
-
-    toast({
-      title: "Élève placé",
-      description: `${studentToPlace.first_name} ${studentToPlace.last_name} a été placé sur la place ${seatNumber}.`,
-    })
-
-    setDraggedStudent(null) // Clear dragged student state after drop
-    setSelectedStudent(null) // Clear selected student
+    setDraggedStudent(null)
+    setSelectedStudent(null)
   }
 
   const handleSave = async () => {
