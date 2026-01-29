@@ -750,7 +750,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
                 </Button>
               )}
             </div>
-          </div>
+          </Card>
         )}
 
         {viewedRoom && (
