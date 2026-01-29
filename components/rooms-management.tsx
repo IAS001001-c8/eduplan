@@ -785,19 +785,17 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
       )}
 
       {showDeleteDialog && (
-        <div
+        <DeleteConfirmationDialog
           open={showDeleteDialog}
           onOpenChange={setShowDeleteDialog}
           onConfirm={() => handleDeleteRooms(selectedRoomIds)}
           itemCount={selectedRoomIds.length}
           itemType="salle"
-        >
-          {/* DeleteConfirmationDialog component implementation */}
-        </div>
+        />
       )}
 
       {showTemplates && effectiveUserId && establishmentId && (
-        <div
+        <TemplateSelectionDialog
           open={showTemplates}
           onOpenChange={setShowTemplates}
           onSelectTemplate={handleTemplateSelect}
@@ -807,13 +805,11 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
             setShowTemplates(false)
             loadRooms()
           }}
-        >
-          {/* TemplateSelectionDialog component implementation */}
-        </div>
+        />
       )}
 
       {showCreateSubRoom && establishmentId && effectiveUserId && (
-        <div
+        <CreateSubRoomDialog
           open={showCreateSubRoom}
           onOpenChange={setShowCreateSubRoom}
           onSuccess={() => {
@@ -824,9 +820,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
           selectedRoom={selectedRoomForSubRoom}
           userRole={effectiveUserRole}
           userId={effectiveUserId}
-        >
-          {/* CreateSubRoomDialog component implementation */}
-        </div>
+        />
       )}
 
       <div />
