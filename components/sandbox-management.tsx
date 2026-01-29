@@ -298,8 +298,19 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
           </CardContent>
         </Card>
       ) : (
+        <>
+        {/* View Toggle */}
+        <div className="flex justify-end mb-4">
+          <ViewToggle view={viewMode} onViewChange={setViewMode} />
+        </div>
+        
+        {viewMode === "grid" ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {proposals.map((proposal) => (
+          {proposals.map((proposal) => {
+            const room = rooms.find(r => r.id === proposal.room_id)
+            const columns = room?.config?.columns || []
+            
+            return (
             <Card key={proposal.id} className="hover:shadow-lg transition-shadow relative">
               {/* Checkbox for draft proposals */}
               {isDelegateOrEco && !proposal.is_submitted && (
@@ -323,6 +334,16 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
+                {/* Seat Preview */}
+                <div className="flex justify-center py-2">
+                  <RoomSeatPreview 
+                    columns={columns}
+                    boardPosition={room?.board_position}
+                    maxWidth={160}
+                    maxHeight={90}
+                  />
+                </div>
+                
                 <div className="text-sm space-y-1">
                   <p className="text-muted-foreground">
                     Proposé par:{" "}
