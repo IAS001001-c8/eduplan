@@ -71,7 +71,7 @@ export function useAuth(options?: { requireRole?: string; redirectTo?: string })
         if (sessionData) {
           if (!sessionData.id || !sessionData.establishment_id || !sessionData.role) {
             console.error("[v0] useAuth: Custom session missing required fields")
-            localStorage.removeItem("user_session")
+            localStorage.removeItem("custom_auth_user")
             document.cookie = "custom_auth_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
           } else {
             const authUser: AuthUser = {
