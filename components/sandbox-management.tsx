@@ -63,7 +63,16 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
 
   useEffect(() => {
     fetchProposals()
+    fetchRooms()
   }, [establishmentId, userRole, userId])
+
+  async function fetchRooms() {
+    const { data } = await supabase
+      .from("rooms")
+      .select("id, name, code, config, board_position")
+      .eq("establishment_id", establishmentId)
+    setRooms(data || [])
+  }
 
   async function fetchProposals() {
     setIsLoading(true)
