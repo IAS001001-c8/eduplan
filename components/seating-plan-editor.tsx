@@ -698,19 +698,16 @@ export function SeatingPlanEditor({
     }
 
     // If a student is selected
-    // Check if student is already placed
+    // Check if student is already placed - if so, move them to the new seat
     const existingPlacement = Array.from(assignments.entries()).find(
       ([_, studentId]) => studentId === selectedStudent.id,
     )
 
+    const newAssignments = new Map(assignments)
+
+    // Remove student from their current seat if they're already placed
     if (existingPlacement && existingPlacement[0] !== seatNumber) {
-      toast({
-        title: "Élève déjà placé",
-        description: "Cet élève est déjà placé. Retirez-le d'abord de sa place actuelle.",
-        variant: "destructive",
-        className: "z-[9999]",
-      })
-      return
+      newAssignments.delete(existingPlacement[0])
     }
 
     const currentStudentInSeat = assignments.get(seatNumber)
