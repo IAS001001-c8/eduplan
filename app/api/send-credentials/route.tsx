@@ -17,9 +17,9 @@ export async function POST(request: NextRequest) {
 
 
     // Send email using Resend
-    // Note: Pour envoyer à d'autres destinataires, vérifiez un domaine sur resend.com/domains
+    // Domaine vérifié: eduplan-lnc.com
     const { data, error } = await resend.emails.send({
-      from: "EduPlan <onboarding@resend.dev>",
+      from: "EduPlan <noreply@eduplan-lnc.com>",
       to: recipientEmail,
       subject: "Vos identifiants de connexion - EduPlan",
       html: `
