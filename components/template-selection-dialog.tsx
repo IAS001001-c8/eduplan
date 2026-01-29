@@ -11,7 +11,7 @@ import {
   deleteCustomTemplate,
   type RoomTemplate,
 } from "@/components/room-templates"
-import { Users, Columns3, LayoutGrid, Star, Trash2, Sparkles } from "lucide-react"
+import { Users, Columns, LayoutGrid, Star, Trash2, Sparkles } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 
 interface TemplateSelectionDialogProps {
