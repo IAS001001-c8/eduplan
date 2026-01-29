@@ -534,7 +534,8 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
         )}
 
         {filteredRooms.length > 0 ? (
-          viewMode === "grid" ? (
+          <>
+          {viewMode === "grid" ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredRooms.map((room) => {
               const columns = Array.isArray(room.config?.columns) && room.config.columns ? room.config.columns : []
