@@ -1,6 +1,6 @@
 "use client"
 
-import { LayoutGrid, List } from "lucide-react"
+import { LayoutGrid, List, Table2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -25,7 +25,7 @@ export function ViewToggle({ view, onViewChange, className }: ViewToggleProps) {
         )}
       >
         <LayoutGrid className="h-4 w-4 mr-1.5" />
-        Grille
+        Cartes
       </Button>
       <Button
         variant="ghost"
@@ -38,8 +38,8 @@ export function ViewToggle({ view, onViewChange, className }: ViewToggleProps) {
             : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
         )}
       >
-        <List className="h-4 w-4 mr-1.5" />
-        Liste
+        <Table2 className="h-4 w-4 mr-1.5" />
+        Tableau
       </Button>
     </div>
   )
