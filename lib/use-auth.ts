@@ -32,82 +32,71 @@ export function useAuth(options?: { requireRole?: string; redirectTo?: string })
   useEffect(() => {
     async function checkAuth() {
       if (typeof window === "undefined") {
-        console.log("[v0] useAuth: Running on server side, skipping auth check")
         return
       }
-
-      console.log("[v0] useAuth: Checking authentication on client side...")
 
       try {
         // Try cookie first
         const cookieSession = getCookie("custom_auth_user")
-        console.log("[v0] useAuth: Custom session from cookie:", cookieSession ? "found" : "not found")
-
         let sessionData = null
+        
         if (cookieSession) {
           try {
             sessionData = JSON.parse(decodeURIComponent(cookieSession))
-            console.log("[v0] useAuth: Parsed custom session from cookie:", sessionData)
-          } catch (e) {
-            console.error("[v0] useAuth: Error parsing cookie session:", e)
+          } catch {
+            // Invalid cookie, will try localStorage
           }
         }
 
         // Fallback to localStorage
         if (!sessionData) {
           const localSession = localStorage.getItem("custom_auth_user")
-          console.log("[v0] useAuth: Custom session from localStorage:", localSession ? "found" : "not found")
-
           if (localSession) {
             try {
               sessionData = JSON.parse(localSession)
-              console.log("[v0] useAuth: Parsed custom session from localStorage:", sessionData)
-            } catch (e) {
-              console.error("[v0] useAuth: Error parsing localStorage session:", e)
+            } catch {
+              // Invalid localStorage
             }
           }
         }
 
         if (sessionData) {
-          if (!sessionData.id || !sessionData.establishment_id || !sessionData.role) {
-            console.error("[v0] useAuth: Custom session missing required fields")
+          // Support both establishment_id and establishmentId formats
+          const establishmentId = sessionData.establishment_id || sessionData.establishmentId
+          
+          if (!sessionData.id || !establishmentId || !sessionData.role) {
             localStorage.removeItem("custom_auth_user")
             document.cookie = "custom_auth_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
           } else {
             const authUser: AuthUser = {
               id: sessionData.id,
-              establishmentId: sessionData.establishment_id,
+              establishmentId: establishmentId,
               role: sessionData.role,
               username: sessionData.username,
-              firstName: sessionData.first_name,
-              lastName: sessionData.last_name,
+              firstName: sessionData.first_name || sessionData.firstName,
+              lastName: sessionData.last_name || sessionData.lastName,
               email: sessionData.email,
               authType: "custom",
             }
 
             if (options?.requireRole && authUser.role !== options.requireRole) {
-              console.log(`[v0] useAuth: User role ${authUser.role} doesn't match required ${options.requireRole}`)
               router.push(options.redirectTo || "/dashboard")
               setIsLoading(false)
               return
             }
 
-            console.log("[v0] useAuth: Custom auth user authenticated successfully:", authUser)
             setUser(authUser)
             setIsLoading(false)
             return
           }
         }
-      } catch (error) {
-        console.error("[v0] useAuth: Error checking custom session:", error)
+      } catch {
         localStorage.removeItem("custom_auth_user")
         document.cookie = "custom_auth_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
       }
 
       try {
         const adminSession = getAdminSession()
-        console.log("[v0] useAuth: Admin session:", adminSession ? "found" : "not found")
-
         if (adminSession) {
           const supabase = createClient()
           const { data: establishment } = await supabase
@@ -125,19 +114,17 @@ export function useAuth(options?: { requireRole?: string; redirectTo?: string })
           }
 
           if (options?.requireRole && authUser.role !== options.requireRole) {
-            console.log(`[v0] useAuth: User role ${authUser.role} doesn't match required ${options.requireRole}`)
             router.push(options.redirectTo || "/dashboard")
             setIsLoading(false)
             return
           }
 
-          console.log("[v0] useAuth: Admin user authenticated successfully:", authUser)
           setUser(authUser)
           setIsLoading(false)
           return
         }
-      } catch (error) {
-        console.error("[v0] useAuth: Error checking admin session:", error)
+      } catch {
+        // Admin session check failed
       }
 
       try {
@@ -146,12 +133,6 @@ export function useAuth(options?: { requireRole?: string; redirectTo?: string })
           data: { user: supabaseUser },
           error,
         } = await supabase.auth.getUser()
-
-        console.log(
-          "[v0] useAuth: Supabase user:",
-          supabaseUser ? "found" : "not found",
-          error ? `error: ${error.message}` : "",
-        )
 
         if (!error && supabaseUser) {
           const { data: profile } = await supabase.from("profiles").select("*").eq("id", supabaseUser.id).single()
@@ -169,23 +150,20 @@ export function useAuth(options?: { requireRole?: string; redirectTo?: string })
             }
 
             if (options?.requireRole && authUser.role !== options.requireRole) {
-              console.log(`[v0] useAuth: User role ${authUser.role} doesn't match required ${options.requireRole}`)
               router.push(options.redirectTo || "/dashboard")
               setIsLoading(false)
               return
             }
 
-            console.log("[v0] useAuth: Supabase user authenticated successfully:", authUser)
             setUser(authUser)
             setIsLoading(false)
             return
           }
         }
-      } catch (error) {
-        console.error("[v0] useAuth: Error checking Supabase auth:", error)
+      } catch {
+        // Supabase auth check failed
       }
 
-      console.log("[v0] useAuth: No valid authentication found, redirecting to login")
       setIsLoading(false)
       router.push(options?.redirectTo || "/auth/login")
     }
