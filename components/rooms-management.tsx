@@ -489,7 +489,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
         )}
 
         {canModifyRooms && (
-          <div className="mb-6 flex items-center gap-2">
+          <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800">
               <Checkbox
                 checked={selectedRoomIds.length === filteredRooms.length && filteredRooms.length > 0}
@@ -500,6 +500,13 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
                 Tout sélectionner
               </Label>
             </div>
+            <ViewToggle view={viewMode} onViewChange={setViewMode} />
+          </div>
+        )}
+
+        {!canModifyRooms && (
+          <div className="mb-6 flex justify-end">
+            <ViewToggle view={viewMode} onViewChange={setViewMode} />
           </div>
         )}
 
@@ -527,6 +534,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
         )}
 
         {filteredRooms.length > 0 ? (
+          viewMode === "grid" ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredRooms.map((room) => {
               const columns = Array.isArray(room.config?.columns) && room.config.columns ? room.config.columns : []
