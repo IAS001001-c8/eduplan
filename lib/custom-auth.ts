@@ -28,23 +28,11 @@ export async function authenticateUser(
   const supabase = createClient()
 
   try {
-    
-
     const { data: establishment, error: estError } = await supabase
       .from("establishments")
       .select("id, code, name")
       .eq("code", establishmentCode)
       .single()
-
-    
-    if (estError) {
-      
-        message: estError.message,
-        details: estError.details,
-        hint: estError.hint,
-        code: estError.code,
-      })
-    }
 
     if (estError || !establishment) {
       return { user: null, error: "Code établissement invalide" }
@@ -58,16 +46,6 @@ export async function authenticateUser(
       .eq("role", role)
       .single()
 
-    
-    if (profileError) {
-      
-        message: profileError.message,
-        details: profileError.details,
-        hint: profileError.hint,
-        code: profileError.code,
-      })
-    }
-
     if (profileError || !profile) {
       return { user: null, error: "Identifiant ou mot de passe incorrect" }
     }
@@ -76,16 +54,6 @@ export async function authenticateUser(
       password: password,
       password_hash: profile.password_hash,
     })
-
-    
-    if (verifyError) {
-      
-        message: verifyError.message,
-        details: verifyError.details,
-        hint: verifyError.hint,
-        code: verifyError.code,
-      })
-    }
 
     if (verifyError || !isValid) {
       return { user: null, error: "Identifiant ou mot de passe incorrect" }
@@ -106,7 +74,7 @@ export async function authenticateUser(
       error: null,
     }
   } catch (error) {
-    
+    console.error("Authentication error:", error)
     return { user: null, error: "Erreur de connexion - vérifiez votre configuration Supabase" }
   }
 }
@@ -114,8 +82,8 @@ export async function authenticateUser(
 export function setUserSession(user: AuthUser) {
   if (typeof window !== "undefined") {
     localStorage.setItem("custom_auth_user", JSON.stringify(user))
-    // Also set a cookie for server-side access
-    document.cookie = `custom_auth_user=${encodeURIComponent(JSON.stringify(user))}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`
+    // Also set a cookie for server-side access (30 days)
+    document.cookie = `custom_auth_user=${encodeURIComponent(JSON.stringify(user))}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Lax`
   }
 }
 
