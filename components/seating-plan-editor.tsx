@@ -150,6 +150,7 @@ export function SeatingPlanEditor({
   const [isLoadingRoom, setIsLoadingRoom] = useState(false)
   const [roomError, setRoomError] = useState<string | null>(null)
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null) // Added state for selected student
+  const [clickedStudentInfo, setClickedStudentInfo] = useState<{student: Student, seatNumber: number} | null>(null) // Info popup for clicked student
 
   // Memoized fetchData to prevent unnecessary re-renders and to satisfy dependency array
   const fetchData = useCallback(async () => {
