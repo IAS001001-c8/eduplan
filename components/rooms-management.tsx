@@ -545,67 +545,190 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
               const isSelected = selectedRoomIds.includes(room.id)
 
               return (
-                <div
+                <Card
                   key={room.id}
-                  className={`group hover:shadow-xl transition-all duration-300 ${
+                  className={`group hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden ${
                     isSelected
                       ? "ring-2 ring-emerald-500 shadow-lg shadow-emerald-200 dark:shadow-emerald-900"
                       : "hover:ring-1 hover:ring-emerald-300"
-                  } bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-emerald-200 dark:border-emerald-800`}
+                  } bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700`}
+                  onClick={() => handleViewRoom(room)}
                 >
-                  <div className="p-5">
+                  <div className="p-4">
+                    {/* Header with checkbox and menu */}
                     <div className="flex items-start justify-between mb-3">
-                      <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={() => handleToggleSelection(room.id)}
-                        className="data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
-                      />
-                      {canModifyRooms && (
+                      <div className="flex items-center gap-3">
+                        {canModifyRooms && (
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={(e) => {
+                              e && e.preventDefault?.()
+                              handleToggleSelection(room.id)
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
+                          />
+                        )}
                         <div>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                          <div>
-                            <Button onClick={() => handleViewRoom(room)}>
+                          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{room.name}</h3>
+                          <p className="text-sm text-muted-foreground">Code: {room.code}</p>
+                        </div>
+                      </div>
+                      {canModifyRooms && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenuItem onClick={() => handleViewRoom(room)}>
                               <Eye className="mr-2 h-4 w-4" />
                               Visualiser
-                            </Button>
-                            <Button onClick={() => openEditDialog(room)}>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openEditDialog(room)}>
                               <Edit className="mr-2 h-4 w-4" />
                               Modifier
-                            </Button>
-                            <Button onClick={() => handleDuplicateRooms([room.id])}>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDuplicateRooms([room.id])}>
                               <Copy className="mr-2 h-4 w-4" />
                               Dupliquer
-                            </Button>
-                            <Button onClick={() => openDeleteDialog([room.id])} className="text-red-600">
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => openDeleteDialog([room.id])} className="text-red-600">
                               <Trash className="mr-2 h-4 w-4" />
                               Supprimer
-                            </Button>
-                          </div>
-                        </div>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       )}
                     </div>
 
-                    <div>
-                      <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-1">{room.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-4">Code: {room.code}</p>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          {columns.length} colonne{columns.length > 1 ? "s" : ""}
-                        </span>
+                    {/* Seat Preview */}
+                    <div className="flex justify-center my-4">
+                      <RoomSeatPreview 
+                        columns={columns} 
+                        boardPosition={room.board_position}
+                        maxWidth={200}
+                        maxHeight={120}
+                      />
+                    </div>
+
+                    {/* Footer stats */}
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700">
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <LayoutGrid className="h-4 w-4" />
+                        <span>{columns.length} colonne{columns.length > 1 ? "s" : ""}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Users className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                         <span className="font-semibold text-emerald-600 dark:text-emerald-400">
                           {totalSeats} places
                         </span>
                       </div>
                     </div>
                   </div>
-                </div>
+                </Card>
               )
             })}
           </div>
+          ) : (
+          /* LIST VIEW */
+          <div className="space-y-2">
+            {filteredRooms.map((room) => {
+              const columns = Array.isArray(room.config?.columns) && room.config.columns ? room.config.columns : []
+              const totalSeats = columns.reduce(
+                (total, col) => total + (col?.tables || 0) * (col?.seatsPerTable || 0),
+                0,
+              )
+              const isSelected = selectedRoomIds.includes(room.id)
+
+              return (
+                <Card
+                  key={room.id}
+                  className={`group hover:shadow-md transition-all duration-200 cursor-pointer ${
+                    isSelected
+                      ? "ring-2 ring-emerald-500 bg-emerald-50 dark:bg-emerald-900/20"
+                      : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                  } bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700`}
+                  onClick={() => handleViewRoom(room)}
+                >
+                  <div className="p-4 flex items-center gap-4">
+                    {canModifyRooms && (
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => handleToggleSelection(room.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
+                      />
+                    )}
+                    
+                    {/* Mini preview */}
+                    <div className="flex-shrink-0">
+                      <RoomSeatPreview 
+                        columns={columns} 
+                        boardPosition={room.board_position}
+                        maxWidth={80}
+                        maxHeight={50}
+                      />
+                    </div>
+                    
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-slate-900 dark:text-white truncate">{room.name}</h3>
+                      <p className="text-sm text-muted-foreground">Code: {room.code}</p>
+                    </div>
+                    
+                    {/* Stats */}
+                    <div className="flex items-center gap-4 text-sm">
+                      <span className="text-muted-foreground hidden sm:block">
+                        {columns.length} col.
+                      </span>
+                      <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                        <Users className="h-4 w-4" />
+                        {totalSeats}
+                      </div>
+                    </div>
+                    
+                    {/* Actions */}
+                    {canModifyRooms && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                          <DropdownMenuItem onClick={() => handleViewRoom(room)}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            Visualiser
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => openEditDialog(room)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Modifier
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDuplicateRooms([room.id])}>
+                            <Copy className="mr-2 h-4 w-4" />
+                            Dupliquer
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => openDeleteDialog([room.id])} className="text-red-600">
+                            <Trash className="mr-2 h-4 w-4" />
+                            Supprimer
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                    
+                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                </Card>
+              )
+            })}
+          </div>
+          )
         ) : (
-          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-emerald-200 dark:border-emerald-800">
+          <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-emerald-200 dark:border-emerald-800">
             <div className="p-12 text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 mb-4">
                 <LayoutTemplate className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
