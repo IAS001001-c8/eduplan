@@ -714,7 +714,6 @@ export function SeatingPlanEditor({
 
     // If the seat is occupied by the selected student, remove them (effectively unselecting)
     if (currentStudentInSeat === selectedStudent.id) {
-      const newAssignments = new Map(assignments)
       newAssignments.delete(seatNumber)
       setAssignments(newAssignments)
       setSelectedStudent(null) // Unselect the student
@@ -724,14 +723,9 @@ export function SeatingPlanEditor({
       })
     } else {
       // Assign the selected student to the seat
-      const newAssignments = new Map(assignments)
       // If the seat is occupied by another student, remove that student first
       if (currentStudentInSeat) {
-        // Find the seat of the current student and remove them
-        const currentStudentSeat = Array.from(assignments.entries()).find(([_, id]) => id === currentStudentInSeat)?.[0]
-        if (currentStudentSeat !== undefined) {
-          newAssignments.delete(currentStudentSeat)
-        }
+        newAssignments.delete(seatNumber)
         // Also remove the student from the unassigned list if they were there
         const studentToRemoveFromList = students.find((s) => s.id === currentStudentInSeat)
         if (studentToRemoveFromList) {
