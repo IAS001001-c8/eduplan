@@ -6,51 +6,57 @@ Application de gestion de plans de classe pour établissements scolaires.
 ## Tech Stack
 - **Frontend**: Next.js 15, React 19, TailwindCSS, Radix UI
 - **Backend**: Supabase (PostgreSQL)
-- **Email**: Resend API (eduplan-lnc.com)
+- **Email**: Resend API (noreply@eduplan-lnc.com)
 - **Auth**: Custom auth avec profils Supabase
 
 ## Core Features Implemented
-- ✅ Authentification multi-rôles (Vie Scolaire, Professeur, Délégué)
+- ✅ Authentification multi-rôles
 - ✅ Dashboard avec 6 sections principales
-- ✅ Gestion des classes (4 classes)
-- ✅ Gestion des élèves (18 élèves) 
-- ✅ Gestion des professeurs (6 professeurs)
-- ✅ Gestion des salles avec aperçu visuel (4 salles)
-- ✅ Plans de classe avec aperçu visuel (10 sous-salles)
-- ✅ Bac à sable avec aperçu visuel (propositions)
-- ✅ Toggle vue Grille/Liste pour Salles, Plans, Bac à sable
+- ✅ Gestion des classes, élèves, professeurs
+- ✅ Gestion des salles avec aperçu visuel des sièges
+- ✅ Plans de classe avec éditeur drag & drop
+- ✅ Bac à sable (propositions)
+- ✅ Toggle vue Cartes/Tableau pour toutes les sections
+- ✅ Notifications (API prête)
 
-## Bugs Fixed (Jan 29, 2026)
-1. ✅ **Grid3x3 icon** - Remplacé par Grid
-2. ✅ **Columns3 icon** - Remplacé par Columns
-3. ✅ **Dialog imports manquants** - Ajoutés dans rooms-management.tsx
-4. ✅ **Resend domain** - Configuré avec `noreply@eduplan-lnc.com`
-5. ✅ **Élève placé 2 fois** - Validation ajoutée pour empêcher les doublons
-6. ✅ **Section Salles** - Rework complet avec aperçu des sièges
-7. ✅ **Vue Grille/Liste** - Ajoutée aux 3 sections (Salles, Plans, Sandbox)
+## Corrections Phase 1 (Jan 29, 2026)
+1. ✅ Grid3x3 → Grid (icône lucide)
+2. ✅ Columns3 → Columns
+3. ✅ Dialog imports dans rooms-management
+4. ✅ Resend configuré avec eduplan-lnc.com
+5. ✅ Clé API Resend mise à jour
 
-## Configuration Resend
+## Corrections Phase 2 (En cours)
+1. ✅ Bug élève placé 2 fois - Corrigé (déplacement auto)
+2. ✅ Échange de places élèves - Corrigé (swap automatique)
+3. ✅ Popup info élève au clic - Ajouté avec bouton retirer
+4. ✅ Section Salles redessinée - Aperçu sièges + toggle vue
+5. ✅ Toggle Cartes/Tableau - Ajouté pour Salles, Plans, Sandbox
+6. ✅ Notifications Realtime - Déjà configuré sur Supabase
+
+## À Faire (Phase 3)
+- [ ] Vue tableau compacte sans preview (lignes serrées)
+- [ ] Animation templates hover (supprimer superposition)
+- [ ] Restrictions délégués (ne peuvent pas créer de sous-salles)
+- [ ] Profs ne créent que pour eux-mêmes
+- [ ] Système salles collaboratives avec invitations
+- [ ] Export PDF
+- [ ] Drag & Drop mobile
+- [ ] Historique modifications
+- [ ] Import Excel
+- [ ] Statistiques vie scolaire
+- [ ] Recherche globale
+
+## Database
+- Supabase URL: https://bdvdrzohbieqeisxwmwh.supabase.co
+- Realtime: Activé pour notifications
+
+## API Keys
+- Resend: re_gACbhKUg_FXfWchA2ZYG2mVu6TUx57ZYJ
 - Domaine: eduplan-lnc.com
-- Email: noreply@eduplan-lnc.com
-- Clé API: re_gACbhKUg_FXfWchA2ZYG2mVu6TUx57ZYJ
-
-## Script Supabase Realtime
-Exécuter `/app/scripts/supabase_realtime_setup.sql` dans Supabase SQL Editor pour activer les notifications en temps réel.
 
 ## Test Credentials
-- **ST-MARIE**: stm001 / vs.stmarie / VieScol2024! (vie-scolaire)
-- **VICTOR-HUGO**: vh001 / vs.vhugo / VieScol2024! (vie-scolaire)
+- **ST-MARIE**: stm001 / vs.stmarie / VieScol2024!
 
-## Prochaines fonctionnalités à implémenter
-- [ ] Export PDF des plans de classe
-- [ ] Drag & Drop amélioré (mobile)
-- [ ] Historique des modifications
-- [ ] Import Excel (prénom, nom, email, téléphone)
-- [ ] Statistiques dashboard (vie scolaire)
-- [ ] Recherche globale élèves
-
-## Remaining Issues (Low Priority)
-- React 19 ref warnings dans Radix UI (cosmétique)
-
-## Date
-- Last updated: January 29, 2026
+## Scripts SQL disponibles
+- `/app/scripts/supabase_realtime_setup.sql` - Configuration Realtime (déjà fait)
