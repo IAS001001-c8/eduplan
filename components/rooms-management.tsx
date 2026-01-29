@@ -448,7 +448,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
                     variant="outline"
                     className="flex-1 h-16 border-2 border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                   >
-                    <Grid3x3 className="mr-2 h-5 w-5" />
+                    <Grid className="mr-2 h-5 w-5" />
                     Templates
                   </Button>
                 )}
@@ -466,7 +466,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
                     onClick={() => setShowTemplates(true)}
                     className="flex-1 h-16 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg"
                   >
-                    <Grid3x3 className="mr-2 h-5 w-5" />
+                    <Grid className="mr-2 h-5 w-5" />
                     Voir les templates
                   </Button>
                 )}
