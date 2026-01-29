@@ -720,15 +720,6 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
               </tbody>
             </table>
           </div>
-                    )}
-                    
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                </Card>
-              )
-            })}
-          </div>
-          )
         ) : (
           <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-emerald-200 dark:border-emerald-800">
             <div className="p-12 text-center">
