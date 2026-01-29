@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowLeft, Plus, Clock, CheckCircle2, XCircle, Eye, Edit, FileText, Trash2 } from "lucide-react"
+import { ArrowLeft, Plus, Clock, CheckCircle2, XCircle, Eye, Edit, FileText, Trash2, ChevronRight, Users, BookOpen } from "lucide-react"
 import { createBrowserClient } from "@supabase/ssr"
 import { toast } from "@/components/ui/use-toast"
 import { CreateProposalDialog } from "@/components/create-proposal-dialog"
 import { ReviewProposalDialog } from "@/components/review-proposal-dialog"
 import { SeatingPlanEditor } from "@/components/seating-plan-editor"
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
+import { ViewToggle } from "@/components/view-toggle"
+import { RoomSeatPreview } from "@/components/room-seat-preview"
 
 interface SandboxManagementProps {
   establishmentId: string
