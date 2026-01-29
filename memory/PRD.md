@@ -1,53 +1,60 @@
-# EduPlan - Plan de Classe Application
+# EduPlan - Application de gestion de plans de classe
 
-## Project Overview
-Application de gestion de plans de classe pour établissements scolaires.
+## Vue d'ensemble
+Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 
-## Tech Stack
-- **Frontend**: Next.js 15, React 19, TailwindCSS, Radix UI
-- **Backend**: Supabase (PostgreSQL)
-- **Email**: Resend API (noreply@eduplan-lnc.com)
+## Stack technique
+- **Frontend**: Next.js 15, React 19, TailwindCSS, Radix UI, Shadcn
+- **Backend**: Supabase (PostgreSQL + Realtime)
+- **Email**: Resend (noreply@eduplan-lnc.com)
 - **Auth**: Custom auth avec profils Supabase
 
-## Features Implemented ✅
-- Authentification multi-rôles (Vie Scolaire, Professeur, Délégué)
-- Dashboard avec 6 sections principales
-- Gestion des classes, élèves, professeurs
-- Gestion des salles avec aperçu visuel des sièges
-- Plans de classe avec éditeur drag & drop
-- Bac à sable (propositions)
-- Toggle vue Cartes/Tableau pour toutes les sections
-- Système de notifications (Realtime activé)
+## Fonctionnalités implémentées
 
-## Corrections effectuées (Jan 29, 2026)
-1. ✅ Grid3x3 → Grid (icône lucide)
-2. ✅ Columns3 → Columns
-3. ✅ Dialog imports dans rooms-management
-4. ✅ Resend configuré avec eduplan-lnc.com (clé: re_gACbhKUg...)
-5. ✅ Bug élève placé 2 fois - Corrigé
-6. ✅ Échange de places élèves - Swap automatique
-7. ✅ Popup info élève au clic + bouton retirer
-8. ✅ Section Salles redessinée - Aperçu sièges
-9. ✅ Vue Cartes/Tableau compacte pour Salles, Plans, Sandbox
-10. ✅ Toasts limités à 3 maximum
-11. ✅ Restrictions délégués (ne peuvent pas créer sous-salles)
-12. ✅ Profs créent uniquement pour eux + salles collaboratives (max 3 profs)
+### Core
+- ✅ Authentification multi-rôles (Vie Scolaire, Professeur, Délégué, Éco-délégué)
+- ✅ Dashboard avec 6 sections principales
+- ✅ Gestion des classes, élèves, professeurs
+- ✅ Gestion des salles avec aperçu visuel des sièges
+- ✅ Plans de classe avec éditeur drag & drop
+- ✅ Bac à sable (propositions de plans)
 
-## Fonctionnalités Prévues (Phase 3)
-- [ ] Export PDF des plans
-- [ ] Drag & Drop mobile amélioré
+### Corrections Jan 29-30, 2026
+- ✅ Grid3x3/Columns3 → Grid/Columns (icônes lucide)
+- ✅ Bug élève placé 2 fois → Déplacement automatique
+- ✅ Échange de places → Swap automatique quand on dépose sur place occupée
+- ✅ Popup info élève au clic → Affiche nom/prénom + bouton "Retirer"
+- ✅ Toggle Cartes/Tableau pour Salles, Plans de classe, Bac à sable
+- ✅ Vue Tableau compacte sans aperçu (lignes serrées avec actions)
+- ✅ Limite toasts à 3 maximum
+- ✅ Resend configuré avec eduplan-lnc.com
+- ✅ Restrictions délégués → Ne peuvent pas créer de sous-salles
+- ✅ Profs créent uniquement pour eux-mêmes + salles collaboratives (3 profs max)
+
+### Processus de révision
+- ✅ Professeurs peuvent : Valider / Refuser / Renvoyer avec commentaire
+
+## À faire (fonctionnalités avancées)
+- [ ] Export PDF des plans de classe
+- [ ] Drag & Drop mobile optimisé
 - [ ] Historique des modifications
 - [ ] Import Excel (prénom, nom, email, téléphone)
-- [ ] Statistiques dashboard (vie scolaire)
+- [ ] Statistiques vie scolaire
 - [ ] Recherche globale
+- [ ] Système invitations salles collaboratives avec notifications
 
-## Database
+## Base de données
 - URL: https://bdvdrzohbieqeisxwmwh.supabase.co
 - Realtime: Activé pour notifications
 
-## Test Credentials
-- **ST-MARIE**: stm001 / vs.stmarie / VieScol2024!
-
-## API Keys
+## Clés API
 - Resend: re_gACbhKUg_FXfWchA2ZYG2mVu6TUx57ZYJ
 - Domaine: eduplan-lnc.com
+
+## Identifiants de test
+- **ST-MARIE**: stm001 / vs.stmarie / VieScol2024! (vie-scolaire)
+- **VICTOR-HUGO**: vh001 / vs.vhugo / VieScol2024! (vie-scolaire)
+
+## Notes techniques
+- Les warnings React 19 ref viennent de Radix UI (cosmétique)
+- L'erreur 520 Resend est temporaire (Cloudflare) - l'API fonctionne
