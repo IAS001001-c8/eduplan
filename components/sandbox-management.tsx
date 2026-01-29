@@ -442,58 +442,78 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
           })}
         </div>
         ) : (
-        /* LIST VIEW */
-        <div className="space-y-2">
-          {proposals.map((proposal) => {
-            const room = rooms.find(r => r.id === proposal.room_id)
-            const columns = room?.config?.columns || []
-            
-            return (
-            <Card 
-              key={proposal.id} 
-              className="hover:shadow-md transition-all cursor-pointer"
-              onClick={() => handleReviewProposal(proposal)}
-            >
-              <div className="p-4 flex items-center gap-4">
-                {isDelegateOrEco && !proposal.is_submitted && (
-                  <Checkbox
-                    checked={selectedProposalIds.includes(proposal.id)}
-                    onCheckedChange={() => handleToggleSelection(proposal.id)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                )}
-                
-                {/* Mini preview */}
-                <div className="flex-shrink-0">
-                  <RoomSeatPreview 
-                    columns={columns}
-                    boardPosition={room?.board_position}
-                    maxWidth={60}
-                    maxHeight={40}
-                  />
-                </div>
-                
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-slate-900 dark:text-white truncate">{proposal.name}</h3>
-                    {getStatusBadge(proposal)}
-                  </div>
-                  <p className="text-sm text-muted-foreground truncate">
-                    {proposal.rooms?.name} • {proposal.classes?.name} • {proposal.teachers?.first_name} {proposal.teachers?.last_name}
-                  </p>
-                </div>
-                
-                {/* Date */}
-                <span className="text-xs text-muted-foreground hidden sm:block">
-                  {new Date(proposal.created_at).toLocaleDateString("fr-FR")}
-                </span>
-                
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </div>
-            </Card>
-            )
-          })}
+        /* TABLE VIEW - Compact */
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+              <tr>
+                {isDelegateOrEco && <th className="w-10 px-3 py-2"></th>}
+                <th className="px-3 py-2 text-left font-medium text-slate-600 dark:text-slate-300">Nom</th>
+                <th className="px-3 py-2 text-left font-medium text-slate-600 dark:text-slate-300 hidden sm:table-cell">Salle / Classe</th>
+                <th className="px-3 py-2 text-left font-medium text-slate-600 dark:text-slate-300 hidden md:table-cell">Professeur</th>
+                <th className="px-3 py-2 text-center font-medium text-slate-600 dark:text-slate-300">Statut</th>
+                <th className="px-3 py-2 text-center font-medium text-slate-600 dark:text-slate-300 hidden sm:table-cell">Date</th>
+                <th className="px-3 py-2 text-right font-medium text-slate-600 dark:text-slate-300">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+              {proposals.map((proposal) => (
+                <tr 
+                  key={proposal.id} 
+                  className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors ${
+                    selectedProposalIds.includes(proposal.id) ? "bg-amber-50 dark:bg-amber-900/20" : ""
+                  }`}
+                  onClick={() => handleReviewProposal(proposal)}
+                >
+                  {isDelegateOrEco && (
+                    <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
+                      {!proposal.is_submitted && (
+                        <Checkbox
+                          checked={selectedProposalIds.includes(proposal.id)}
+                          onCheckedChange={() => handleToggleSelection(proposal.id)}
+                        />
+                      )}
+                    </td>
+                  )}
+                  <td className="px-3 py-2 font-medium text-slate-900 dark:text-white">{proposal.name}</td>
+                  <td className="px-3 py-2 text-muted-foreground hidden sm:table-cell">
+                    {proposal.rooms?.name} / {proposal.classes?.name}
+                  </td>
+                  <td className="px-3 py-2 text-muted-foreground hidden md:table-cell">
+                    {proposal.teachers?.first_name} {proposal.teachers?.last_name}
+                  </td>
+                  <td className="px-3 py-2 text-center">{getStatusBadge(proposal)}</td>
+                  <td className="px-3 py-2 text-center text-muted-foreground text-xs hidden sm:table-cell">
+                    {new Date(proposal.created_at).toLocaleDateString("fr-FR")}
+                  </td>
+                  <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex justify-end gap-1">
+                      {isDelegateOrEco && !proposal.is_submitted && (
+                        <>
+                          <Button variant="ghost" size="sm" onClick={() => handleEditProposal(proposal)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => openDeleteDialog([proposal.id])} className="text-red-600">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                      {proposal.status === "pending" && isTeacher && (
+                        <Button variant="default" size="sm" onClick={() => handleReviewProposal(proposal)}>
+                          Réviser
+                        </Button>
+                      )}
+                      {(proposal.status === "approved" || proposal.status === "pending") && (
+                        <Button variant="ghost" size="sm" onClick={() => handleReviewProposal(proposal)}>
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
         )}
         </>
