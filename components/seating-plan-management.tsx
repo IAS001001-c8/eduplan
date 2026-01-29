@@ -489,59 +489,126 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
           </div>
         </div>
 
+        {/* View Toggle */}
+        <div className="flex justify-end mb-4">
+          <ViewToggle view={viewMode} onViewChange={setViewMode} />
+        </div>
+
+        {viewMode === "grid" ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredSubRooms.map((subRoom) => (
-            <Card key={subRoom.id} className="overflow-hidden hover:shadow-lg transition-shadow relative">
-              <CardHeader className="pb-3">
+          {filteredSubRooms.map((subRoom) => {
+            const room = rooms.find(r => r.id === subRoom.room_id)
+            const columns = room?.config?.columns || []
+            
+            return (
+            <Card 
+              key={subRoom.id} 
+              className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
+              onClick={() => {
+                setSelectedSubRoom(subRoom)
+                setIsEditorOpen(true)
+              }}
+            >
+              <CardHeader className="pb-2">
                 <div className="flex items-start gap-3">
                   <input
                     type="checkbox"
                     checked={selectedSubRoomIds.includes(subRoom.id)}
                     onChange={() => toggleSubRoomSelection(subRoom.id)}
+                    onClick={(e) => e.stopPropagation()}
                     className="w-5 h-5 mt-1 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer shrink-0"
                   />
                   <div className="flex-1">
                     <CardTitle className="text-lg">{subRoom.name}</CardTitle>
-                    <CardDescription className="mt-1 text-sm">{subRoom.description}</CardDescription>
+                    <CardDescription className="text-sm">
+                      {subRoom.teachers.first_name} {subRoom.teachers.last_name}
+                    </CardDescription>
                   </div>
                 </div>
               </CardHeader>
 
-              <CardContent className="p-6">
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between">
-                    <h3 className="font-bold text-lg text-slate-900 dark:text-white">{subRoom.name}</h3>
+              <CardContent className="pt-2 pb-4">
+                {/* Seat Preview */}
+                <div className="flex justify-center mb-4">
+                  <RoomSeatPreview 
+                    columns={columns}
+                    boardPosition={room?.board_position}
+                    maxWidth={180}
+                    maxHeight={100}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <BookOpen className="h-4 w-4" />
+                    <span>{subRoom.rooms.name}</span>
                   </div>
-                  <div className="space-y-2 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <BookOpen className="h-4 w-4" />
-                      <span>
-                        {subRoom.rooms.name} ({subRoom.rooms.code})
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      <span>
-                        {subRoom.teachers.first_name} {subRoom.teachers.last_name}
-                      </span>
-                    </div>
+                  <div className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
+                    <Users className="h-4 w-4" />
+                    <span>{subRoom.class_ids?.length || 1} classe(s)</span>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full mt-4 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 dark:border-indigo-800 dark:hover:bg-indigo-900/20 bg-transparent"
-                    onClick={() => {
-                      setSelectedSubRoom(subRoom)
-                      setIsEditorOpen(true)
-                    }}
-                  >
-                    Ouvrir le plan
-                  </Button>
                 </div>
               </CardContent>
             </Card>
-          ))}
+            )
+          })}
         </div>
+        ) : (
+        /* LIST VIEW */
+        <div className="space-y-2">
+          {filteredSubRooms.map((subRoom) => {
+            const room = rooms.find(r => r.id === subRoom.room_id)
+            const columns = room?.config?.columns || []
+            
+            return (
+            <Card 
+              key={subRoom.id} 
+              className="hover:shadow-md transition-all cursor-pointer group"
+              onClick={() => {
+                setSelectedSubRoom(subRoom)
+                setIsEditorOpen(true)
+              }}
+            >
+              <div className="p-4 flex items-center gap-4">
+                <input
+                  type="checkbox"
+                  checked={selectedSubRoomIds.includes(subRoom.id)}
+                  onChange={() => toggleSubRoomSelection(subRoom.id)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                />
+                
+                {/* Mini preview */}
+                <div className="flex-shrink-0">
+                  <RoomSeatPreview 
+                    columns={columns}
+                    boardPosition={room?.board_position}
+                    maxWidth={70}
+                    maxHeight={45}
+                  />
+                </div>
+                
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-slate-900 dark:text-white truncate">{subRoom.name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {subRoom.teachers.first_name} {subRoom.teachers.last_name} • {subRoom.rooms.name}
+                  </p>
+                </div>
+                
+                {/* Stats */}
+                <div className="flex items-center gap-1 text-sm text-indigo-600 dark:text-indigo-400">
+                  <Users className="h-4 w-4" />
+                  <span>{subRoom.class_ids?.length || 1}</span>
+                </div>
+                
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </div>
+            </Card>
+            )
+          })}
+        </div>
+        )}
 
         {filteredSubRooms.length === 0 && (
           <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-indigo-200 dark:border-indigo-800">
