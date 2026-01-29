@@ -24,45 +24,45 @@ export default function LoginPage() {
     setIsLoading(true)
     setError(null)
 
-    console.log("[v0] Login form submitted")
+    
 
     if (!establishmentCode || !role || !username || !password) {
-      console.log("[v0] Missing required fields")
+      
       setError("Tous les champs sont requis")
       setIsLoading(false)
       return
     }
 
     try {
-      console.log("[v0] Calling authenticateUser...")
+      
       const { user, error: authError } = await authenticateUser(establishmentCode, role, username, password)
 
-      console.log("[v0] Authentication result:", { user, authError })
+      
 
       if (authError || !user) {
-        console.log("[v0] Authentication failed:", authError)
+        
         throw new Error(authError || "Identifiant ou mot de passe incorrect")
       }
 
-      console.log("[v0] Authentication successful! User:", user)
-      console.log("[v0] Calling setUserSession...")
+      
+      
 
       // Store user session
       setUserSession(user)
 
-      console.log("[v0] Session stored, checking localStorage...")
+      
       const storedSession = localStorage.getItem("custom_auth_user")
-      console.log("[v0] Stored session:", storedSession)
+      
 
-      console.log("[v0] Redirecting to dashboard...")
+      
       // Redirect to dashboard
       router.push("/dashboard")
-      console.log("[v0] router.push called")
+      
     } catch (error: unknown) {
-      console.log("[v0] Error caught in handleLogin:", error)
+      
       setError(error instanceof Error ? error.message : "Identifiant ou mot de passe incorrect")
     } finally {
-      console.log("[v0] Setting isLoading to false")
+      
       setIsLoading(false)
     }
   }
