@@ -6,7 +6,7 @@ Application de gestion de plans de classe pour établissements scolaires.
 ## Tech Stack
 - **Frontend**: Next.js 15, React 19, TailwindCSS, Radix UI
 - **Backend**: Supabase (PostgreSQL)
-- **Email**: Resend API
+- **Email**: Resend API (eduplan-lnc.com)
 - **Auth**: Custom auth avec profils Supabase
 
 ## Core Features Implemented
@@ -15,36 +15,42 @@ Application de gestion de plans de classe pour établissements scolaires.
 - ✅ Gestion des classes (4 classes)
 - ✅ Gestion des élèves (18 élèves) 
 - ✅ Gestion des professeurs (6 professeurs)
-- ✅ Gestion des salles (4 salles)
-- ✅ Plans de classe (10 sous-salles)
-- ✅ Bac à sable (propositions de plans)
+- ✅ Gestion des salles avec aperçu visuel (4 salles)
+- ✅ Plans de classe avec aperçu visuel (10 sous-salles)
+- ✅ Bac à sable avec aperçu visuel (propositions)
+- ✅ Toggle vue Grille/Liste pour Salles, Plans, Bac à sable
 
 ## Bugs Fixed (Jan 29, 2026)
-1. ✅ **Grid3x3 icon** - Remplacé par Grid (lucide-react version incompatible)
+1. ✅ **Grid3x3 icon** - Remplacé par Grid
 2. ✅ **Columns3 icon** - Remplacé par Columns
 3. ✅ **Dialog imports manquants** - Ajoutés dans rooms-management.tsx
-4. ✅ **Resend domain** - Changé de `noreply@nerium-lnc.com` à `onboarding@resend.dev`
-5. ✅ **use-auth.ts** - Nettoyé les console.log, support des deux formats de session
-6. ✅ **seating-plan-management.tsx** - Corrigé room={undefined} → room correct
+4. ✅ **Resend domain** - Configuré avec `noreply@eduplan-lnc.com`
+5. ✅ **Élève placé 2 fois** - Validation ajoutée pour empêcher les doublons
+6. ✅ **Section Salles** - Rework complet avec aperçu des sièges
+7. ✅ **Vue Grille/Liste** - Ajoutée aux 3 sections (Salles, Plans, Sandbox)
 
-## Remaining Issues (Low Priority)
-- React 19 ref warnings dans Radix UI (cosmétique)
-- Session timeout pourrait être optimisé côté serveur
+## Configuration Resend
+- Domaine: eduplan-lnc.com
+- Email: noreply@eduplan-lnc.com
+- Clé API: re_gACbhKUg_FXfWchA2ZYG2mVu6TUx57ZYJ
 
-## Database
-- Supabase URL: https://bdvdrzohbieqeisxwmwh.supabase.co
-- Tables: establishments, profiles, classes, students, teachers, rooms, sub_rooms, seating_assignments
+## Script Supabase Realtime
+Exécuter `/app/scripts/supabase_realtime_setup.sql` dans Supabase SQL Editor pour activer les notifications en temps réel.
 
 ## Test Credentials
 - **ST-MARIE**: stm001 / vs.stmarie / VieScol2024! (vie-scolaire)
 - **VICTOR-HUGO**: vh001 / vs.vhugo / VieScol2024! (vie-scolaire)
 
-## API Keys
-- Resend: Configuré avec domaine de test (`onboarding@resend.dev`)
-- Note: Pour envoyer à d'autres emails, vérifier un domaine sur resend.com/domains
+## Prochaines fonctionnalités à implémenter
+- [ ] Export PDF des plans de classe
+- [ ] Drag & Drop amélioré (mobile)
+- [ ] Historique des modifications
+- [ ] Import Excel (prénom, nom, email, téléphone)
+- [ ] Statistiques dashboard (vie scolaire)
+- [ ] Recherche globale élèves
 
-## Future Improvements
-- Export PDF des plans de classe
-- Notifications temps réel avec Supabase Realtime
-- Mode hors ligne PWA
-- Import Excel natif
+## Remaining Issues (Low Priority)
+- React 19 ref warnings dans Radix UI (cosmétique)
+
+## Date
+- Last updated: January 29, 2026
