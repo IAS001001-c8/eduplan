@@ -19,25 +19,32 @@ Application de gestion de plans de classe pour établissements scolaires.
 - ✅ Plans de classe (10 sous-salles)
 - ✅ Bac à sable (propositions de plans)
 
-## Bugs Fixed During Reproduction
-1. **Grid3x3 icon** - Remplacé par Grid (lucide-react version incompatible)
-2. **Columns3 icon** - Remplacé par Columns
-3. **Dialog imports manquants** - Ajoutés dans rooms-management.tsx:
-   - DeleteConfirmationDialog
-   - TemplateSelectionDialog
-   - CreateSubRoomDialog
+## Bugs Fixed (Jan 29, 2026)
+1. ✅ **Grid3x3 icon** - Remplacé par Grid (lucide-react version incompatible)
+2. ✅ **Columns3 icon** - Remplacé par Columns
+3. ✅ **Dialog imports manquants** - Ajoutés dans rooms-management.tsx
+4. ✅ **Resend domain** - Changé de `noreply@nerium-lnc.com` à `onboarding@resend.dev`
+5. ✅ **use-auth.ts** - Nettoyé les console.log, support des deux formats de session
+6. ✅ **seating-plan-management.tsx** - Corrigé room={undefined} → room correct
+
+## Remaining Issues (Low Priority)
+- React 19 ref warnings dans Radix UI (cosmétique)
+- Session timeout pourrait être optimisé côté serveur
 
 ## Database
 - Supabase URL: https://bdvdrzohbieqeisxwmwh.supabase.co
-- Tables principales: establishments, profiles, classes, students, teachers, rooms, sub_rooms, seating_assignments
+- Tables: establishments, profiles, classes, students, teachers, rooms, sub_rooms, seating_assignments
 
 ## Test Credentials
 - **ST-MARIE**: stm001 / vs.stmarie / VieScol2024! (vie-scolaire)
 - **VICTOR-HUGO**: vh001 / vs.vhugo / VieScol2024! (vie-scolaire)
 
-## Remaining Issues (Low Priority)
-- React 19 ref warnings (cosmetic)
-- Session timeout court (UX improvement)
+## API Keys
+- Resend: Configuré avec domaine de test (`onboarding@resend.dev`)
+- Note: Pour envoyer à d'autres emails, vérifier un domaine sur resend.com/domains
 
-## Date
-- Reproduced: January 29, 2026
+## Future Improvements
+- Export PDF des plans de classe
+- Notifications temps réel avec Supabase Realtime
+- Mode hors ligne PWA
+- Import Excel natif
