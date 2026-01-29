@@ -48,11 +48,9 @@ export function ReviewProposalDialog({
     setAction("approve")
 
     try {
-      console.log("[v0] Approving proposal:", proposal)
 
       if (proposal.sub_room_id) {
         // Update existing sub-room
-        console.log("[v0] Updating existing sub-room:", proposal.sub_room_id)
 
         // Delete old assignments
         const { error: deleteError } = await supabase
@@ -61,7 +59,6 @@ export function ReviewProposalDialog({
           .eq("sub_room_id", proposal.sub_room_id)
 
         if (deleteError) {
-          console.error("[v0] Error deleting old assignments:", deleteError)
           throw deleteError
         }
 
@@ -77,15 +74,12 @@ export function ReviewProposalDialog({
           const { error: assignmentsError } = await supabase.from("seating_assignments").insert(assignments)
 
           if (assignmentsError) {
-            console.error("[v0] Error saving assignments:", assignmentsError)
             throw assignmentsError
           }
 
-          console.log("[v0] Updated", assignments.length, "seat assignments")
         }
       } else {
         // Create new sub-room
-        console.log("[v0] Creating new sub-room for proposal:", proposal.name)
 
         const { data: subRoomData, error: subRoomError } = await supabase
           .from("sub_rooms")
@@ -100,11 +94,9 @@ export function ReviewProposalDialog({
           .single()
 
         if (subRoomError) {
-          console.error("[v0] Error creating sub-room:", subRoomError)
           throw subRoomError
         }
 
-        console.log("[v0] Created sub-room:", subRoomData.id)
 
         // Copy seating assignments if they exist
         if (proposal.seat_assignments && proposal.seat_assignments.length > 0) {
@@ -118,9 +110,7 @@ export function ReviewProposalDialog({
           const { error: assignmentsError } = await supabase.from("seating_assignments").insert(assignments)
 
           if (assignmentsError) {
-            console.error("[v0] Error saving assignments:", assignmentsError)
           } else {
-            console.log("[v0] Saved", assignments.length, "seat assignments")
           }
         }
 
@@ -136,11 +126,9 @@ export function ReviewProposalDialog({
           .eq("id", proposal.id)
 
         if (updateProposalError) {
-          console.error("[v0] Error updating proposal:", updateProposalError)
           throw updateProposalError
         }
 
-        console.log("[v0] Updated proposal status to approved")
       }
 
       // Update proposal status if not already done
@@ -178,7 +166,6 @@ export function ReviewProposalDialog({
       onSuccess()
       onOpenChange(false)
     } catch (error: any) {
-      console.error("[v0] Error approving proposal:", error)
       toast({
         title: "Erreur",
         description: error.message || "Impossible de valider la proposition",
@@ -238,7 +225,6 @@ export function ReviewProposalDialog({
       onSuccess()
       onOpenChange(false)
     } catch (error: any) {
-      console.error("[v0] Error rejecting proposal:", error)
       toast({
         title: "Erreur",
         description: error.message || "Impossible de refuser la proposition",
@@ -299,7 +285,6 @@ export function ReviewProposalDialog({
       onOpenChange(false)
       setReturnComments("")
     } catch (error: any) {
-      console.error("[v0] Error returning proposal:", error)
       toast({
         title: "Erreur",
         description: error.message || "Impossible de renvoyer la proposition",

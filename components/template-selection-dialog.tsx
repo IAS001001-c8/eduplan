@@ -31,7 +31,6 @@ export function TemplateSelectionDialog({
   userId,
   establishmentId,
 }: TemplateSelectionDialogProps) {
-  console.log("[v0] TemplateSelectionDialog rendering with props:", { open, userId, establishmentId })
 
   const [customTemplates, setCustomTemplates] = useState<RoomTemplate[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -151,7 +150,6 @@ export function TemplateSelectionDialog({
   const predefinedTemplates = ROOM_TEMPLATES.filter((t) => !t.isPinned)
   const unpinnedCustomTemplates = customTemplates.filter((t) => !t.isPinned)
 
-  console.log("[v0] TemplateSelectionDialog about to return JSX")
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

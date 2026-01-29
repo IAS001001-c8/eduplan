@@ -72,7 +72,6 @@ export function ClassesManagement({ establishmentId, onBack }: ClassesManagement
       .order("name", { ascending: true })
 
     if (error) {
-      console.error("[v0] Error fetching classes:", error)
       toast({
         title: "Erreur",
         description: "Impossible de charger les classes",
@@ -91,7 +90,6 @@ export function ClassesManagement({ establishmentId, onBack }: ClassesManagement
       .order("name")
 
     if (error) {
-      console.error("[v0] Error fetching levels:", error)
     } else {
       setLevels(data || [])
     }
@@ -129,7 +127,6 @@ export function ClassesManagement({ establishmentId, onBack }: ClassesManagement
       .single()
 
     if (error) {
-      console.error("[v0] Error adding class:", error)
       toast({
         title: "Erreur",
         description: "Impossible d'ajouter la classe",
@@ -159,7 +156,6 @@ export function ClassesManagement({ establishmentId, onBack }: ClassesManagement
       .eq("id", selectedClass.id)
 
     if (error) {
-      console.error("[v0] Error updating class:", error)
       toast({
         title: "Erreur",
         description: "Impossible de modifier la classe",
@@ -186,7 +182,6 @@ export function ClassesManagement({ establishmentId, onBack }: ClassesManagement
     const { error } = await supabase.from("classes").delete().eq("id", classItem.id)
 
     if (error) {
-      console.error("[v0] Error deleting class:", error)
       toast({
         title: "Erreur",
         description: "Impossible de supprimer la classe",

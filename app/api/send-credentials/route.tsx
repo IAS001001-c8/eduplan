@@ -4,21 +4,17 @@ import { Resend } from "resend"
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(request: NextRequest) {
-  console.log("[v0] Email API route called")
 
   try {
     const body = await request.json()
-    console.log("[v0] Request body:", body)
 
     const { recipientEmail, recipientName, username, password, userType } = body
 
     // Validation
     if (!recipientEmail || !recipientName || !username || !password) {
-      console.error("[v0] Missing required fields:", { recipientEmail, recipientName, username, password })
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    console.log("[v0] Sending email to:", recipientEmail)
 
     // Send email using Resend
     // Note: Pour envoyer à d'autres destinataires, vérifiez un domaine sur resend.com/domains
@@ -87,14 +83,11 @@ export async function POST(request: NextRequest) {
     })
 
     if (error) {
-      console.error("[v0] Resend error:", error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    console.log("[v0] Email sent successfully:", data)
     return NextResponse.json({ success: true, data })
   } catch (error) {
-    console.error("[v0] Error in email API route:", error)
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
   }
 }

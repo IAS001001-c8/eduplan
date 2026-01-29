@@ -8,7 +8,6 @@ export async function updateSession(request: NextRequest) {
 
   // If credentials are missing, allow request to pass through
   if (!supabaseUrl || !supabaseKey) {
-    console.log("[v0] Middleware: Supabase credentials missing, allowing request")
     return NextResponse.next()
   }
 

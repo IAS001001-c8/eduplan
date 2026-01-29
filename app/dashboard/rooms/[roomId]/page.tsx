@@ -37,7 +37,6 @@ export default function RoomDetailPage({ params }: { params: { roomId: string } 
         setRoom(data.room)
         setRoomAssignments(data.assignments)
       } catch (err) {
-        console.error("[v0] Error fetching room:", err)
         setError("Erreur lors du chargement de la salle")
       } finally {
         setLoading(false)

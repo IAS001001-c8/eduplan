@@ -64,7 +64,6 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
   async function fetchProposals() {
     setIsLoading(true)
     try {
-      console.log("[v0] Fetching proposals for user:", userId, "role:", userRole)
 
       let query = supabase
         .from("sub_room_proposals")
@@ -104,10 +103,8 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
 
       if (error) throw error
 
-      console.log("[v0] Proposals loaded:", data?.length || 0)
       setProposals((data as Proposal[]) || [])
     } catch (error) {
-      console.error("[v0] Error loading proposals:", error)
       toast({
         title: "Erreur",
         description: "Impossible de charger les propositions",
@@ -184,7 +181,6 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
       setProposalsToDelete([])
       fetchProposals()
     } catch (error) {
-      console.error("[v0] Error deleting proposals:", error)
       toast({
         title: "Erreur",
         description: "Impossible de supprimer les brouillons",
@@ -505,7 +501,6 @@ function SandboxEditor({ proposal, userRole, userId, onClose }: SandboxEditorPro
 
       setSubRoom(tempSubRoom)
     } catch (error) {
-      console.error("[v0] Error loading proposal data:", error)
       toast({
         title: "Erreur",
         description: "Impossible de charger les données",

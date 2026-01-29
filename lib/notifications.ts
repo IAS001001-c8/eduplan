@@ -12,7 +12,6 @@ interface NotificationData {
 }
 
 export async function sendNotification(data: NotificationData) {
-  console.log("[v0] Sending notification:", data)
 
   try {
     const response = await fetch("/api/notifications", {
@@ -25,14 +24,11 @@ export async function sendNotification(data: NotificationData) {
 
     if (!response.ok) {
       const error = await response.json()
-      console.error("[v0] Error sending notification via API:", error)
       return
     }
 
     const result = await response.json()
-    console.log("[v0] Notification sent successfully:", result.data.id)
   } catch (error) {
-    console.error("[v0] Error sending notification:", error)
   }
 }
 
@@ -51,7 +47,6 @@ export async function notifyPlanModified(
     .not("profile_id", "is", null)
 
   if (error || !students) {
-    console.error("[v0] Error fetching students:", error)
     return
   }
 
@@ -120,7 +115,6 @@ export async function notifyPlanCreated(
     .not("profile_id", "is", null)
 
   if (error || !students) {
-    console.error("[v0] Error fetching students:", error)
     return
   }
 
@@ -146,7 +140,6 @@ export async function notifyPlanDeleted(subRoomName: string, classIds: string[],
     .not("profile_id", "is", null)
 
   if (error || !students) {
-    console.error("[v0] Error fetching students:", error)
     return
   }
 

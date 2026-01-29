@@ -145,7 +145,6 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
   const fetchData = async () => {
     const supabase = createClient()
 
-    console.log("[v0] fetchData called with:", { userRole, userId, establishmentId })
 
     const { data: classesData, error: classesError } = await supabase
       .from("classes")
@@ -161,7 +160,6 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
     let teachersResult
 
     if (userRole === "vie-scolaire") {
-      console.log("[v0] Fetching all teachers for vie-scolaire")
       teachersResult = await supabase
         .from("teachers")
         .select("*")
@@ -169,7 +167,6 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
         .eq("is_deleted", false)
         .order("last_name")
     } else if (userRole === "professeur") {
-      console.log("[v0] Fetching colleagues for professor")
       const { data: teacherData } = await supabase.from("teachers").select("id").eq("profile_id", userId).maybeSingle()
 
       if (teacherData) {
@@ -180,7 +177,6 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
 
         const classIds = teacherClasses?.map((tc) => tc.class_id) || []
 
-        console.log("[v0] Teacher classes:", classIds)
 
         if (classIds.length > 0) {
           const { data: colleagueClasses } = await supabase
@@ -190,7 +186,6 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
 
           const teacherIds = [...new Set(colleagueClasses?.map((tc) => tc.teacher_id) || [])]
 
-          console.log("[v0] Colleague teacher IDs:", teacherIds)
 
           teachersResult = await supabase
             .from("teachers")
@@ -200,22 +195,18 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
             .eq("is_deleted", false)
             .order("last_name")
         } else {
-          console.log("[v0] Professor has no classes, showing empty list")
           teachersResult = { data: [], error: null }
         }
       } else {
-        console.log("[v0] No teacher record found, showing empty list")
         teachersResult = { data: [], error: null }
       }
     } else if (userRole === "delegue" || userRole === "eco-delegue") {
-      console.log("[v0] Fetching teachers for delegate")
       const { data: studentData } = await supabase
         .from("students")
         .select("class_id")
         .eq("profile_id", userId)
         .maybeSingle()
 
-      console.log("[v0] Delegate student data:", studentData)
 
       if (studentData?.class_id) {
         const { data: classTeachers } = await supabase
@@ -225,7 +216,6 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
 
         const teacherIds = classTeachers?.map((tc) => tc.teacher_id) || []
 
-        console.log("[v0] Class teacher IDs:", teacherIds)
 
         if (teacherIds.length > 0) {
           teachersResult = await supabase
@@ -236,23 +226,18 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
             .eq("is_deleted", false)
             .order("last_name")
         } else {
-          console.log("[v0] No teacher_classes found, showing empty list")
           teachersResult = { data: [], error: null }
         }
       } else {
-        console.log("[v0] No student record found, showing empty list")
         teachersResult = { data: [], error: null }
       }
     } else {
-      console.log("[v0] Unknown role, showing empty list")
       teachersResult = { data: [], error: null }
     }
 
     if (teachersResult && !teachersResult.error) {
-      console.log("[v0] Teachers loaded:", teachersResult.data?.length)
       setTeachers(teachersResult.data || [])
     } else {
-      console.error("[v0] Error fetching teachers:", teachersResult?.error)
       setTeachers([])
     }
   }
@@ -352,7 +337,6 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
 
       fetchData() // Auto-refresh after add
     } catch (error) {
-      console.error("[v0] Error creating teacher:", error)
       toast({
         title: "Erreur",
         description: error instanceof Error ? error.message : "Impossible de créer le professeur",
@@ -434,7 +418,6 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
 
       fetchData() // Auto-refresh after edit
     } catch (error) {
-      console.error("[v0] Error editing teacher:", error)
       toast({
         title: "Erreur",
         description: error instanceof Error ? error.message : "Impossible de modifier le professeur",
@@ -581,7 +564,6 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
 
       return true
     } catch (error) {
-      console.error("[v0] Error saving credentials:", error)
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder les identifiants",
@@ -616,13 +598,11 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
 
     if (accessData.password !== "" && accessData.password.trim() !== "") {
       // Check if password field is not empty
-      console.log("[v0] Updating teacher profile with new password")
       const { data: hashedPassword, error: hashError } = await supabase.rpc("hash_password", {
         password: accessData.password,
       })
 
       if (hashError) {
-        console.error("[v0] Error hashing password:", hashError)
         toast({
           title: "Erreur",
           description: "Impossible de mettre à jour les identifiants",
@@ -640,7 +620,6 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
         .eq("id", selectedTeacher.profile_id)
 
       if (profileError) {
-        console.error("[v0] Error updating profile:", profileError)
         toast({
           title: "Erreur",
           description: "Impossible de mettre à jour les identifiants",
@@ -649,9 +628,7 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
         return
       }
 
-      console.log("[v0] Teacher profile updated with new password")
     } else {
-      console.log("[v0] Updating teacher profile (username only)")
       const { error: profileError } = await supabase
         .from("profiles")
         .update({
@@ -660,7 +637,6 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
         .eq("id", selectedTeacher.profile_id)
 
       if (profileError) {
-        console.error("[v0] Error updating profile:", profileError)
         toast({
           title: "Erreur",
           description: "Impossible de mettre à jour les identifiants",
@@ -669,7 +645,6 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
         return
       }
 
-      console.log("[v0] Teacher profile updated (username only)")
     }
 
     toast({
@@ -721,7 +696,6 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
       setIsEmailConfirmDialogOpen(false)
       setIsAccessDialogOpen(false)
     } catch (error) {
-      console.error("[v0] Error sending email:", error)
       toast({
         title: "Erreur",
         description: "Impossible d'envoyer l'email. Vérifiez l'adresse email.",
@@ -798,7 +772,6 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
       setIsBulkEmailDialogOpen(false)
       setSelectedTeachers([])
     } catch (error) {
-      console.error("[v0] Error sending bulk emails:", error)
       toast({
         title: "Erreur",
         description: "Impossible d'envoyer les emails",
@@ -960,7 +933,6 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
       setSelectedTeachers([])
       fetchData() // Auto-refresh after bulk delete
     } catch (error) {
-      console.error("[v0] Error bulk deleting teachers:", error)
       toast({
         title: "Erreur",
         description: "Impossible de supprimer les professeurs",
@@ -998,7 +970,6 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
       .eq("id", selectedTeacher.id)
 
     if (error) {
-      console.error("[v0] Error updating teacher:", error)
       toast({
         title: "Erreur",
         description: "Impossible de modifier le professeur",

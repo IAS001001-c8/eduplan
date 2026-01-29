@@ -177,7 +177,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
   async function fetchData() {
     setLoading(true)
 
-    console.log("[v0] Students fetchData called with:", { userRole, userId, establishmentId })
 
     const classesResult = await supabase
       .from("classes")
@@ -186,7 +185,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       .order("name")
 
     if (classesResult.error) {
-      console.error("[v0] Error fetching classes:", classesResult.error)
       setClasses([])
     } else {
       setClasses(classesResult.data || [])
@@ -195,7 +193,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
     let studentsResult
 
     if (userRole === "vie-scolaire") {
-      console.log("[v0] Fetching all students for vie-scolaire")
       studentsResult = await supabase
         .from("students")
         .select(`
@@ -206,10 +203,8 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
         .eq("is_deleted", false)
         .order("last_name")
     } else if (userRole === "professeur") {
-      console.log("[v0] Fetching students for professor")
       const { data: teacherData } = await supabase.from("teachers").select("id").eq("profile_id", userId).maybeSingle()
 
-      console.log("[v0] Professor teacher data:", teacherData)
 
       if (teacherData) {
         const { data: teacherClasses } = await supabase
@@ -219,7 +214,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
 
         const classIds = teacherClasses?.map((tc) => tc.class_id) || []
 
-        console.log("[v0] Professor class IDs:", classIds)
 
         if (classIds.length > 0) {
           studentsResult = await supabase
@@ -233,22 +227,18 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
             .eq("is_deleted", false)
             .order("last_name")
         } else {
-          console.log("[v0] Professor has no classes, showing empty list")
           studentsResult = { data: [], error: null }
         }
       } else {
-        console.log("[v0] No teacher record found, showing empty list")
         studentsResult = { data: [], error: null }
       }
     } else if (userRole === "delegue" || userRole === "eco-delegue") {
-      console.log("[v0] Fetching classmates for delegate")
       const { data: studentData } = await supabase
         .from("students")
         .select("class_id")
         .eq("profile_id", userId)
         .maybeSingle()
 
-      console.log("[v0] Delegate student data:", studentData)
 
       if (studentData?.class_id) {
         studentsResult = await supabase
@@ -262,19 +252,15 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
           .eq("is_deleted", false)
           .order("last_name")
       } else {
-        console.log("[v0] No student record found, showing empty list")
         studentsResult = { data: [], error: null }
       }
     } else {
-      console.log("[v0] Unknown role, showing empty list")
       studentsResult = { data: [], error: null }
     }
 
     if (studentsResult && !studentsResult.error) {
-      console.log("[v0] Students loaded:", studentsResult.data?.length)
       setStudents(studentsResult.data || [])
     } else {
-      console.error("[v0] Error fetching students:", studentsResult?.error)
       setStudents([])
     }
 
@@ -292,13 +278,10 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
     }
 
     try {
-      console.log("[v0] Adding student with data:", formData)
 
       const selectedClass = classes.find((c) => c.id === formData.class_id)
-      console.log("[v0] Selected class:", selectedClass)
 
       if (!selectedClass || !selectedClass.name) {
-        console.error("[v0] Class not found or has no name:", formData.class_id)
         toast({
           title: "Erreur",
           description: "Classe introuvable ou invalide",
@@ -308,8 +291,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       }
 
       if (formData.role === "eleve") {
-        console.log("[v0] Creating student without profile (eleve role)")
-        console.log("[v0] Class name to insert:", selectedClass.name)
 
         const { data, error } = await supabase
           .from("students")
@@ -332,19 +313,15 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
           .single()
 
         if (error) {
-          console.error("[v0] Error creating student:", error)
-          console.error("[v0] Error details:", JSON.stringify(error, null, 2))
           throw error
         }
 
-        console.log("[v0] Student created successfully:", data)
 
         toast({
           title: "Élève créé avec succès",
           description: "L'élève a été ajouté sans accès à l'application",
         })
       } else {
-        console.log("[v0] Creating student with profile (delegue/eco-delegue role)")
 
         const credentials = await createUser({
           establishment_id: establishmentId,
@@ -358,7 +335,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
           student_role: formData.role,
         })
 
-        console.log("[v0] Student with profile created successfully:", credentials)
 
         toast({
           title: "Élève créé avec succès",
@@ -389,7 +365,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       })
       fetchData() // Auto-refresh after add
     } catch (error) {
-      console.error("[v0] Error creating student:", error)
       toast({
         title: "Erreur",
         description: error instanceof Error ? error.message : "Impossible de créer l'élève",
@@ -418,7 +393,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       setStudentToDelete(null)
       fetchData() // Auto-refresh after delete
     } catch (error) {
-      console.error("[v0] Error deleting student:", error)
       toast({
         title: "Erreur",
         description: "Impossible de supprimer l'élève",
@@ -449,7 +423,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       setSelectedStudents([])
       fetchData() // Auto-refresh after bulk delete
     } catch (error) {
-      console.error("[v0] Error bulk deleting students:", error)
       toast({
         title: "Erreur",
         description: "Impossible de supprimer les élèves",
@@ -492,7 +465,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       setSelectedStudents([])
       fetchData() // Auto-refresh after demotion
     } catch (error) {
-      console.error("[v0] Error bulk demoting:", error)
       toast({
         title: "Erreur",
         description: "Impossible de rétrograder les élèves",
@@ -559,7 +531,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       setIsEmailConfirmDialogOpen(false)
       setIsAccessDialogOpen(false) // Close access dialog after successful send
     } catch (error) {
-      console.error("[v0] Error sending email:", error)
       toast({
         title: "Erreur",
         description: "Impossible d'envoyer l'email. Vérifiez l'adresse email.",
@@ -637,7 +608,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       setIsBulkEmailDialogOpen(false)
       setSelectedStudents([]) // Clear selection after bulk action
     } catch (error) {
-      console.error("[v0] Error sending bulk emails:", error)
       toast({
         title: "Erreur",
         description: "Impossible d'envoyer les emails",
@@ -688,7 +658,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
   // START OF MODIFIED FUNCTIONS
   async function handlePromoteStudent(student: Student, newRole: "delegue" | "eco-delegue") {
     try {
-      console.log("[v0] Promoting student:", student.id, "to role:", newRole)
 
       if (!upgradeCredentials.username || !upgradeCredentials.password) {
         toast({
@@ -716,7 +685,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       })
 
       if (hashError) {
-        console.error("[v0] Error hashing password:", hashError)
         throw hashError
       }
 
@@ -736,11 +704,9 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
         .single()
 
       if (profileError) {
-        console.error("[v0] Error creating profile:", profileError)
         throw profileError
       }
 
-      console.log("[v0] Profile created successfully:", newProfile)
 
       const { error: updateError } = await supabase
         .from("students")
@@ -752,13 +718,11 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
         .eq("id", student.id)
 
       if (updateError) {
-        console.error("[v0] Error updating student:", updateError)
         // Cleanup: delete the profile if student update fails
         await supabase.from("profiles").delete().eq("id", newProfile.id)
         throw updateError
       }
 
-      console.log("[v0] Student updated successfully")
 
       toast({
         title: "Élève promu avec succès",
@@ -780,7 +744,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       setUpgradeCredentials({ username: "", password: "" })
       fetchData() // Auto-refresh after promotion
     } catch (error) {
-      console.error("[v0] Error promoting student:", error)
       toast({
         title: "Erreur",
         description: error instanceof Error ? error.message : "Impossible de promouvoir l'élève",
@@ -791,7 +754,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
 
   async function handleDemoteStudent(student: Student) {
     try {
-      console.log("[v0] Demoting student:", student.id)
 
       // Delete profile if exists
       if (student.profile_id) {
@@ -799,7 +761,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
         const { error: profileError } = await supabase.from("profiles").delete().eq("id", student.profile_id)
 
         if (profileError) {
-          console.error("[v0] Error deleting profile:", profileError)
           throw profileError
         }
       }
@@ -815,7 +776,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
         .eq("id", student.id)
 
       if (error) {
-        console.error("[v0] Error updating student:", error)
         throw error
       }
 
@@ -827,7 +787,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       setStudentToDemote(null)
       fetchData() // Auto-refresh after demotion
     } catch (error) {
-      console.error("[v0] Error demoting student:", error)
       toast({
         title: "Erreur",
         description: error instanceof Error ? error.message : "Impossible de rétrograder l'élève",
@@ -907,7 +866,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       .maybeSingle()
 
     if (checkError && checkError.code !== "PGRST116") {
-      console.error("[v0] Error checking username:", checkError)
       toast({
         title: "Erreur",
         description: "Impossible de vérifier l'identifiant",
@@ -926,13 +884,11 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
     }
 
     if (accessData.password && accessData.password !== "••••••••" && accessData.password.trim() !== "") {
-      console.log("[v0] Updating profile with new password")
       const { data: hashedPassword, error: hashError } = await supabase.rpc("hash_password", {
         password: accessData.password,
       })
 
       if (hashError) {
-        console.error("[v0] Error hashing password:", hashError)
         toast({
           title: "Erreur",
           description: "Impossible de hasher le mot de passe",
@@ -950,7 +906,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
         .eq("id", selectedStudent.profile_id)
 
       if (updateError) {
-        console.error("[v0] Error updating profile:", updateError)
         toast({
           title: "Erreur",
           description: "Impossible de mettre à jour les identifiants",
@@ -959,9 +914,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
         return
       }
 
-      console.log("[v0] Profile updated with new password")
     } else {
-      console.log("[v0] Updating profile (username only)")
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
@@ -970,7 +923,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
         .eq("id", selectedStudent.profile_id)
 
       if (updateError) {
-        console.error("[v0] Error updating profile:", updateError)
         toast({
           title: "Erreur",
           description: "Impossible de mettre à jour l'identifiant",
@@ -979,7 +931,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
         return
       }
 
-      console.log("[v0] Profile updated (username only)")
     }
 
     toast({
@@ -1023,7 +974,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       .eq("id", selectedStudent.id)
 
     if (error) {
-      console.error("[v0] Error updating student:", error)
       toast({
         title: "Erreur",
         description: "Impossible de modifier l'élève",

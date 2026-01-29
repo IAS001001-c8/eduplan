@@ -34,11 +34,8 @@ const ADMIN_CODES: Record<string, AdminCredentials> = {
 }
 
 export function validateAdminCode(code: string): AdminCredentials | null {
-  console.log("[v0] validateAdminCode called with:", code)
   const normalizedCode = code.toLowerCase().trim()
-  console.log("[v0] Normalized code:", normalizedCode)
   const adminCreds = ADMIN_CODES[normalizedCode]
-  console.log("[v0] Found credentials:", adminCreds)
   return adminCreds || null
 }
 
@@ -82,13 +79,10 @@ export function getAdminSession(): AdminCredentials | null {
 }
 
 export function setAdminSession(credentials: AdminCredentials): void {
-  console.log("[v0] setAdminSession called with:", credentials)
   if (typeof window === "undefined") {
-    console.log("[v0] Window is undefined, cannot set session")
     return
   }
   setCookie("admin_session", encodeURIComponent(JSON.stringify(credentials)))
-  console.log("[v0] Admin session stored in cookie")
 }
 
 export function clearAdminSession(): void {

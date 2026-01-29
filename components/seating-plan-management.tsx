@@ -152,7 +152,6 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
   }
 
   const setAvailableOptions = async (supabase: any) => {
-    console.log("[v0] setAvailableOptions called for role:", userRole, "userId:", userId)
 
     if (userRole === "vie-scolaire") {
       const { data: allTeachers, error: teachersError } = await supabase
@@ -166,7 +165,6 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
         .eq("establishment_id", establishmentId)
         .eq("is_level", false) // Only show actual classes, not custom levels
 
-      console.log("[v0] Vie scolaire - Teachers:", allTeachers?.length, "Classes:", allClasses?.length)
 
       if (allTeachers) setAvailableTeachers(allTeachers)
       if (allClasses) setAvailableClasses(allClasses)
@@ -183,7 +181,6 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
         .eq("profile_id", userId)
         .maybeSingle()
 
-      console.log("[v0] Teacher record query result:", teacherRecord, "error:", error)
       currentUserRecord = teacherRecord
     } else if (userRole === "delegue" || userRole === "eco-delegue") {
       const { data: studentRecord, error } = await supabase
@@ -192,12 +189,10 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
         .eq("profile_id", userId)
         .maybeSingle()
 
-      console.log("[v0] Student record query result:", studentRecord, "error:", error)
       currentUserRecord = studentRecord
     }
 
     if (!currentUserRecord) {
-      console.log("[v0] No user record found, showing empty lists")
       setAvailableTeachers([])
       setAvailableClasses([])
       return
@@ -213,11 +208,9 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
         .eq("teacher_id", currentUserRecord.id)
 
       classIds = teacherClasses?.map((tc: any) => tc.class_id) || []
-      console.log("[v0] Teacher has access to classes:", classIds)
     } else if (userRole === "delegue" || userRole === "eco-delegue") {
       if (currentUserRecord.class_id) {
         classIds = [currentUserRecord.class_id]
-        console.log("[v0] Delegate has access to class:", classIds)
       }
     }
 
@@ -225,7 +218,6 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
     if (classIds.length > 0) {
       const { data: userClasses } = await supabase.from("classes").select("*").in("id", classIds).eq("is_level", false) // Exclude custom levels
 
-      console.log("[v0] User classes loaded:", userClasses?.length)
       if (userClasses) setAvailableClasses(userClasses)
     }
 
@@ -241,7 +233,6 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
       if (teacherIds.length > 0) {
         const { data: teachers } = await supabase.from("teachers").select("*").in("id", teacherIds)
 
-        console.log("[v0] Teachers loaded:", teachers?.length)
         if (teachers) setAvailableTeachers(teachers)
       }
     }
@@ -348,7 +339,6 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
 
   const handleDeleteSubRooms = async () => {
     try {
-      console.log("[v0] Deleting sub-rooms:", subRoomsToDelete)
 
       const supabase = createClient()
 
@@ -359,7 +349,6 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
         .in("sub_room_id", subRoomsToDelete)
 
       if (assignmentsError) {
-        console.error("[v0] Error deleting assignments:", assignmentsError)
         throw assignmentsError
       }
 
@@ -367,7 +356,6 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
       const { error: subRoomError } = await supabase.from("sub_rooms").delete().in("id", subRoomsToDelete)
 
       if (subRoomError) {
-        console.error("[v0] Error deleting sub-rooms:", subRoomError)
         throw subRoomError
       }
 
@@ -381,7 +369,6 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
       setSubRoomsToDelete([])
       await fetchData()
     } catch (error) {
-      console.error("[v0] Error deleting sub-rooms:", error)
       toast({
         title: "Erreur",
         description: "Impossible de supprimer les sous-salles",

@@ -32,7 +32,6 @@ export function NotificationsDropdown({ userId, establishmentId }: Notifications
   const router = useRouter()
 
   const fetchNotifications = async () => {
-    console.log("[v0] Fetching notifications for user:", userId, "establishment:", establishmentId)
     const supabase = createClient()
     const { data, error } = await supabase
       .from("notifications")
@@ -43,11 +42,9 @@ export function NotificationsDropdown({ userId, establishmentId }: Notifications
       .limit(10)
 
     if (error) {
-      console.error("[v0] Error fetching notifications:", error)
       return
     }
 
-    console.log("[v0] Fetched notifications:", data?.length || 0)
     setNotifications(data || [])
     setUnreadCount(data?.filter((n) => !n.is_read).length || 0)
   }
@@ -71,7 +68,6 @@ export function NotificationsDropdown({ userId, establishmentId }: Notifications
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          console.log("[v0] New notification received:", payload.new)
           fetchNotifications()
 
           // Show toast for new notification
@@ -91,16 +87,13 @@ export function NotificationsDropdown({ userId, establishmentId }: Notifications
           filter: `user_id=eq.${userId}`,
         },
         () => {
-          console.log("[v0] Notification updated")
           fetchNotifications()
         },
       )
       .subscribe()
 
-    console.log("[v0] Subscribed to notifications channel")
 
     return () => {
-      console.log("[v0] Unsubscribing from notifications channel")
       clearInterval(interval)
       supabase.removeChannel(channel)
     }
@@ -111,7 +104,6 @@ export function NotificationsDropdown({ userId, establishmentId }: Notifications
     const { error } = await supabase.from("notifications").update({ is_read: true }).eq("id", notificationId)
 
     if (error) {
-      console.error("[v0] Error marking notification as read:", error)
       return
     }
 
@@ -143,7 +135,6 @@ export function NotificationsDropdown({ userId, establishmentId }: Notifications
       .eq("is_read", false)
 
     if (error) {
-      console.error("[v0] Error marking all as read:", error)
       toast({
         title: "Erreur",
         description: "Impossible de marquer les notifications comme lues",

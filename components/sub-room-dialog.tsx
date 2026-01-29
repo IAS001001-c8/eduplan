@@ -59,12 +59,9 @@ export function SubRoomDialog({
   })
 
   useEffect(() => {
-    console.log("[v0] Selected teachers:", selectedTeachers)
-    console.log("[v0] Available classes:", availableClasses.length)
 
     const filterClassesByTeachers = async () => {
       if (selectedTeachers.length === 0) {
-        console.log("[v0] No teachers selected, clearing classes")
         setFilteredClasses([])
         setSelectedClasses([])
         return
@@ -77,12 +74,10 @@ export function SubRoomDialog({
         .select("class_id")
         .in("teacher_id", selectedTeachers)
 
-      console.log("[v0] Teacher classes found:", teacherClasses?.length)
 
       if (teacherClasses) {
         const classIds = teacherClasses.map((tc) => tc.class_id)
         const filtered = availableClasses.filter((c) => classIds.includes(c.id) && !c.is_level)
-        console.log("[v0] Filtered classes:", filtered.length)
         setFilteredClasses(filtered)
 
         setSelectedClasses((prev) => prev.filter((id) => classIds.includes(id)))
@@ -235,7 +230,6 @@ export function SubRoomDialog({
               id="collaborative"
               checked={isCollaborative}
               onCheckedChange={(checked) => {
-                console.log("[v0] Collaborative checkbox toggled:", checked)
                 setIsCollaborative(checked as boolean)
                 if (!checked && selectedTeachers.length > 1) {
                   setSelectedTeachers([selectedTeachers[0]])
@@ -285,7 +279,6 @@ export function SubRoomDialog({
               </div>
             ) : (
               <div className="border rounded-lg p-4 space-y-2 max-h-48 overflow-y-auto">
-                {console.log("[v0] Rendering", filteredClasses.length, "classes")}
                 {filteredClasses.map((cls) => (
                   <div key={cls.id} className="flex items-center space-x-3">
                     <Checkbox

@@ -155,12 +155,9 @@ export function SeatingPlanEditor({
   const fetchData = useCallback(async () => {
     const supabase = createClient()
 
-    console.log("[v0] Fetching data for sub-room:", subRoom.id)
-    console.log("[v0] Sub-room class_ids:", subRoom.class_ids)
 
     // Ensure room is loaded before proceeding
     if (!room) {
-      console.log("[v0] Room is not loaded, attempting to load...")
       // This part might be redundant if loadRoomData is always called first or if initialRoom is provided
       // However, to be safe, we can fetch it here if needed.
       // Consider if this fetch should happen within loadRoomData itself for better separation of concerns.
@@ -168,9 +165,7 @@ export function SeatingPlanEditor({
 
       if (roomData) {
         setRoom(roomData as Room) // Ensure type safety
-        console.log("[v0] Room loaded:", roomData.name)
       } else {
-        console.error("[v0] Room not found for sub_room:", subRoom.room_id)
         setRoomError("Configuration de la salle introuvable.") // Set error if room not found
         return // Stop fetching if room is not found
       }
@@ -189,12 +184,10 @@ export function SeatingPlanEditor({
       .order("last_name")
 
     if (studentsError) {
-      console.error("[v0] Error fetching students:", studentsError)
       // Handle student fetch error if necessary, e.g., by setting an error state
     }
 
     if (studentsData) {
-      console.log("[v0] Students loaded:", studentsData.length)
       setStudents(studentsData)
     } else {
       setStudents([]) // Ensure students is an empty array if no data or error
@@ -202,14 +195,12 @@ export function SeatingPlanEditor({
 
     // Fetch existing seat assignments
     if (isSandbox && subRoom.is_sandbox && subRoom.proposal_data?.seat_assignments) {
-      console.log("[v0] Loading assignments from sandbox proposal")
       const assignmentMap = new Map<number, string>()
       subRoom.proposal_data.seat_assignments.forEach((a) => {
         assignmentMap.set(a.seat_number, a.student_id)
       })
       setAssignments(assignmentMap)
       setSavedAssignments(new Map(assignmentMap))
-      console.log("[v0] Loaded", subRoom.proposal_data.seat_assignments.length, "seat assignments from proposal")
     } else {
       const { data: assignmentsData, error: assignmentsError } = await supabase
         .from("seating_assignments")
@@ -217,7 +208,6 @@ export function SeatingPlanEditor({
         .eq("sub_room_id", subRoom.id)
 
       if (assignmentsError) {
-        console.error("[v0] Error fetching seating assignments:", assignmentsError)
         // Handle assignment fetch error if necessary
       }
 
@@ -229,7 +219,6 @@ export function SeatingPlanEditor({
         })
         setAssignments(assignmentMap)
         setSavedAssignments(new Map(assignmentMap))
-        console.log("[v0] Loaded", assignmentsData.length, "seat assignments")
       } else {
         setAssignments(new Map()) // Clear assignments if no data or error
         setSavedAssignments(new Map())
@@ -240,11 +229,9 @@ export function SeatingPlanEditor({
   useEffect(() => {
     // Load room data first
     async function loadRoomData() {
-      console.log("[v0] Checking room data:", { room, subRoom })
 
       // If room is missing or doesn't have config.columns, load it
       if (!room || !room.config?.columns) {
-        console.log("[v0] Room data incomplete, loading from database...")
         setIsLoadingRoom(true)
         setRoomError(null)
 
@@ -259,11 +246,9 @@ export function SeatingPlanEditor({
             throw new Error("Room not found")
           }
 
-          console.log("[v0] Room loaded successfully:", data)
           setRoom(data as Room) // Type assertion for safety
           setRoomError(null)
         } catch (error) {
-          console.error("[v0] Error loading room:", error)
           setRoomError("Impossible de charger la configuration de la salle")
         } finally {
           setIsLoadingRoom(false)
@@ -355,8 +340,6 @@ export function SeatingPlanEditor({
     try {
       const supabase = createClient()
 
-      console.log("[v0] Saving seating plan for sub-room:", subRoom.id)
-      console.log("[v0] Number of assignments:", assignments.size)
 
       if (isSandbox && subRoom.is_sandbox) {
         // Save to sub_room_proposals
@@ -388,7 +371,6 @@ export function SeatingPlanEditor({
         const { error: deleteError } = await supabase.from("seating_assignments").delete().eq("sub_room_id", subRoom.id)
 
         if (deleteError) {
-          console.error("[v0] Error deleting existing assignments:", deleteError)
           throw deleteError
         }
 
@@ -400,13 +382,10 @@ export function SeatingPlanEditor({
             seat_position: seatNumber, // Use seat_position instead of seat_number
           }))
 
-          console.log("[v0] Assignments to insert:", assignmentsToSave)
 
           const { error: insertError } = await supabase.from("seating_assignments").insert(assignmentsToSave)
 
           if (insertError) {
-            console.error("[v0] Error inserting assignments:", insertError)
-            console.error("[v0] Error details:", {
               code: insertError.code,
               message: insertError.message,
               details: insertError.details,
@@ -415,7 +394,6 @@ export function SeatingPlanEditor({
             throw insertError
           }
 
-          console.log("[v0] Inserted assignments:", assignmentsToSave)
         }
 
         setSavedAssignments(new Map(assignments))
@@ -446,7 +424,6 @@ export function SeatingPlanEditor({
         })
       }
     } catch (error: any) {
-      console.error("[v0] Error saving seating plan:", error)
       toast({
         title: "Erreur",
         description: error.message || "Impossible de sauvegarder le plan",
@@ -466,15 +443,8 @@ export function SeatingPlanEditor({
     try {
       const supabase = createClient()
 
-      console.log("[v0] === SUBMISSION DEBUG START ===")
-      console.log("[v0] Full subRoom object:", JSON.stringify(subRoom, null, 2))
-      console.log("[v0] subRoom.id:", subRoom.id)
-      console.log("[v0] subRoom.proposal_data:", JSON.stringify(subRoom.proposal_data, null, 2))
-      console.log("[v0] proposal_data.id exists?:", !!subRoom.proposal_data?.id)
-      console.log("[v0] Using proposal ID:", subRoom.proposal_data?.id || "MISSING!")
 
       if (!subRoom.proposal_data?.id) {
-        console.error("[v0] ERROR: proposal_data.id is missing!")
         throw new Error("ID de proposition manquant")
       }
 
@@ -484,8 +454,6 @@ export function SeatingPlanEditor({
         updated_at: new Date().toISOString(),
       }
 
-      console.log("[v0] Update data:", updateData)
-      console.log("[v0] Updating proposal with ID:", subRoom.proposal_data.id)
 
       const { data, error } = await supabase
         .from("sub_room_proposals")
@@ -493,17 +461,8 @@ export function SeatingPlanEditor({
         .eq("id", subRoom.proposal_data.id)
         .select()
 
-      console.log("[v0] === RESPONSE START ===")
-      console.log("[v0] Response data:", data)
-      console.log("[v0] Response error:", error)
 
       if (error) {
-        console.error("[v0] === SUPABASE ERROR DETAILS ===")
-        console.error("[v0] Error code:", error.code)
-        console.error("[v0] Error message:", error.message)
-        console.error("[v0] Error details:", error.details)
-        console.error("[v0] Error hint:", error.hint)
-        console.error("[v0] Full error object:", JSON.stringify(error, null, 2))
         throw error
       }
 
@@ -516,7 +475,6 @@ export function SeatingPlanEditor({
       // Redirect to sandbox
       router.push("/dashboard/sandbox")
     } catch (error: any) {
-      console.error("[v0] Error submitting proposal:", error)
       toast({
         title: "Erreur",
         description: error.message || "Impossible de soumettre la proposition",
@@ -557,7 +515,6 @@ export function SeatingPlanEditor({
           const { error: insertError } = await supabase.from("seating_assignments").insert(assignmentsToSave)
 
           if (insertError) {
-            console.error("[v0] Error imposing plan:", insertError)
             throw insertError
           }
         }
@@ -612,7 +569,6 @@ export function SeatingPlanEditor({
           const { error: assignmentsError } = await supabase.from("seating_assignments").insert(assignmentsToSave)
 
           if (assignmentsError) {
-            console.error("[v0] Error imposing plan:", assignmentsError)
             throw assignmentsError
           }
         }
@@ -652,7 +608,6 @@ export function SeatingPlanEditor({
       // Redirect to sandbox
       router.push("/dashboard/sandbox")
     } catch (error: any) {
-      console.error("[v0] Error imposing plan:", error)
       toast({
         title: "Erreur",
         description: error.message || "Impossible d'imposer le plan",
@@ -889,7 +844,6 @@ export function SeatingPlanEditor({
 
   const handleDropToUnplacedArea = () => {
     if (draggedStudent) {
-      console.log("[v0] Removing student from seat:", draggedStudent)
 
       // Find and remove the student from their current seat
       const entries = Array.from(assignments.entries())

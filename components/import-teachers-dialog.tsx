@@ -104,7 +104,6 @@ export function ImportTeachersDialog({
                   )
                   .filter(Boolean)
 
-                console.log("[v0] Parsed class names:", classNames)
                 console.log(
                   "[v0] Available classes:",
                   availableClasses.map((c) => c.name),
@@ -123,7 +122,6 @@ export function ImportTeachersDialog({
                   })
                   .filter(Boolean)
 
-                console.log("[v0] Matched class IDs:", classIds)
                 teacherData.class_ids = classIds
               } else {
                 teacherData[mapping] = value
@@ -132,7 +130,6 @@ export function ImportTeachersDialog({
           })
 
           if (!teacherData.first_name || !teacherData.last_name) {
-            console.log("[v0] Skipping row - missing required fields:", row)
             errorCount++
             continue
           }
@@ -140,7 +137,6 @@ export function ImportTeachersDialog({
           await createUser(teacherData)
           successCount++
         } catch (error) {
-          console.error("[v0] Error importing teacher:", error)
           errorCount++
         }
       }
@@ -154,7 +150,6 @@ export function ImportTeachersDialog({
       onOpenChange(false)
       resetDialog()
     } catch (error) {
-      console.error("[v0] Import error:", error)
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'importation",

@@ -81,7 +81,6 @@ export function ProposalEditor({ open, onOpenChange, proposal, userRole, userId,
 
       setComments(proposal.comments || "")
     } catch (error: any) {
-      console.error("[v0] Error loading proposal data:", error)
       toast({
         title: "Erreur",
         description: "Impossible de charger les données",
@@ -111,7 +110,6 @@ export function ProposalEditor({ open, onOpenChange, proposal, userRole, userId,
 
       onSuccess()
     } catch (error: any) {
-      console.error("[v0] Error saving proposal:", error)
       toast({
         title: "Erreur",
         description: error.message || "Impossible de sauvegarder",
@@ -146,7 +144,6 @@ export function ProposalEditor({ open, onOpenChange, proposal, userRole, userId,
       onSuccess()
       onOpenChange(false)
     } catch (error: any) {
-      console.error("[v0] Error submitting proposal:", error)
       toast({
         title: "Erreur",
         description: error.message || "Impossible de soumettre",
@@ -211,7 +208,6 @@ export function ProposalEditor({ open, onOpenChange, proposal, userRole, userId,
       onSuccess()
       onOpenChange(false)
     } catch (error: any) {
-      console.error("[v0] Error imposing plan:", error)
       toast({
         title: "Erreur",
         description: error.message || "Impossible d'imposer le plan",

@@ -115,7 +115,6 @@ export function CreateProposalDialog({
         setRooms(roomsData)
       }
     } catch (error) {
-      console.error("[v0] Error fetching data:", error)
       toast({
         title: "Erreur",
         description: "Impossible de charger les données",
@@ -145,7 +144,6 @@ export function CreateProposalDialog({
         setSubRooms(subRoomsData)
       }
     } catch (error) {
-      console.error("[v0] Error fetching sub-rooms:", error)
     }
   }
 
@@ -222,7 +220,6 @@ export function CreateProposalDialog({
       setUseExistingSubRoom(false)
       onSuccess()
     } catch (error: any) {
-      console.error("[v0] Error creating proposal:", error)
       toast({
         title: "Erreur",
         description: error.message || "Impossible de créer la proposition",

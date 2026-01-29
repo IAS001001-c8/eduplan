@@ -19,12 +19,10 @@ export async function logAction(
     })
 
     if (error) {
-      console.error("[v0] Error logging action:", error)
     }
 
     return data
   } catch (err) {
-    console.error("[v0] Exception logging action:", err)
   }
 }
 
@@ -41,7 +39,6 @@ export async function getActionLogs(limit = 100) {
     .limit(limit)
 
   if (error) {
-    console.error("[v0] Error fetching action logs:", error)
     return []
   }
 

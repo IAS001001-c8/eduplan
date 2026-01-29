@@ -26,7 +26,6 @@ export async function GET(request: NextRequest, { params }: { params: { roomId: 
       .single()
 
     if (roomError || !roomData) {
-      console.error("[v0] Error fetching room:", roomError)
       return NextResponse.json({ error: "Room not found" }, { status: 404 })
     }
 
@@ -41,7 +40,6 @@ export async function GET(request: NextRequest, { params }: { params: { roomId: 
       .order("class_name")
 
     if (assignmentsError) {
-      console.error("[v0] Error fetching room assignments:", assignmentsError)
     }
 
     return NextResponse.json({
@@ -49,7 +47,6 @@ export async function GET(request: NextRequest, { params }: { params: { roomId: 
       assignments: assignments || [],
     })
   } catch (error) {
-    console.error("[v0] Error in room API route:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

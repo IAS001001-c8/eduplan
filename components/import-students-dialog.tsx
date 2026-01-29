@@ -59,7 +59,6 @@ export function ImportStudentsDialog({
       const lines = pastedData.split(/\r?\n/).filter((line) => line.trim())
       const rows = lines.map((line) => line.split(/\t|,/).map((cell) => cell.trim()))
 
-      console.log("[v0] Parsed data:", rows)
 
       if (rows.length === 0) {
         toast({
@@ -73,7 +72,6 @@ export function ImportStudentsDialog({
       setParsedData(rows)
       setStep(3)
     } catch (error) {
-      console.error("[v0] Error parsing data:", error)
       toast({
         title: "Erreur",
         description: "Impossible de parser les données",
@@ -117,10 +115,6 @@ export function ImportStudentsDialog({
     let errorCount = 0
     const errors: string[] = []
 
-    console.log("[v0] Starting import of", dataRows.length, "students")
-    console.log("[v0] Column mapping:", columnMapping)
-    console.log("[v0] Has headers:", hasHeaders)
-    console.log("[v0] Selected class:", selectedClass.name)
 
     for (const row of dataRows) {
       try {
@@ -130,12 +124,10 @@ export function ImportStudentsDialog({
         const phone = columnMapping.phone !== null && columnMapping.phone !== -1 ? row[columnMapping.phone] : null
 
         if (!firstName || !lastName) {
-          console.log("[v0] Skipping row with missing name:", row)
           errorCount++
           continue
         }
 
-        console.log("[v0] Inserting student:", { firstName, lastName, email, phone, className: selectedClass.name })
 
         const { data, error } = await supabase
           .from("students")
@@ -156,16 +148,12 @@ export function ImportStudentsDialog({
           .select()
 
         if (error) {
-          console.error("[v0] Error importing student:", error)
-          console.error("[v0] Error details:", JSON.stringify(error, null, 2))
           errors.push(`${firstName} ${lastName}: ${error.message}`)
           errorCount++
         } else {
-          console.log("[v0] Student imported successfully:", data)
           successCount++
         }
       } catch (error) {
-        console.error("[v0] Exception importing student:", error)
         errorCount++
       }
     }
@@ -173,7 +161,6 @@ export function ImportStudentsDialog({
     setImporting(false)
 
     if (errors.length > 0) {
-      console.error("[v0] Import errors:", errors)
     }
 
     toast({

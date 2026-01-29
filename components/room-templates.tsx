@@ -139,7 +139,6 @@ export async function loadCustomTemplates(establishmentId: string) {
     .order("created_at", { ascending: false })
 
   if (error) {
-    console.error("[v0] Error loading custom templates:", error)
     return []
   }
 

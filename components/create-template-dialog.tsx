@@ -33,7 +33,6 @@ export function CreateTemplateDialog({
   userId,
   establishmentId,
 }: CreateTemplateDialogProps) {
-  console.log("[v0] CreateTemplateDialog rendering with props:", { open, userId, establishmentId })
 
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
@@ -111,7 +110,6 @@ export function CreateTemplateDialog({
       onSuccess()
       onOpenChange(false)
     } catch (error) {
-      console.error("[v0] Error creating template:", error)
       toast({
         title: "Erreur",
         description: "Impossible de créer le template",
@@ -122,7 +120,6 @@ export function CreateTemplateDialog({
     }
   }
 
-  console.log("[v0] CreateTemplateDialog about to return JSX")
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

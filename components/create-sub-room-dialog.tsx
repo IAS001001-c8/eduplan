@@ -56,7 +56,6 @@ export function CreateSubRoomDialog({
   userRole,
   userId,
 }: CreateSubRoomDialogProps) {
-  console.log("[v0] CreateSubRoomDialog rendering with props:", {
     open,
     establishmentId,
     selectedRoom,
@@ -104,7 +103,6 @@ export function CreateSubRoomDialog({
             }
           }
         } catch (error) {
-          console.error("[v0] Error loading current teacher:", error)
         }
       }
     }
@@ -139,7 +137,6 @@ export function CreateSubRoomDialog({
         setClasses(filteredClasses)
       }
     } catch (error) {
-      console.error("[v0] Error fetching data:", error)
     }
   }
 
@@ -194,14 +191,12 @@ export function CreateSubRoomDialog({
         .in("teacher_id", formData.selectedTeachers)
 
       if (error) {
-        console.error("[v0] Error fetching teacher_classes:", error)
         return []
       }
 
       const classIds = teacherClassesData?.map((tc) => tc.class_id) || []
       return classes.filter((cls) => classIds.includes(cls.id))
     } catch (error) {
-      console.error("[v0] Error filtering classes:", error)
       return []
     }
   }
@@ -242,11 +237,9 @@ export function CreateSubRoomDialog({
         .single()
 
       if (subRoomError) {
-        console.error("[v0] Error creating sub-room:", subRoomError)
         throw subRoomError
       }
 
-      console.log("[v0] Sub-room created successfully:", subRoom)
 
       if (formData.isCollaborative && formData.selectedTeachers.length > 0) {
         const teacherLinks = formData.selectedTeachers.map((teacherId) => ({
@@ -257,7 +250,6 @@ export function CreateSubRoomDialog({
         const { error: teachersError } = await supabase.from("sub_room_teachers").insert(teacherLinks)
 
         if (teachersError) {
-          console.error("[v0] Error adding teachers:", teachersError)
           throw teachersError
         }
       }
@@ -278,7 +270,6 @@ export function CreateSubRoomDialog({
         window.location.reload()
       }, 500)
     } catch (error) {
-      console.error("[v0] Error creating sub-room:", error)
       alert("Erreur lors de la création de la sous-salle. Veuillez réessayer.")
     } finally {
       setIsLoading(false)
@@ -293,7 +284,6 @@ export function CreateSubRoomDialog({
       ? teachers.filter((t) => t.id !== currentTeacherId).sort((a, b) => a.last_name.localeCompare(b.last_name))
       : teachers.sort((a, b) => a.last_name.localeCompare(b.last_name))
 
-  console.log("[v0] CreateSubRoomDialog about to return JSX")
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -85,7 +85,6 @@ function generateUsernameWithClass(firstName: string, lastName: string, classNam
 export async function createUser(params: CreateUserParams): Promise<UserCredentials> {
   const supabase = createClient()
 
-  console.log("[v0] Creating user with params:", params)
 
   let className: string | undefined = params.class_name
   if (!className && params.class_id) {
@@ -109,7 +108,6 @@ export async function createUser(params: CreateUserParams): Promise<UserCredenti
   let profile: any
 
   if (existingProfile) {
-    console.log("[v0] Profile already exists, reusing:", existingProfile)
     profile = existingProfile
 
     // Si le mot de passe est fourni, mettre à jour le profil existant
@@ -159,7 +157,6 @@ export async function createUser(params: CreateUserParams): Promise<UserCredenti
   // 4. Créer l'enregistrement spécifique selon le rôle
   if (params.role === "delegue" && params.class_id) {
     // Cette fonction ne devrait créer un étudiant que si c'est une nouvelle création, pas un upgrade
-    console.log("[v0] Profile created for delegate, student record should already exist")
   } else if (params.role === "professeur") {
     const { data: existingTeacher } = await supabase
       .from("teachers")
@@ -170,7 +167,6 @@ export async function createUser(params: CreateUserParams): Promise<UserCredenti
     let teacher: any
 
     if (existingTeacher) {
-      console.log("[v0] Teacher already exists, updating:", existingTeacher)
 
       // Mettre à jour le professeur existant
       const { data: updatedTeacher } = await supabase
@@ -229,11 +225,9 @@ export async function createUser(params: CreateUserParams): Promise<UserCredenti
       if (classError) {
         console.error("Error assigning classes:", classError)
       } else {
-        console.log("[v0] Successfully assigned", params.class_ids.length, "classes to teacher")
       }
     }
 
-    console.log("[v0] Teacher created/updated successfully")
   }
 
   // 5. Enregistrer l'action
@@ -246,7 +240,6 @@ export async function createUser(params: CreateUserParams): Promise<UserCredenti
     details: { username, role: params.role },
   })
 
-  console.log("[v0] User created/updated successfully:", { username, profile_id: profile.id })
 
   return {
     username,

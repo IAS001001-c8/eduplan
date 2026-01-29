@@ -106,7 +106,6 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
       .maybeSingle()
 
     if (error) {
-      console.error("[v0] Error fetching profile:", error)
       toast({
         title: "Erreur",
         description: "Impossible de récupérer les identifiants actuels",
@@ -148,7 +147,6 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
       })
 
       if (hashError) {
-        console.error("[v0] Error hashing password:", hashError)
         toast({
           title: "Erreur",
           description: "Impossible de mettre à jour les identifiants",
@@ -166,7 +164,6 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
         .eq("id", profile.id)
 
       if (updateError) {
-        console.error("[v0] Error updating profile:", updateError)
         toast({
           title: "Erreur",
           description: "Impossible de mettre à jour les identifiants",
@@ -184,7 +181,6 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
         .eq("id", profile.id)
 
       if (updateError) {
-        console.error("[v0] Error updating profile:", updateError)
         toast({
           title: "Erreur",
           description: "Impossible de mettre à jour les identifiants",
