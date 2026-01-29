@@ -53,6 +53,8 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
   const [selectedProposalIds, setSelectedProposalIds] = useState<string[]>([])
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [proposalsToDelete, setProposalsToDelete] = useState<string[]>([])
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [rooms, setRooms] = useState<any[]>([])
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
