@@ -287,11 +287,35 @@ export function CreateSubRoomDialog({
 
   const isDelegate = userRole === "delegue" || userRole === "eco-delegue"
   const isProfessor = userRole === "professeur"
+  const isVieScolaire = userRole === "vie-scolaire"
 
+  // Les délégués ne peuvent pas créer de sous-salles
+  if (isDelegate) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Action non autorisée</DialogTitle>
+            <DialogDescription>
+              Les délégués ne peuvent pas créer de sous-salles. 
+              Veuillez contacter votre professeur principal ou la vie scolaire.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end">
+            <Button onClick={() => onOpenChange(false)}>Fermer</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
+  // Pour les professeurs, sélectionner automatiquement leur ID
   const displayedTeachers =
     formData.isCollaborative && isProfessor && currentTeacherId
-      ? teachers.filter((t) => t.id !== currentTeacherId).sort((a, b) => a.last_name.localeCompare(b.last_name))
-      : teachers.sort((a, b) => a.last_name.localeCompare(b.last_name))
+      ? teachers.filter((t) => t.id !== currentTeacherId).slice(0, 3).sort((a, b) => a.last_name.localeCompare(b.last_name))
+      : isVieScolaire
+      ? teachers.sort((a, b) => a.last_name.localeCompare(b.last_name))
+      : []
 
   console.log("[v0] CreateSubRoomDialog about to return JSX")
 
