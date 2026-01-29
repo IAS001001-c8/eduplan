@@ -809,7 +809,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
       )}
 
       {showCreateSubRoom && establishmentId && effectiveUserId && (
-        <div
+        <CreateSubRoomDialog
           open={showCreateSubRoom}
           onOpenChange={setShowCreateSubRoom}
           onSuccess={() => {
@@ -820,9 +820,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
           selectedRoom={selectedRoomForSubRoom}
           userRole={effectiveUserRole}
           userId={effectiveUserId}
-        >
-          {/* CreateSubRoomDialog component implementation */}
-        </div>
+        />
       )}
 
       <div />
