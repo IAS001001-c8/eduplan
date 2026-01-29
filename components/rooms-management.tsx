@@ -633,91 +633,93 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
             })}
           </div>
           ) : (
-          /* LIST VIEW */
-          <div className="space-y-2">
-            {filteredRooms.map((room) => {
-              const columns = Array.isArray(room.config?.columns) && room.config.columns ? room.config.columns : []
-              const totalSeats = columns.reduce(
-                (total, col) => total + (col?.tables || 0) * (col?.seatsPerTable || 0),
-                0,
-              )
-              const isSelected = selectedRoomIds.includes(room.id)
-
-              return (
-                <Card
-                  key={room.id}
-                  className={`group hover:shadow-md transition-all duration-200 cursor-pointer ${
-                    isSelected
-                      ? "ring-2 ring-emerald-500 bg-emerald-50 dark:bg-emerald-900/20"
-                      : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                  } bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700`}
-                  onClick={() => handleViewRoom(room)}
-                >
-                  <div className="p-4 flex items-center gap-4">
-                    {canModifyRooms && (
+          /* TABLE VIEW - Compact */
+          <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+                <tr>
+                  {canModifyRooms && (
+                    <th className="w-10 px-3 py-2">
                       <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={() => handleToggleSelection(room.id)}
-                        onClick={(e) => e.stopPropagation()}
-                        className="data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
+                        checked={selectedRoomIds.length === filteredRooms.length && filteredRooms.length > 0}
+                        onCheckedChange={handleSelectAll}
+                        className="data-[state=checked]:bg-emerald-600"
                       />
-                    )}
-                    
-                    {/* Mini preview */}
-                    <div className="flex-shrink-0">
-                      <RoomSeatPreview 
-                        columns={columns} 
-                        boardPosition={room.board_position}
-                        maxWidth={80}
-                        maxHeight={50}
-                      />
-                    </div>
-                    
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-slate-900 dark:text-white truncate">{room.name}</h3>
-                      <p className="text-sm text-muted-foreground">Code: {room.code}</p>
-                    </div>
-                    
-                    {/* Stats */}
-                    <div className="flex items-center gap-4 text-sm">
-                      <span className="text-muted-foreground hidden sm:block">
-                        {columns.length} col.
-                      </span>
-                      <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                        <Users className="h-4 w-4" />
-                        {totalSeats}
-                      </div>
-                    </div>
-                    
-                    {/* Actions */}
-                    {canModifyRooms && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                          <DropdownMenuItem onClick={() => handleViewRoom(room)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            Visualiser
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => openEditDialog(room)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Modifier
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDuplicateRooms([room.id])}>
-                            <Copy className="mr-2 h-4 w-4" />
-                            Dupliquer
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => openDeleteDialog([room.id])} className="text-red-600">
-                            <Trash className="mr-2 h-4 w-4" />
-                            Supprimer
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                    </th>
+                  )}
+                  <th className="px-3 py-2 text-left font-medium text-slate-600 dark:text-slate-300">Nom</th>
+                  <th className="px-3 py-2 text-left font-medium text-slate-600 dark:text-slate-300 hidden sm:table-cell">Code</th>
+                  <th className="px-3 py-2 text-center font-medium text-slate-600 dark:text-slate-300">Colonnes</th>
+                  <th className="px-3 py-2 text-center font-medium text-slate-600 dark:text-slate-300">Places</th>
+                  <th className="px-3 py-2 text-right font-medium text-slate-600 dark:text-slate-300">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                {filteredRooms.map((room) => {
+                  const columns = Array.isArray(room.config?.columns) ? room.config.columns : []
+                  const totalSeats = columns.reduce((t, c) => t + (c?.tables || 0) * (c?.seatsPerTable || 0), 0)
+                  const isSelected = selectedRoomIds.includes(room.id)
+
+                  return (
+                    <tr 
+                      key={room.id} 
+                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors ${
+                        isSelected ? "bg-emerald-50 dark:bg-emerald-900/20" : ""
+                      }`}
+                      onClick={() => handleViewRoom(room)}
+                    >
+                      {canModifyRooms && (
+                        <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={() => handleToggleSelection(room.id)}
+                            className="data-[state=checked]:bg-emerald-600"
+                          />
+                        </td>
+                      )}
+                      <td className="px-3 py-2 font-medium text-slate-900 dark:text-white">{room.name}</td>
+                      <td className="px-3 py-2 text-muted-foreground hidden sm:table-cell">{room.code}</td>
+                      <td className="px-3 py-2 text-center text-muted-foreground">{columns.length}</td>
+                      <td className="px-3 py-2 text-center">
+                        <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                          <Users className="h-3 w-3" />
+                          {totalSeats}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleViewRoom(room)}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              Visualiser
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openEditDialog(room)}>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Modifier
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDuplicateRooms([room.id])}>
+                              <Copy className="mr-2 h-4 w-4" />
+                              Dupliquer
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => openDeleteDialog([room.id])} className="text-red-600">
+                              <Trash className="mr-2 h-4 w-4" />
+                              Supprimer
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
                     )}
                     
                     <ChevronRight className="h-5 w-5 text-muted-foreground" />
