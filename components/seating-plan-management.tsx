@@ -100,6 +100,7 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
   const [subRoomsToDelete, setSubRoomsToDelete] = useState<string[]>([])
 
   const [currentUserRecord, setCurrentUserRecord] = useState<any>(null)
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
   useEffect(() => {
     fetchData()
