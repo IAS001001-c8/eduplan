@@ -105,7 +105,6 @@ export function ImportTeachersDialog({
                   .filter(Boolean)
 
                 console.log(
-                  "[v0] Available classes:",
                   availableClasses.map((c) => c.name),
                 )
 

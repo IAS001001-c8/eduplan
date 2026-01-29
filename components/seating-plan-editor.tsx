@@ -172,7 +172,7 @@ export function SeatingPlanEditor({
     }
 
     if (!subRoom.class_ids || subRoom.class_ids.length === 0) {
-      console.warn("[v0] No class_ids found for this sub-room")
+      // Warning supprimé
       setStudents([])
       return
     }
@@ -273,7 +273,7 @@ export function SeatingPlanEditor({
 
   const getTotalSeats = () => {
     if (!room?.config?.columns) {
-      console.warn("[v0] getTotalSeats: room.config.columns is missing")
+      // Warning supprimé
       return 0
     }
     return room.config.columns.reduce((total, col) => total + col.tables * col.seatsPerTable, 0)
