@@ -438,8 +438,65 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
                 </div>
               </CardContent>
             </Card>
-          ))}
+            )
+          })}
         </div>
+        ) : (
+        /* LIST VIEW */
+        <div className="space-y-2">
+          {proposals.map((proposal) => {
+            const room = rooms.find(r => r.id === proposal.room_id)
+            const columns = room?.config?.columns || []
+            
+            return (
+            <Card 
+              key={proposal.id} 
+              className="hover:shadow-md transition-all cursor-pointer"
+              onClick={() => handleReviewProposal(proposal)}
+            >
+              <div className="p-4 flex items-center gap-4">
+                {isDelegateOrEco && !proposal.is_submitted && (
+                  <Checkbox
+                    checked={selectedProposalIds.includes(proposal.id)}
+                    onCheckedChange={() => handleToggleSelection(proposal.id)}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                )}
+                
+                {/* Mini preview */}
+                <div className="flex-shrink-0">
+                  <RoomSeatPreview 
+                    columns={columns}
+                    boardPosition={room?.board_position}
+                    maxWidth={60}
+                    maxHeight={40}
+                  />
+                </div>
+                
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-slate-900 dark:text-white truncate">{proposal.name}</h3>
+                    {getStatusBadge(proposal)}
+                  </div>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {proposal.rooms?.name} • {proposal.classes?.name} • {proposal.teachers?.first_name} {proposal.teachers?.last_name}
+                  </p>
+                </div>
+                
+                {/* Date */}
+                <span className="text-xs text-muted-foreground hidden sm:block">
+                  {new Date(proposal.created_at).toLocaleDateString("fr-FR")}
+                </span>
+                
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </div>
+            </Card>
+            )
+          })}
+        </div>
+        )}
+        </>
       )}
 
       {/* Dialogs */}
