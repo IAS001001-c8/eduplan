@@ -68,7 +68,7 @@ export function TemplateSelectionDialog({
 
         <div className="grid grid-cols-3 gap-3 text-sm relative z-20">
           <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/20 p-2 rounded">
-            <Columns3 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            <Columns className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             <span className="font-medium">
               {template.columns.length} col{template.columns.length > 1 ? "s" : ""}
             </span>
