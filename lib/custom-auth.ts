@@ -28,7 +28,7 @@ export async function authenticateUser(
   const supabase = createClient()
 
   try {
-    console.log("[v0] Authenticating user:", { establishmentCode, role, username })
+    
 
     const { data: establishment, error: estError } = await supabase
       .from("establishments")
@@ -36,9 +36,9 @@ export async function authenticateUser(
       .eq("code", establishmentCode)
       .single()
 
-    console.log("[v0] Establishment lookup:", { establishment, estError })
+    
     if (estError) {
-      console.error("[v0] Establishment error details:", {
+      
         message: estError.message,
         details: estError.details,
         hint: estError.hint,
@@ -58,9 +58,9 @@ export async function authenticateUser(
       .eq("role", role)
       .single()
 
-    console.log("[v0] Profile lookup:", { profile, profileError })
+    
     if (profileError) {
-      console.error("[v0] Profile error details:", {
+      
         message: profileError.message,
         details: profileError.details,
         hint: profileError.hint,
@@ -77,9 +77,9 @@ export async function authenticateUser(
       password_hash: profile.password_hash,
     })
 
-    console.log("[v0] Password verification:", { isValid, verifyError })
+    
     if (verifyError) {
-      console.error("[v0] Verify error details:", {
+      
         message: verifyError.message,
         details: verifyError.details,
         hint: verifyError.hint,
@@ -106,7 +106,7 @@ export async function authenticateUser(
       error: null,
     }
   } catch (error) {
-    console.error("[v0] Authentication error:", error)
+    
     return { user: null, error: "Erreur de connexion - vérifiez votre configuration Supabase" }
   }
 }
