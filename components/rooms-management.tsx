@@ -26,6 +26,9 @@ import {
   Trash2,
 } from "lucide-react"
 import type { RoomTemplate } from "@/components/room-templates"
+import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
+import { TemplateSelectionDialog } from "@/components/template-selection-dialog"
+import { CreateSubRoomDialog } from "@/components/create-sub-room-dialog"
 
 interface Room {
   id: string
