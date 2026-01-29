@@ -795,7 +795,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
       )}
 
       {showTemplates && effectiveUserId && establishmentId && (
-        <div
+        <TemplateSelectionDialog
           open={showTemplates}
           onOpenChange={setShowTemplates}
           onSelectTemplate={handleTemplateSelect}
@@ -805,9 +805,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
             setShowTemplates(false)
             loadRooms()
           }}
-        >
-          {/* TemplateSelectionDialog component implementation */}
-        </div>
+        />
       )}
 
       {showCreateSubRoom && establishmentId && effectiveUserId && (
