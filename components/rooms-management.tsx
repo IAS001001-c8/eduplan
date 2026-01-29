@@ -85,6 +85,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [editingRoom, setEditingRoom] = useState<Room | null>(null)
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [formData, setFormData] = useState({
     name: "",
     code: "",
