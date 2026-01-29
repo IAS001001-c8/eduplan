@@ -103,7 +103,6 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
       .order("name")
 
     if (error) {
-      console.error("[v0] Error fetching rooms:", error)
     } else {
       setLocalRooms(data || [])
       setFilteredRooms(data || [])
@@ -111,9 +110,6 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
   }
 
   useEffect(() => {
-    console.log("[v0] RoomsManagement rendering, initialRooms:", initialRooms?.length)
-    console.log("[v0] RoomsManagement userRole:", userRole)
-    console.log("[v0] RoomsManagement userId:", userId)
     loadRooms()
   }, [establishmentId])
 
@@ -213,7 +209,6 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
       setLocalRooms((prevRooms) => [...prevRooms, data])
       setFilteredRooms((prevFilteredRooms) => [...prevFilteredRooms, data])
     } catch (error: any) {
-      console.error("[v0] Error creating room:", error)
     } finally {
       setIsLoading(false)
     }
@@ -240,7 +235,6 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
 
       setSelectedRoomIds([])
     } catch (error) {
-      console.error("[v0] Error duplicating rooms:", error)
     }
   }
 
@@ -270,7 +264,6 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
 
       setEditingRoom(null)
     } catch (error: any) {
-      console.error("[v0] Error editing room:", error)
     } finally {
       setIsLoading(false)
     }
@@ -294,7 +287,6 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
       setSelectedRoomIds([])
       setShowDeleteDialog(false)
     } catch (error) {
-      console.error("[v0] Error deleting rooms:", error)
     }
   }
 
@@ -362,9 +354,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
     setShowCreateSubRoom(true)
   }
 
-  console.log("[v0] RoomsManagement component rendering with props:", { rooms: initialRooms, userRole, userId })
 
-  console.log("[v0] About to render Dialogs - state:", {
     showCreateTemplate,
     editingRoom: editingRoom !== null,
     selectedRoomIds: selectedRoomIds.length,

@@ -143,7 +143,6 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
     const supabase = createClient()
 
     if (settingsData.password !== "") {
-      console.log("[v0] Updating user password in settings")
       const { data: hashedPassword, error: hashError } = await supabase.rpc("hash_password", {
         password: settingsData.password,
       })
@@ -176,9 +175,7 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
         return
       }
 
-      console.log("[v0] User password updated successfully")
     } else {
-      console.log("[v0] Updating username only in settings")
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
@@ -196,7 +193,6 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
         return
       }
 
-      console.log("[v0] Username updated successfully")
     }
 
     toast({
