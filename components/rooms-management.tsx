@@ -785,15 +785,13 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
       )}
 
       {showDeleteDialog && (
-        <div
+        <DeleteConfirmationDialog
           open={showDeleteDialog}
           onOpenChange={setShowDeleteDialog}
           onConfirm={() => handleDeleteRooms(selectedRoomIds)}
           itemCount={selectedRoomIds.length}
           itemType="salle"
-        >
-          {/* DeleteConfirmationDialog component implementation */}
-        </div>
+        />
       )}
 
       {showTemplates && effectiveUserId && establishmentId && (
