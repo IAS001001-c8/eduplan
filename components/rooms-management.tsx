@@ -21,7 +21,7 @@ import {
   X,
   LayoutTemplate,
   Sparkles,
-  Grid3x3,
+  Grid,
   LayoutGrid,
   Trash2,
 } from "lucide-react"
