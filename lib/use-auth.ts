@@ -55,7 +55,7 @@ export function useAuth(options?: { requireRole?: string; redirectTo?: string })
 
         // Fallback to localStorage
         if (!sessionData) {
-          const localSession = localStorage.getItem("user_session")
+          const localSession = localStorage.getItem("custom_auth_user")
           console.log("[v0] useAuth: Custom session from localStorage:", localSession ? "found" : "not found")
 
           if (localSession) {
