@@ -680,24 +680,12 @@ export function SeatingPlanEditor({
 
   const handleSeatClick = (seatNumber: number) => {
     if (!selectedStudent) {
-      // If no student is selected, and the seat is occupied, show the remove confirmation
+      // If no student is selected, and the seat is occupied, show student info popup
       const studentId = assignments.get(seatNumber)
       if (studentId) {
-        // Check if user has disabled confirmation
-        const dontShow = localStorage.getItem("dontShowRemoveConfirmation") === "true"
-        if (dontShow) {
-          // Remove directly
-          const newAssignments = new Map(assignments)
-          newAssignments.delete(seatNumber)
-          setAssignments(newAssignments)
-          toast({
-            title: "Élève retiré",
-            description: "L'élève a été retiré du plan de classe",
-          })
-        } else {
-          // Show confirmation dialog
-          setStudentToRemove(studentId)
-          setShowRemoveConfirmation(true)
+        const student = students.find(s => s.id === studentId)
+        if (student) {
+          setClickedStudentInfo({ student, seatNumber })
         }
       } else {
         // If seat is empty and no student is selected, open student selection dialog
@@ -707,49 +695,57 @@ export function SeatingPlanEditor({
     }
 
     // If a student is selected
-    // Check if student is already placed - if so, move them to the new seat
+    // Check if student is already placed - if so, SWAP with existing student
     const existingPlacement = Array.from(assignments.entries()).find(
       ([_, studentId]) => studentId === selectedStudent.id,
     )
 
     const newAssignments = new Map(assignments)
-
-    // Remove student from their current seat if they're already placed
-    if (existingPlacement && existingPlacement[0] !== seatNumber) {
-      newAssignments.delete(existingPlacement[0])
-    }
-
     const currentStudentInSeat = assignments.get(seatNumber)
 
-    // If the seat is occupied by the selected student, remove them (effectively unselecting)
+    // If the seat is occupied by the selected student, just unselect
     if (currentStudentInSeat === selectedStudent.id) {
-      newAssignments.delete(seatNumber)
-      setAssignments(newAssignments)
-      setSelectedStudent(null) // Unselect the student
+      setSelectedStudent(null)
+      return
+    }
+
+    // SWAP logic: if both students are placed, swap their positions
+    if (currentStudentInSeat && existingPlacement) {
+      newAssignments.set(existingPlacement[0], currentStudentInSeat)
+      newAssignments.set(seatNumber, selectedStudent.id)
+      
+      const otherStudent = students.find((s) => s.id === currentStudentInSeat)
       toast({
-        title: "Élève retiré",
-        description: "L'élève a été retiré du plan de classe",
+        title: "Élèves échangés",
+        description: `${selectedStudent.first_name} et ${otherStudent?.first_name || 'l\'élève'} ont échangé leurs places.`,
       })
     } else {
-      // Assign the selected student to the seat
-      // If the seat is occupied by another student, remove that student first
-      if (currentStudentInSeat) {
-        newAssignments.delete(seatNumber)
-        // Also remove the student from the unassigned list if they were there
-        const studentToRemoveFromList = students.find((s) => s.id === currentStudentInSeat)
-        if (studentToRemoveFromList) {
-          // This logic might need refinement depending on how unassigned list is managed
-          // For now, we assume the UI will update based on the assignments map
-        }
+      // Normal placement
+      if (existingPlacement) {
+        newAssignments.delete(existingPlacement[0])
       }
-
       newAssignments.set(seatNumber, selectedStudent.id)
-      setAssignments(newAssignments)
-      setSelectedStudent(null) // Unselect the student after placing
       toast({
         title: "Élève placé",
         description: `${selectedStudent.first_name} ${selectedStudent.last_name} a été placé sur la place ${seatNumber}.`,
       })
+    }
+
+    setAssignments(newAssignments)
+    setSelectedStudent(null)
+  }
+
+  // Handler to remove student from clicked info popup
+  const handleRemoveFromInfoPopup = () => {
+    if (clickedStudentInfo) {
+      const newAssignments = new Map(assignments)
+      newAssignments.delete(clickedStudentInfo.seatNumber)
+      setAssignments(newAssignments)
+      toast({
+        title: "Élève retiré",
+        description: `${clickedStudentInfo.student.first_name} ${clickedStudentInfo.student.last_name} a été retiré du plan.`,
+      })
+      setClickedStudentInfo(null)
     }
   }
 
