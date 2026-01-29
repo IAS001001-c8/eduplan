@@ -21,8 +21,9 @@ export async function POST(request: NextRequest) {
     console.log("[v0] Sending email to:", recipientEmail)
 
     // Send email using Resend
+    // Note: Pour envoyer à d'autres destinataires, vérifiez un domaine sur resend.com/domains
     const { data, error } = await resend.emails.send({
-      from: "noreply@nerium-lnc.com",
+      from: "EduPlan <onboarding@resend.dev>",
       to: recipientEmail,
       subject: "Vos identifiants de connexion - EduPlan",
       html: `
