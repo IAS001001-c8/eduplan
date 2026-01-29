@@ -1574,6 +1574,55 @@ export function SeatingPlanEditor({
         </Card>
       </div>
 
+      {/* Student Info Popup */}
+      <Dialog open={!!clickedStudentInfo} onOpenChange={(open) => !open && setClickedStudentInfo(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Information élève
+            </DialogTitle>
+          </DialogHeader>
+          {clickedStudentInfo && (
+            <div className="space-y-4">
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+                <p className="text-lg font-semibold text-slate-900 dark:text-white">
+                  {clickedStudentInfo.student.first_name} {clickedStudentInfo.student.last_name}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Classe: {clickedStudentInfo.student.class_name || "Non spécifiée"}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Place n°{clickedStudentInfo.seatNumber}
+                </p>
+                {clickedStudentInfo.student.role && clickedStudentInfo.student.role !== "eleve" && (
+                  <Badge className="mt-2" variant="secondary">
+                    {clickedStudentInfo.student.role === "delegue" ? "Délégué" : "Éco-délégué"}
+                  </Badge>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setClickedStudentInfo(null)}
+                >
+                  Fermer
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="flex-1"
+                  onClick={handleRemoveFromInfoPopup}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Retirer du plan
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <AlertDialog open={showRemoveConfirmation} onOpenChange={setShowRemoveConfirmation}>
         <AlertDialogContent>
           <AlertDialogHeader>
