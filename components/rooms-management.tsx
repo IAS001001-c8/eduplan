@@ -24,11 +24,23 @@ import {
   Grid,
   LayoutGrid,
   Trash2,
+  List,
+  Users,
+  ChevronRight,
 } from "lucide-react"
 import type { RoomTemplate } from "@/components/room-templates"
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
 import { TemplateSelectionDialog } from "@/components/template-selection-dialog"
 import { CreateSubRoomDialog } from "@/components/create-sub-room-dialog"
+import { RoomSeatPreview } from "@/components/room-seat-preview"
+import { ViewToggle } from "@/components/view-toggle"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
 
 interface Room {
   id: string
