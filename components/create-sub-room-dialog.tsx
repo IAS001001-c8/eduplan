@@ -372,7 +372,8 @@ export function CreateSubRoomDialog({
             </div>
           )}
 
-          {!isProfessor && (
+          {/* Pour vie scolaire : sélection du professeur */}
+          {isVieScolaire && (
             <div className="space-y-2">
               <Label>
                 Professeur
@@ -396,6 +397,20 @@ export function CreateSubRoomDialog({
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Pour professeur : auto-sélectionné */}
+          {isProfessor && !formData.isCollaborative && currentTeacherId && (
+            <div className="bg-slate-50 dark:bg-slate-800 rounded-md p-4">
+              <p className="text-sm text-muted-foreground mb-1">Professeur</p>
+              <p className="font-medium">
+                {teachers.find(t => t.id === currentTeacherId)?.first_name}{' '}
+                {teachers.find(t => t.id === currentTeacherId)?.last_name}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                (La sous-salle sera créée pour vous)
+              </p>
             </div>
           )}
 
