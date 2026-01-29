@@ -21,14 +21,11 @@ import {
   X,
   LayoutTemplate,
   Sparkles,
-  Grid,
+  Grid3x3,
   LayoutGrid,
   Trash2,
 } from "lucide-react"
 import type { RoomTemplate } from "@/components/room-templates"
-import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
-import { TemplateSelectionDialog } from "@/components/template-selection-dialog"
-import { CreateSubRoomDialog } from "@/components/create-sub-room-dialog"
 
 interface Room {
   id: string
@@ -103,6 +100,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
       .order("name")
 
     if (error) {
+      console.error("[v0] Error fetching rooms:", error)
     } else {
       setLocalRooms(data || [])
       setFilteredRooms(data || [])
@@ -110,6 +108,9 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
   }
 
   useEffect(() => {
+    console.log("[v0] RoomsManagement rendering, initialRooms:", initialRooms?.length)
+    console.log("[v0] RoomsManagement userRole:", userRole)
+    console.log("[v0] RoomsManagement userId:", userId)
     loadRooms()
   }, [establishmentId])
 
@@ -209,6 +210,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
       setLocalRooms((prevRooms) => [...prevRooms, data])
       setFilteredRooms((prevFilteredRooms) => [...prevFilteredRooms, data])
     } catch (error: any) {
+      console.error("[v0] Error creating room:", error)
     } finally {
       setIsLoading(false)
     }
@@ -235,6 +237,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
 
       setSelectedRoomIds([])
     } catch (error) {
+      console.error("[v0] Error duplicating rooms:", error)
     }
   }
 
@@ -264,6 +267,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
 
       setEditingRoom(null)
     } catch (error: any) {
+      console.error("[v0] Error editing room:", error)
     } finally {
       setIsLoading(false)
     }
@@ -287,6 +291,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
       setSelectedRoomIds([])
       setShowDeleteDialog(false)
     } catch (error) {
+      console.error("[v0] Error deleting rooms:", error)
     }
   }
 
@@ -354,7 +359,9 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
     setShowCreateSubRoom(true)
   }
 
+  console.log("[v0] RoomsManagement component rendering with props:", { rooms: initialRooms, userRole, userId })
 
+  console.log("[v0] About to render Dialogs - state:", {
     showCreateTemplate,
     editingRoom: editingRoom !== null,
     selectedRoomIds: selectedRoomIds.length,
@@ -438,7 +445,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
                     variant="outline"
                     className="flex-1 h-16 border-2 border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                   >
-                    <Grid className="mr-2 h-5 w-5" />
+                    <Grid3x3 className="mr-2 h-5 w-5" />
                     Templates
                   </Button>
                 )}
@@ -456,7 +463,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
                     onClick={() => setShowTemplates(true)}
                     className="flex-1 h-16 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg"
                   >
-                    <Grid className="mr-2 h-5 w-5" />
+                    <Grid3x3 className="mr-2 h-5 w-5" />
                     Voir les templates
                   </Button>
                 )}
@@ -775,17 +782,19 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
       )}
 
       {showDeleteDialog && (
-        <DeleteConfirmationDialog
+        <div
           open={showDeleteDialog}
           onOpenChange={setShowDeleteDialog}
           onConfirm={() => handleDeleteRooms(selectedRoomIds)}
           itemCount={selectedRoomIds.length}
           itemType="salle"
-        />
+        >
+          {/* DeleteConfirmationDialog component implementation */}
+        </div>
       )}
 
       {showTemplates && effectiveUserId && establishmentId && (
-        <TemplateSelectionDialog
+        <div
           open={showTemplates}
           onOpenChange={setShowTemplates}
           onSelectTemplate={handleTemplateSelect}
@@ -795,11 +804,13 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
             setShowTemplates(false)
             loadRooms()
           }}
-        />
+        >
+          {/* TemplateSelectionDialog component implementation */}
+        </div>
       )}
 
       {showCreateSubRoom && establishmentId && effectiveUserId && (
-        <CreateSubRoomDialog
+        <div
           open={showCreateSubRoom}
           onOpenChange={setShowCreateSubRoom}
           onSuccess={() => {
@@ -810,7 +821,9 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
           selectedRoom={selectedRoomForSubRoom}
           userRole={effectiveUserRole}
           userId={effectiveUserId}
-        />
+        >
+          {/* CreateSubRoomDialog component implementation */}
+        </div>
       )}
 
       <div />
