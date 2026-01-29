@@ -326,17 +326,22 @@ export function SeatingPlanEditor({
       return
     }
 
-    // If the seat is occupied by another student, remove that student
-    if (currentStudentIdInSeat) {
-      const currentStudentCurrentSeat = Array.from(assignments.entries()).find(
-        ([_, id]) => id === currentStudentIdInSeat,
-      )?.[0]
-      if (currentStudentCurrentSeat !== undefined) {
-        assignments.delete(currentStudentCurrentSeat)
-      }
+    const newAssignments = new Map(assignments)
+
+    // IMPORTANT: Remove the student from their current seat if they're already placed
+    // This prevents duplicate placements
+    const existingSeat = Array.from(newAssignments.entries()).find(
+      ([_, id]) => id === studentId
+    )?.[0]
+    if (existingSeat !== undefined) {
+      newAssignments.delete(existingSeat)
     }
 
-    const newAssignments = new Map(assignments)
+    // If the seat is occupied by another student, remove that student
+    if (currentStudentIdInSeat && currentStudentIdInSeat !== studentId) {
+      newAssignments.delete(seatNumber)
+    }
+
     newAssignments.set(seatNumber, studentId)
     setAssignments(newAssignments)
 
