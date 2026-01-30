@@ -1,17 +1,38 @@
 import { createClient } from "@/lib/supabase/client"
 
 interface NotificationData {
-  user_id: string
-  establishment_id: string
+  user_id?: string
+  userId?: string
+  establishment_id?: string
+  establishmentId?: string
   type: string
   title: string
   message: string
   sub_room_id?: string
+  subRoomId?: string
   proposal_id?: string
+  proposalId?: string
   triggered_by?: string
+  triggeredBy?: string
 }
 
 export async function sendNotification(data: NotificationData) {
+  // Normalize to snake_case for the API
+  const normalizedData = {
+    user_id: data.user_id || data.userId,
+    establishment_id: data.establishment_id || data.establishmentId,
+    type: data.type,
+    title: data.title,
+    message: data.message,
+    sub_room_id: data.sub_room_id || data.subRoomId,
+    proposal_id: data.proposal_id || data.proposalId,
+    triggered_by: data.triggered_by || data.triggeredBy,
+  }
+
+  if (!normalizedData.user_id || !normalizedData.establishment_id) {
+    console.error("[Notifications] Missing user_id or establishment_id")
+    return
+  }
 
   try {
     const response = await fetch("/api/notifications", {
@@ -19,16 +40,19 @@ export async function sendNotification(data: NotificationData) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(normalizedData),
     })
 
     if (!response.ok) {
       const error = await response.json()
+      console.error("[Notifications] Error sending notification:", error)
       return
     }
 
     const result = await response.json()
+    console.log("[Notifications] Notification sent:", result)
   } catch (error) {
+    console.error("[Notifications] Exception:", error)
   }
 }
 
