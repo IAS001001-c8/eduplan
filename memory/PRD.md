@@ -61,15 +61,18 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - ✅ Nouveau dialogue "Créer une salle" (`CreateRoomDialog`):
   - Nom de la salle (ex: Salle Informatique)
   - Code (ex: B12)
-  - Position du tableau (haut/bas/gauche/droite)
+  - Position du tableau toujours en haut (retiré le choix)
   - Configuration colonnes: nombre de rangées et places par rangée
   - Limite de 350 places max
 - ✅ Retrait du bouton "Personnaliser" et de la carte templates
 - ✅ Bouton unique "Créer une salle" dans l'en-tête
 - ✅ JSZip installé pour génération de ZIP côté client
-- ✅ API `/api/get-credentials` pour récupérer les identifiants (bypass RLS avec service role)
-- ✅ Correction passage props userRole/userId au CreateSubRoomDialog dans seating-plan-management
-- ✅ Fix référence showCreateTemplate manquante dans rooms-management
+- ✅ API `/api/get-credentials` optimisée (limite 50 profils, maxDuration 30s)
+- ✅ Correction passage props userRole/userId au CreateSubRoomDialog
+- ✅ Fix référence showCreateTemplate et Mail manquantes
+- ✅ Suppression complète des fonctionnalités email (frontend)
+- ✅ Limite toasts déjà configurée à 3 max
+- ✅ Correction filtrage classes pour professeurs (ajout dépendance classes)
 
 ### Intégrations Jan 30, 2026
 - ✅ Export PDF des plans de classe (jspdf + html2canvas)
