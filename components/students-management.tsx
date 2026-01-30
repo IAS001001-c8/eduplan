@@ -538,7 +538,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
     setIsEmailConfirmDialogOpen(true)
   }
 
-  // New function to confirm and send email
+  // New function to confirm and send email with retry
   async function confirmAndSendEmail() {
     if (!selectedStudent) return
 
@@ -553,40 +553,65 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
 
     setIsSendingEmail(true)
 
-    try {
-      const response = await fetch("/api/send-credentials", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          recipientEmail: emailToConfirm,
-          recipientName: `${selectedStudent.first_name} ${selectedStudent.last_name}`,
-          username: accessData.username,
-          password: accessData.password, // Send actual password, not masked
-          userType: "student",
-        }),
-      })
+    // Retry logic for 520 errors (platform timeout)
+    const maxRetries = 2
+    let lastError: Error | null = null
 
-      if (!response.ok) {
-        throw new Error("Failed to send email")
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await fetch("/api/send-credentials", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            recipientEmail: emailToConfirm,
+            recipientName: `${selectedStudent.first_name} ${selectedStudent.last_name}`,
+            username: accessData.username,
+            password: accessData.password,
+            userType: "student",
+          }),
+        })
+
+        if (response.status === 520) {
+          // Platform timeout, retry
+          lastError = new Error("Platform timeout (520)")
+          if (attempt < maxRetries) {
+            await new Promise(r => setTimeout(r, 1000)) // Wait 1s before retry
+            continue
+          }
+        }
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          throw new Error(errorData.error || "Failed to send email")
+        }
+
+        toast({
+          title: "Email envoyé",
+          description: `Les identifiants ont été envoyés à ${emailToConfirm}`,
+        })
+        setIsEmailConfirmDialogOpen(false)
+        setIsAccessDialogOpen(false)
+        return // Success, exit
+      } catch (error) {
+        lastError = error as Error
+        if (attempt < maxRetries) {
+          await new Promise(r => setTimeout(r, 1000))
+          continue
+        }
       }
-
-      toast({
-        title: "Email envoyé",
-        description: `Les identifiants ont été envoyés à ${emailToConfirm}`,
-      })
-      setIsEmailConfirmDialogOpen(false)
-      setIsAccessDialogOpen(false) // Close access dialog after successful send
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible d'envoyer l'email. Vérifiez l'adresse email.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsSendingEmail(false)
     }
+
+    // All retries failed
+    toast({
+      title: "Erreur d'envoi",
+      description: lastError?.message?.includes("520") 
+        ? "Délai de réponse dépassé. L'email peut avoir été envoyé. Vérifiez votre boîte mail."
+        : "Impossible d'envoyer l'email. Vérifiez l'adresse email.",
+      variant: "destructive",
+    })
+    setIsSendingEmail(false)
   }
 
   // New function for bulk email sending initiation
