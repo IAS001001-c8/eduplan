@@ -1090,7 +1090,8 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
           <p className="text-muted-foreground mt-1">Gérez les élèves, leurs accès et leurs informations</p>
         </div>
         {userRole === "vie-scolaire" && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <ViewToggle view={viewMode} onViewChange={setViewMode} />
             {selectedStudents.length > 0 && (
               <>
                 <Button variant="destructive" onClick={() => setIsBulkDeleteDialogOpen(true)}>
