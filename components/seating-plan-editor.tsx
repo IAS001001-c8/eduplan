@@ -1169,68 +1169,56 @@ export function SeatingPlanEditor({
   }
 
   // --- Helper functions for room layout ---
-  const getResponsiveGap = () => {
-    // Add logic to return a class string based on screen size if needed
-    // For now, returning a default gap
-    return "gap-4" // Example: Adjust as needed for responsiveness
+  
+  // Get number of columns for grid based on seats
+  const getGridCols = (seatsPerTable: number): number => {
+    if (seatsPerTable === 1) return 1
+    if (seatsPerTable === 2) return 2
+    if (seatsPerTable === 3) return 3
+    if (seatsPerTable === 4) return 2 // 2x2 grid
+    if (seatsPerTable === 5) return 3 // 2 rows, 3+2 
+    if (seatsPerTable === 6) return 3 // 2x3 grid
+    return Math.min(seatsPerTable, 4)
   }
 
   // Calculate table width based on number of seats per table
-  const getTableWidth = (seatsPerTable: number): string => {
-    // Base width per seat cell (including gap)
-    const seatWidth = 48 // 12 * 4 = 48px (w-12)
+  const getTableWidth = (seatsPerTable: number): number => {
+    const seatSize = 56 // Slightly larger seats (14 * 4 = 56px)
     const gapWidth = 12 // gap-3 = 12px
+    const padding = 24 // p-3 = 12px * 2
     
-    // Calculate columns in grid
-    let cols = 2 // default
-    if (seatsPerTable === 1) cols = 1
-    else if (seatsPerTable === 2) cols = 2
-    else if (seatsPerTable === 3) cols = 3
-    else if (seatsPerTable === 4) cols = 2 // 2x2 grid
-    else if (seatsPerTable === 5) cols = 3
-    else if (seatsPerTable === 6) cols = 3 // 2x3 grid
-    else if (seatsPerTable === 7) cols = 4
-    else cols = Math.min(seatsPerTable, 4)
-    
-    // Calculate total width
-    const totalWidth = cols * seatWidth + (cols - 1) * gapWidth + 32 // +32 for padding
-    return `${totalWidth}px`
+    const cols = getGridCols(seatsPerTable)
+    return cols * seatSize + (cols - 1) * gapWidth + padding
   }
 
   // Calculate table height based on number of seats and layout
-  const getTableHeight = (seatsPerTable: number): string => {
-    const seatHeight = 48
+  const getTableHeight = (seatsPerTable: number): number => {
+    const seatSize = 56
     const gapHeight = 12
+    const padding = 24
     
-    // Calculate rows based on seats and columns
-    let cols = 2
-    if (seatsPerTable === 1) cols = 1
-    else if (seatsPerTable === 2) cols = 2
-    else if (seatsPerTable === 3) cols = 3
-    else if (seatsPerTable === 4) cols = 2
-    else if (seatsPerTable === 5) cols = 3
-    else if (seatsPerTable === 6) cols = 3
-    else cols = Math.min(seatsPerTable, 4)
-    
+    const cols = getGridCols(seatsPerTable)
     const rows = Math.ceil(seatsPerTable / cols)
-    const totalHeight = rows * seatHeight + (rows - 1) * gapHeight + 32
-    return `${totalHeight}px`
-  }
-
-  const getResponsiveTableSize = (seatsPerTable?: number) => {
-    // If no seatsPerTable provided, return default
-    if (!seatsPerTable) return "w-32 h-24"
-    // Return empty string - we'll use inline styles for dynamic sizing
-    return ""
+    return rows * seatSize + (rows - 1) * gapHeight + padding
   }
 
   const getTableStyle = (seatsPerTable?: number): React.CSSProperties => {
-    if (!seatsPerTable) return {}
-    return {
-      width: getTableWidth(seatsPerTable),
-      height: getTableHeight(seatsPerTable),
-      minWidth: getTableWidth(seatsPerTable),
+    if (!seatsPerTable) {
+      return { width: 140, height: 100 }
     }
+    const width = getTableWidth(seatsPerTable)
+    const height = getTableHeight(seatsPerTable)
+    return {
+      width: `${width}px`,
+      height: `${height}px`,
+      minWidth: `${width}px`,
+      minHeight: `${height}px`,
+    }
+  }
+  
+  const getGridColsClass = (seatsPerTable: number): string => {
+    const cols = getGridCols(seatsPerTable)
+    return `grid-cols-${cols}`
   }
 
   const getSeatNumber = (colIndex: number, tableIndex: number, seatIndex: number): number => {
