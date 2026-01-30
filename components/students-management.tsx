@@ -1638,7 +1638,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
                   variant="outline"
                   size="icon"
                   className="shrink-0 bg-transparent"
-                  onClick={() => setAccessData({ ...accessData, password: generateRandomPassword(8) })}
+                  onClick={() => setAccessData({ ...accessData, password: generateLocalRandomPassword(8) })}
                   title="Générer un mot de passe aléatoire"
                 >
                   <Shuffle className="h-4 w-4" />
