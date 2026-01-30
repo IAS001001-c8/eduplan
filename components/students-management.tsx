@@ -87,7 +87,7 @@ function generateStrongPassword(length = 8): string {
 
 // import { Shuffle } from 'lucide-react'
 
-function generateRandomPassword(length = 8): string {
+function generateLocalRandomPassword(length = 8): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789"
   let password = ""
   for (let i = 0; i < length; i++) {
