@@ -1670,14 +1670,41 @@ export function SeatingPlanEditor({
         </Dialog>
 
         {/* Dialog for student selection */}
-        <Dialog open={selectedSeatForDialog !== null} onOpenChange={(open) => !open && setSelectedSeatForDialog(null)}>
-          <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+        <Dialog open={selectedSeatForDialog !== null} onOpenChange={(open) => {
+          if (!open) {
+            setSelectedSeatForDialog(null)
+            setSeatDialogSearchQuery("")
+          }
+        }}>
+          <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
             <DialogHeader>
               <DialogTitle>Sélectionner un élève</DialogTitle>
               <DialogDescription>Choisissez un élève à placer sur la place {selectedSeatForDialog}</DialogDescription>
             </DialogHeader>
-            <div className="space-y-2 mt-4">
-              {getUnassignedStudents().map((student) => (
+            
+            {/* Search bar */}
+            <div className="relative mt-2">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher un élève..."
+                value={seatDialogSearchQuery}
+                onChange={(e) => setSeatDialogSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            
+            <div className="space-y-2 mt-4 overflow-y-auto flex-1 pr-2">
+              {getUnassignedStudents()
+                .filter((student) => {
+                  if (!seatDialogSearchQuery.trim()) return true
+                  const query = seatDialogSearchQuery.toLowerCase()
+                  return (
+                    student.first_name.toLowerCase().includes(query) ||
+                    student.last_name.toLowerCase().includes(query) ||
+                    student.class_name?.toLowerCase().includes(query)
+                  )
+                })
+                .map((student) => (
                 <Button
                   key={student.id}
                   variant="outline"
@@ -1687,13 +1714,10 @@ export function SeatingPlanEditor({
                     const newAssignments = new Map(assignments)
                     newAssignments.set(selectedSeatForDialog!, student.id)
                     setAssignments(newAssignments)
-                    setSelectedStudent(null) // Clear selected student
-                    setSelectedSeatForDialog(null) // Close the dialog
-
-                    toast({
-                      title: "Élève placé",
-                      description: `${student.first_name} ${student.last_name} a été placé sur la place ${selectedSeatForDialog}.`,
-                    })
+                    setSelectedStudent(null)
+                    setSelectedSeatForDialog(null)
+                    setSeatDialogSearchQuery("")
+                    // No toast - too many notifications
                   }}
                 >
                   <div className="flex flex-col items-start gap-1">
@@ -1712,9 +1736,21 @@ export function SeatingPlanEditor({
                   </div>
                 </Button>
               ))}
-              {getUnassignedStudents().length === 0 && (
+              {getUnassignedStudents().filter((student) => {
+                if (!seatDialogSearchQuery.trim()) return true
+                const query = seatDialogSearchQuery.toLowerCase()
+                return (
+                  student.first_name.toLowerCase().includes(query) ||
+                  student.last_name.toLowerCase().includes(query) ||
+                  student.class_name?.toLowerCase().includes(query)
+                )
+              }).length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
-                  <p>Tous les élèves sont déjà placés</p>
+                  {seatDialogSearchQuery ? (
+                    <p>Aucun élève trouvé pour "{seatDialogSearchQuery}"</p>
+                  ) : (
+                    <p>Tous les élèves sont déjà placés</p>
+                  )}
                 </div>
               )}
             </div>
