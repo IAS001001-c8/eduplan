@@ -1566,6 +1566,49 @@ export function SeatingPlanEditor({
                 )}
               </CardContent>
             </Card>
+
+            {/* Teacher Comments Section - Visible for delegates when plan is returned */}
+            {(userRole === "delegue" || userRole === "eco-delegue") && 
+              subRoom.proposal_data && 
+              (subRoom.proposal_data.status === "returned" || subRoom.proposal_data.teacher_comments || subRoom.proposal_data.rejection_reason) && (
+              <Card className="mt-4 border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2 text-orange-700 dark:text-orange-300">
+                    <AlertTriangle className="h-4 w-4" />
+                    Commentaires du professeur
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  {subRoom.proposal_data.teacher_comments && (
+                    <div className="mb-3">
+                      <p className="text-xs text-orange-600 dark:text-orange-400 font-medium mb-1">Commentaires :</p>
+                      <p className="text-sm text-orange-800 dark:text-orange-200 bg-white dark:bg-orange-900/30 p-2 rounded border border-orange-200 dark:border-orange-700">
+                        {subRoom.proposal_data.teacher_comments}
+                      </p>
+                    </div>
+                  )}
+                  {subRoom.proposal_data.rejection_reason && (
+                    <div>
+                      <p className="text-xs text-orange-600 dark:text-orange-400 font-medium mb-1">Raison du refus/renvoi :</p>
+                      <p className="text-sm text-orange-800 dark:text-orange-200 bg-white dark:bg-orange-900/30 p-2 rounded border border-orange-200 dark:border-orange-700">
+                        {subRoom.proposal_data.rejection_reason}
+                      </p>
+                    </div>
+                  )}
+                  {subRoom.proposal_data.reviewed_at && (
+                    <p className="text-xs text-orange-500 dark:text-orange-400 mt-2">
+                      Dernière révision : {new Date(subRoom.proposal_data.reviewed_at).toLocaleDateString("fr-FR", { 
+                        day: "numeric", 
+                        month: "long", 
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                      })}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Right Panel - Students List */}
