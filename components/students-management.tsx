@@ -1238,6 +1238,14 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       )}
       {/* End of updates for search and filter */}
 
+      {/* View Toggle - Below filters */}
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">
+          {filteredStudents.length} élève(s) affiché(s)
+        </div>
+        <ViewToggle view={viewMode} onViewChange={setViewMode} />
+      </div>
+
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
