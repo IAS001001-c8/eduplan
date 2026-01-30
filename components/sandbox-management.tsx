@@ -656,6 +656,7 @@ function SandboxEditor({ proposal, userRole, userId, onClose }: SandboxEditorPro
       isSandbox={true}
       userRole={userRole}
       userId={userId}
+      establishmentId={establishmentId}
     />
   )
 }
