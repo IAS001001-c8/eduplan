@@ -1111,7 +1111,11 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
             )}
             <Button variant="outline" onClick={() => setIsImportDialogOpen(true)}>
               <Upload className="mr-2 h-4 w-4" />
-              Importer
+              Importer (texte)
+            </Button>
+            <Button variant="outline" onClick={() => setIsExcelImportDialogOpen(true)}>
+              <FileSpreadsheet className="mr-2 h-4 w-4" />
+              Import Excel
             </Button>
             <Button onClick={() => setIsAddDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
