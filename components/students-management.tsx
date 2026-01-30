@@ -966,7 +966,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
     setIsDownloadingPDF(true)
 
     try {
-      // Generate new passwords and update profiles
       const credentialsToExport: Array<{
         first_name: string
         last_name: string
@@ -981,14 +980,11 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
         if (!student.profile_id) {
           continue
         }
-
-        // Generate new password
-        const newPassword = generateLocalRandomPassword(12)
         
-        // Get current profile to get username
+        // Get current profile with username and password
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("username")
+          .select("username, password")
           .eq("id", student.profile_id)
           .single()
 
@@ -997,22 +993,14 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
           continue
         }
 
-        // Update password in profiles table
-        const { error: updateError } = await supabase
-          .from("profiles")
-          .update({ password: newPassword })
-          .eq("id", student.profile_id)
-
-        if (updateError) {
-          console.error("Error updating password for", student.id)
-          continue
-        }
+        // Use existing password or generate a placeholder
+        const password = profile.password || "[Mot de passe non disponible]"
 
         credentialsToExport.push({
           first_name: student.first_name,
           last_name: student.last_name,
           username: profile.username,
-          password: newPassword,
+          password: password,
           role: student.role || "eleve",
           class_name: student.class_name || student.classes?.name,
         })
@@ -1027,12 +1015,12 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
         return
       }
 
-      // Generate and download PDF
-      downloadCredentialsPDF(credentialsToExport, `identifiants_eleves`)
+      // Generate and download ZIP with PDFs
+      await downloadCredentialsPDF(credentialsToExport, `identifiants_eleves`)
 
       toast({
-        title: "PDF généré avec succès",
-        description: `${credentialsToExport.length} identifiant(s) exporté(s). Les mots de passe ont été réinitialisés.`,
+        title: "ZIP généré avec succès",
+        description: `${credentialsToExport.length} identifiant(s) exporté(s)`,
       })
 
       // Clear selection
@@ -1041,7 +1029,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       console.error("Error generating PDF:", error)
       toast({
         title: "Erreur",
-        description: "Impossible de générer le PDF",
+        description: "Impossible de générer le ZIP",
         variant: "destructive",
       })
     } finally {
