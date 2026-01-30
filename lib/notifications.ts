@@ -56,6 +56,62 @@ export async function sendNotification(data: NotificationData) {
   }
 }
 
+// Notify all users in an establishment (for room/sub-room creation/deletion)
+interface NotifyEstablishmentUsersParams {
+  establishmentId: string
+  type: string
+  title: string
+  message: string
+  triggeredBy?: string
+  excludeUserId?: string // User to exclude from notification (usually the creator)
+  subRoomId?: string
+}
+
+export async function notifyEstablishmentUsers({
+  establishmentId,
+  type,
+  title,
+  message,
+  triggeredBy,
+  excludeUserId,
+  subRoomId,
+}: NotifyEstablishmentUsersParams) {
+  const supabase = createClient()
+
+  try {
+    // Get all profiles in the establishment (professeurs and vie-scolaire)
+    const { data: profiles, error } = await supabase
+      .from("profiles")
+      .select("id, role")
+      .eq("establishment_id", establishmentId)
+      .in("role", ["professeur", "vie-scolaire"])
+
+    if (error || !profiles) {
+      console.error("[Notifications] Error fetching profiles:", error)
+      return
+    }
+
+    // Send notification to each user (except the one who triggered it)
+    for (const profile of profiles) {
+      if (excludeUserId && profile.id === excludeUserId) continue
+
+      await sendNotification({
+        user_id: profile.id,
+        establishment_id: establishmentId,
+        type,
+        title,
+        message,
+        triggered_by: triggeredBy,
+        sub_room_id: subRoomId,
+      })
+    }
+
+    console.log(`[Notifications] Notified ${profiles.length} users about ${type}`)
+  } catch (error) {
+    console.error("[Notifications] Error notifying establishment users:", error)
+  }
+}
+
 export async function notifyPlanModified(
   subRoomId: string,
   subRoomName: string,
