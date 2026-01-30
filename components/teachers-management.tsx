@@ -933,56 +933,48 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
       return
     }
 
+    // Filter only teachers with profile_id
+    const teachersWithProfiles = selectedTeacherObjects.filter(t => t.profile_id)
+    if (teachersWithProfiles.length === 0) {
+      toast({
+        title: "Aucun accès à exporter",
+        description: "Les professeurs sélectionnés n'ont pas de compte d'accès",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsDownloadingPDF(true)
 
     try {
-      const supabase = createClient()
-      const credentialsToExport: Array<{
-        first_name: string
-        last_name: string
-        username: string
-        password: string
-        role: string
-        class_name?: string
-      }> = []
+      // Use API to fetch credentials (bypasses RLS)
+      const profileIds = teachersWithProfiles.map(t => t.profile_id)
+      const response = await fetch("/api/get-credentials", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profileIds, userType: "teacher" })
+      })
 
-      for (const teacher of selectedTeacherObjects) {
-        if (!teacher.profile_id) continue
-        
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("username, password")
-          .eq("id", teacher.profile_id)
-          .single()
-
-        if (profileError || !profile) continue
-
-        const password = profile.password || "[Mot de passe non disponible]"
-
-        credentialsToExport.push({
-          first_name: teacher.first_name,
-          last_name: teacher.last_name,
-          username: profile.username,
-          password: password,
-          role: "professeur",
-          class_name: teacher.subject || undefined,
-        })
+      if (!response.ok) {
+        throw new Error("Erreur lors de la récupération des identifiants")
       }
 
-      if (credentialsToExport.length === 0) {
+      const { credentials } = await response.json()
+
+      if (!credentials || credentials.length === 0) {
         toast({
           title: "Aucun accès à exporter",
-          description: "Les professeurs sélectionnés n'ont pas de compte d'accès",
+          description: "Impossible de récupérer les identifiants",
           variant: "destructive",
         })
         return
       }
 
-      await downloadCredentialsPDF(credentialsToExport, `identifiants_professeurs`)
+      await downloadCredentialsPDF(credentials, `identifiants_professeurs`)
 
       toast({
         title: "ZIP généré avec succès",
-        description: `${credentialsToExport.length} identifiant(s) exporté(s)`,
+        description: `${credentials.length} identifiant(s) exporté(s)`,
       })
 
       setSelectedTeachers([])
