@@ -6,24 +6,40 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 ## Stack technique
 - **Frontend**: Next.js 15, React 19, TailwindCSS, Radix UI, Shadcn
 - **Backend**: Supabase (PostgreSQL + Realtime)
-- **Email**: Resend (noreply@eduplan-lnc.com)
+- **Email**: Resend (noreply@eduplan-lnc.com) - Désactivé dans l'UI
 - **Auth**: Custom auth avec profils Supabase
+
+## Corrections Jan 30, 2026 (Session 6)
+
+### Toasts Optimisés ✅
+- Suppression des toasts de placement d'élèves (placement, échange, retrait)
+- Suppression des toasts de placement aléatoire, alphabétique, compléter
+- Suppression des toasts de vidage et réinitialisation du plan
+- **Toasts conservés** : erreurs, sauvegarde, soumission, refus avec commentaires, renvoi avec commentaires
+
+### Modification de Salle ✅
+- Création du composant `EditRoomDialog` (edit-room-dialog.tsx)
+- Intégration dans rooms-management.tsx
+- Formulaire complet : nom, code, configuration des colonnes
+- Aperçu visuel de la salle modifiée
+
+### Système de Notifications ✅
+- Interface NotificationData compatible camelCase et snake_case
+- Notification au professeur lors de la soumission par le délégué
+- Notification au délégué lors de la validation
+- Notification au délégué lors du refus définitif
+- Notification au délégué lors du renvoi avec commentaires
+- Composant NotificationsDropdown avec :
+  - Badge de notifications non lues
+  - Mise à jour temps réel (Supabase Realtime)
+  - Navigation vers la page concernée au clic
 
 ## Corrections Jan 30, 2026 (Session 5)
 - ✅ Page Salles crash (`showCreateTemplate is not defined`) → Corrigé
 - ✅ Page Étudiants: variable `credentialsToExport` non définie → Corrigé
-- ✅ Téléchargement PDF: utilisation `password` au lieu de `password_hash` → Corrigé (hash du mot de passe avant stockage)
-- ✅ Page Enseignants: logique téléchargement PDF client-side (évite erreur 520 API)
-- ✅ Éditeur de plan de classe: amélioration de l'adaptabilité des tables
-  - Tables de tailles différentes selon le nombre de places (1, 2, 3, 4, 6 places)
-  - Sièges agrandis (w-14 h-14) pour meilleure précision drag & drop
-  - Espacement amélioré entre colonnes et tables (gap-6, gap-4)
-  - Grille dynamique avec `gridTemplateColumns` calculé
-
-## Bugs restants à investiguer
-- [ ] Précision drag & drop à améliorer davantage
-- [ ] Vérifier l'éditeur dans la section Vie Scolaire
-- [ ] Modification de salle (dialog d'édition)
+- ✅ Téléchargement PDF: utilisation `password_hash` avec hachage
+- ✅ Page Enseignants: logique téléchargement PDF client-side
+- ✅ Éditeur de plan de classe: adaptabilité des tables
 
 ## Fonctionnalités implémentées
 
