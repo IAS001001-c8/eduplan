@@ -612,8 +612,12 @@ function SandboxEditor({ proposal, userRole, userId, onClose, establishmentId }:
         name: proposal.name,
         room_id: proposal.room_id,
         class_ids: [proposal.class_id],
+        establishment_id: establishmentId,
         is_sandbox: true, // Flag to indicate this is a sandbox proposal
-        proposal_data: proposal,
+        proposal_data: {
+          ...proposal,
+          establishment_id: establishmentId,
+        },
       }
 
       setSubRoom(tempSubRoom)
