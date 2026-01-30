@@ -1603,6 +1603,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
             </Card>
           ))}
           </div>
+          )}
         </>
       )}
 
