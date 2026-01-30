@@ -114,6 +114,7 @@ interface SeatingPlanEditorProps {
   isSandbox?: boolean // Added for sandbox functionality
   userRole?: string // Added for user role
   userId?: string // Added for user ID
+  establishmentId?: string // Added for notifications
 }
 
 // --- Added createClient function ---
