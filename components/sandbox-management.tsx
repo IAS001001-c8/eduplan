@@ -539,6 +539,7 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
           proposal={selectedProposal}
           userRole={userRole}
           userId={userId}
+          establishmentId={establishmentId}
           onClose={() => {
             setIsEditorOpen(false)
             setSelectedProposal(null)
