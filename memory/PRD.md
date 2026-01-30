@@ -9,6 +9,27 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - **Email**: Resend (noreply@eduplan-lnc.com) - Désactivé dans l'UI
 - **Auth**: Custom auth avec profils Supabase
 
+## Corrections Jan 30, 2026 (Session 8)
+
+### Vue Tableau Élèves - Position du Toggle ✅
+- ViewToggle déplacé sous les filtres (meilleure UX)
+- Visible pour tous les rôles (vie-scolaire, professeur)
+- Affichage du nombre d'élèves filtrés
+
+### Notifications - Fix user_id/establishment_id ✅
+- Ajout de `establishmentId` comme prop de `SeatingPlanEditor`
+- Variable `effectiveEstablishmentId` avec fallbacks multiples
+- Correction des appels `sendNotification` pour soumission, validation, rejet et renvoi
+- Passage de `establishmentId` depuis `SandboxManagement` et `SeatingPlanManagement`
+
+### Historique des commentaires du professeur ✅
+- Alert orange visible par le délégué quand le plan est renvoyé
+- Affichage de `teacher_comments` et `rejection_reason` dans la proposition
+- Interface SubRoom mise à jour avec les champs `rejection_reason`, `teacher_comments`
+
+### Script SQL RLS Notifications ✅
+- `/app/scripts/fix_notifications_rls.sql` pour activer les policies RLS permissives
+
 ## Corrections Jan 30, 2026 (Session 7)
 
 ### Vue Tableau Élèves ✅
