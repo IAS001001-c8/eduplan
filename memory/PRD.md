@@ -27,11 +27,10 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - Format: `${student.first_name}.${student.last_name.charAt(0).toUpperCase()}`
 
 ### Script SQL Notifications ✅
-- Créé `/app/scripts/create_notifications_table.sql`
-- Table avec : user_id, establishment_id, type, title, message, sub_room_id, proposal_id, triggered_by, is_read
-- RLS policies pour sécurité
-- Realtime activé pour mises à jour temps réel
-- Trigger pour updated_at automatique
+- Créé `/app/scripts/fix_notifications_rls.sql` (script simplifié)
+- Active RLS et crée les policies permissives
+- La table `notifications` existe déjà dans Supabase
+- Realtime déjà activé
 
 ## Corrections Jan 30, 2026 (Session 6)
 
