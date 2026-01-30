@@ -143,6 +143,9 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
   const [isDownloadingPDF, setIsDownloadingPDF] = useState(false)
   const [isBulkCredentialsDialogOpen, setIsBulkCredentialsDialogOpen] = useState(false)
 
+  // View mode state
+  const [viewMode, setViewMode] = useState<"grid" | "table">("grid")
+
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   // Renamed editFormData to editData to avoid naming conflict with formData for add dialog
   const [editData, setEditData] = useState({
