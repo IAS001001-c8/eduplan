@@ -1073,11 +1073,7 @@ export function SeatingPlanEditor({
         newAssignments.set(seatNumber, draggedStudent)
         setAssignments(newAssignments)
         setSelectedStudent(null) // Clear selected student
-
-        toast({
-          title: "Élève placé",
-          description: `${studentToPlace.first_name} ${studentToPlace.last_name} a été placé sur la place ${seatNumber}.`,
-        })
+        // No toast - too many notifications
       } else {
         // If dropped outside a seat (e.g., on the unplaced list), remove from seat
         handleDropToUnplacedArea()
