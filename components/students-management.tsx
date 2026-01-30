@@ -1598,7 +1598,8 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
               </CardContent>
             </Card>
           ))}
-        </div>
+          </div>
+        </>
       )}
 
       {/* Add Dialog */}
