@@ -125,6 +125,16 @@ export function CreateRoomDialog({
 
       if (error) throw error
 
+      // Notify all users in the establishment
+      await notifyEstablishmentUsers({
+        establishmentId,
+        type: "room_created",
+        title: "Nouvelle salle créée",
+        message: `La salle "${formData.name}" (${formData.code}) a été créée`,
+        triggeredBy: userId,
+        excludeUserId: userId, // Don't notify the creator
+      })
+
       toast({
         title: "Salle créée",
         description: `La salle "${formData.name}" a été créée avec succès`,
