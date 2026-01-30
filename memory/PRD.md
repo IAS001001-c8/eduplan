@@ -9,6 +9,22 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - **Email**: Resend (noreply@eduplan-lnc.com)
 - **Auth**: Custom auth avec profils Supabase
 
+## Corrections Jan 30, 2026 (Session 5)
+- ✅ Page Salles crash (`showCreateTemplate is not defined`) → Corrigé
+- ✅ Page Étudiants: variable `credentialsToExport` non définie → Corrigé
+- ✅ Téléchargement PDF: utilisation `password` au lieu de `password_hash` → Corrigé (hash du mot de passe avant stockage)
+- ✅ Page Enseignants: logique téléchargement PDF client-side (évite erreur 520 API)
+- ✅ Éditeur de plan de classe: amélioration de l'adaptabilité des tables
+  - Tables de tailles différentes selon le nombre de places (1, 2, 3, 4, 6 places)
+  - Sièges agrandis (w-14 h-14) pour meilleure précision drag & drop
+  - Espacement amélioré entre colonnes et tables (gap-6, gap-4)
+  - Grille dynamique avec `gridTemplateColumns` calculé
+
+## Bugs restants à investiguer
+- [ ] Précision drag & drop à améliorer davantage
+- [ ] Vérifier l'éditeur dans la section Vie Scolaire
+- [ ] Modification de salle (dialog d'édition)
+
 ## Fonctionnalités implémentées
 
 ### Core
