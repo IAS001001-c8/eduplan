@@ -557,6 +557,7 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
           setIsReviewDialogOpen(false)
           fetchProposals()
         }}
+        onEditInEditor={handleEditInEditor}
       />
 
       <DeleteConfirmationDialog
