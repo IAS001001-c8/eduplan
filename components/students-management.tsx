@@ -139,12 +139,9 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
   const [roleFilter, setRoleFilter] = useState<"all" | "delegue" | "eco-delegue" | "eleve">("all") // Added role filter state
   const [isBulkDemoteDialogOpen, setIsBulkDemoteDialogOpen] = useState(false) // Added bulk demote dialog state
 
-  // Start of updates for email dialogs
-  const [isEmailConfirmDialogOpen, setIsEmailConfirmDialogOpen] = useState(false)
-  const [emailToConfirm, setEmailToConfirm] = useState("")
-  const [isSendingEmail, setIsSendingEmail] = useState(false)
-  const [isBulkEmailDialogOpen, setIsBulkEmailDialogOpen] = useState(false)
-  // End of updates for email dialogs
+  // PDF download state
+  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false)
+  const [isBulkCredentialsDialogOpen, setIsBulkCredentialsDialogOpen] = useState(false)
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   // Renamed editFormData to editData to avoid naming conflict with formData for add dialog
