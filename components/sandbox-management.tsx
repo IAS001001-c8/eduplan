@@ -576,9 +576,10 @@ interface SandboxEditorProps {
   userRole: string
   userId: string
   onClose: () => void
+  establishmentId: string
 }
 
-function SandboxEditor({ proposal, userRole, userId, onClose }: SandboxEditorProps) {
+function SandboxEditor({ proposal, userRole, userId, onClose, establishmentId }: SandboxEditorProps) {
   const [room, setRoom] = useState<any>(null)
   const [subRoom, setSubRoom] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
