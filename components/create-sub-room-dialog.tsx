@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { AlertTriangle } from "lucide-react"
+import { notifyEstablishmentUsers } from "@/lib/notifications"
 
 interface Teacher {
   id: string
