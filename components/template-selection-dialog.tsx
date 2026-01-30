@@ -50,12 +50,12 @@ export function TemplateSelectionDialog({
   const TemplateCard = ({ template }: { template: RoomTemplate }) => (
     <Card
       key={template.id}
-      className="relative group cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1"
+      className="relative group cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1 overflow-hidden"
       onMouseEnter={() => setHoveredTemplate(template.id)}
       onMouseLeave={() => setHoveredTemplate(null)}
     >
       <CardContent className="p-5 relative">
-        <div className="flex items-start justify-between mb-3 relative z-20">
+        <div className="flex items-start justify-between mb-3">
           <div>
             <h4 className="font-semibold text-base flex items-center gap-2">
               {template.name}
@@ -65,7 +65,7 @@ export function TemplateSelectionDialog({
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 text-sm relative z-20">
+        <div className="grid grid-cols-3 gap-3 text-sm">
           <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/20 p-2 rounded">
             <Columns className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             <span className="font-medium">
