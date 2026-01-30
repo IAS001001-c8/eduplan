@@ -713,6 +713,13 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
         </DialogContent>
       </Dialog>
 
+      {/* Global Search Dialog */}
+      <GlobalSearch
+        open={isSearchOpen}
+        onOpenChange={setIsSearchOpen}
+        establishmentId={profile.establishment_id}
+      />
+
       <Toaster />
     </div>
   )
