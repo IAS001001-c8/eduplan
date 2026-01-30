@@ -190,24 +190,6 @@ export function CreateRoomDialog({
               />
             </div>
           </div>
-
-          {/* Board position */}
-          <div className="space-y-2">
-            <Label>Position du tableau</Label>
-            <Select
-              value={formData.boardPosition}
-              onValueChange={(value: "top" | "bottom" | "left" | "right") =>
-                setFormData({ ...formData, boardPosition: value })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="top">Haut</SelectItem>
-                <SelectItem value="bottom">Bas</SelectItem>
-                <SelectItem value="left">Gauche</SelectItem>
-                <SelectItem value="right">Droite</SelectItem>
               </SelectContent>
             </Select>
           </div>
