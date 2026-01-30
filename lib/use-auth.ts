@@ -35,20 +35,15 @@ export function useAuth(options?: { requireRole?: string; redirectTo?: string })
         return
       }
 
-      console.log("[useAuth] Starting auth check...")
-
       try {
         // Try cookie first
         const cookieSession = getCookie("custom_auth_user")
-        console.log("[useAuth] Cookie session:", cookieSession ? "found" : "not found")
         let sessionData = null
         
         if (cookieSession) {
           try {
             sessionData = JSON.parse(decodeURIComponent(cookieSession))
-            console.log("[useAuth] Parsed cookie session:", sessionData)
-          } catch (e) {
-            console.log("[useAuth] Failed to parse cookie:", e)
+          } catch {
             // Invalid cookie, will try localStorage
           }
         }
@@ -56,29 +51,23 @@ export function useAuth(options?: { requireRole?: string; redirectTo?: string })
         // Fallback to localStorage
         if (!sessionData) {
           const localSession = localStorage.getItem("custom_auth_user")
-          console.log("[useAuth] LocalStorage session:", localSession ? "found" : "not found")
           if (localSession) {
             try {
               sessionData = JSON.parse(localSession)
-              console.log("[useAuth] Parsed localStorage session:", sessionData)
-            } catch (e) {
-              console.log("[useAuth] Failed to parse localStorage:", e)
+            } catch {
               // Invalid localStorage
             }
           }
         }
 
         if (sessionData) {
-          console.log("[useAuth] Session data found, validating...")
           // Support both establishment_id and establishmentId formats
           const establishmentId = sessionData.establishment_id || sessionData.establishmentId
           
           if (!sessionData.id || !establishmentId || !sessionData.role) {
-            console.log("[useAuth] Invalid session data - missing required fields")
             localStorage.removeItem("custom_auth_user")
             document.cookie = "custom_auth_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
           } else {
-            console.log("[useAuth] Valid session, creating authUser...")
             const authUser: AuthUser = {
               id: sessionData.id,
               establishmentId: establishmentId,
