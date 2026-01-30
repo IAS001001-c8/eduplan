@@ -38,6 +38,7 @@ import {
   Send,
   History,
   Search,
+  AlertTriangle,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import cn from "classnames"
