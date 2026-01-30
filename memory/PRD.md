@@ -34,14 +34,19 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 ### Processus de révision
 - ✅ Professeurs peuvent : Valider / Refuser / Renvoyer avec commentaire
 
+### Intégrations Jan 30, 2026
+- ✅ Export PDF des plans de classe (jspdf + html2canvas)
+- ✅ Historique des modifications (HistoryDialog)
+- ✅ Import Excel (xlsx - prénom, nom, email, téléphone)
+- ✅ Statistiques vie scolaire (VieScolaireStats - visible uniquement pour role vie-scolaire)
+- ✅ Recherche globale (GlobalSearch - ⌘K dans le header)
+- ✅ Composants UI: scroll-area.tsx, progress.tsx
+
 ## À faire (fonctionnalités avancées)
-- [ ] Export PDF des plans de classe
-- [ ] Drag & Drop mobile optimisé
-- [ ] Historique des modifications
-- [ ] Import Excel (prénom, nom, email, téléphone)
-- [ ] Statistiques vie scolaire
-- [ ] Recherche globale
+- [ ] Drag & Drop mobile optimisé (@dnd-kit/core)
 - [ ] Système invitations salles collaboratives avec notifications
+- [ ] Modification de salle en popup (au lieu de page séparée)
+- [ ] Fix warnings React 19 ref (mise à jour Radix UI)
 
 ## Base de données
 - URL: https://bdvdrzohbieqeisxwmwh.supabase.co
