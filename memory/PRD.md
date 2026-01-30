@@ -45,6 +45,18 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - ✅ Dialogue création sous-salle: Options multi-classes visibles pour profs
 - ✅ Affichage professeurs pour vie scolaire corrigé
 
+### Session 3 - Simplification création sous-salles + PDF accès
+- ✅ Création sous-salle simplifiée (sans salles collaboratives pour l'instant):
+  - Vie scolaire: sélection du professeur dans un menu déroulant
+  - Professeur: auto-sélectionné et non modifiable
+  - Sélection de classe simplifiée (menu déroulant ou checkboxes si multi-classes)
+- ✅ "Tout sélectionner" checkbox (respecte les filtres appliqués) pour élèves et professeurs
+- ✅ Téléchargement PDF d'accès groupé:
+  - Génère un PDF avec identifiants de chaque profil sélectionné
+  - Réinitialise automatiquement les mots de passe avec nouveaux aléatoires
+  - Fonctionne pour élèves et professeurs
+- ✅ Suppression de la fonctionnalité d'envoi par email (mise en pause)
+
 ### Intégrations Jan 30, 2026
 - ✅ Export PDF des plans de classe (jspdf + html2canvas)
 - ✅ Historique des modifications (HistoryDialog)
