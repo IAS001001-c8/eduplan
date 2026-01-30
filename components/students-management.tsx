@@ -1012,16 +1012,23 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
         return
       }
 
-      // Update passwords in database for each profile
+      // Update passwords in database for each profile (hash the password first)
       for (const cred of credentials) {
         const student = studentsWithProfiles.find(
           s => s.first_name === cred.first_name && s.last_name === cred.last_name
         )
         if (student?.profile_id) {
-          await supabase
-            .from("profiles")
-            .update({ password: cred.password })
-            .eq("id", student.profile_id)
+          // Hash the password before storing
+          const { data: hashedPassword, error: hashError } = await supabase.rpc("hash_password", {
+            password: cred.password,
+          })
+          
+          if (!hashError && hashedPassword) {
+            await supabase
+              .from("profiles")
+              .update({ password_hash: hashedPassword })
+              .eq("id", student.profile_id)
+          }
         }
       }
 
