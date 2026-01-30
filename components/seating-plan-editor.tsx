@@ -155,6 +155,12 @@ export function SeatingPlanEditor({
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null) // Added state for selected student
   const [clickedStudentInfo, setClickedStudentInfo] = useState<{student: Student, seatNumber: number} | null>(null) // Info popup for clicked student
   const [isHistoryOpen, setIsHistoryOpen] = useState(false) // History dialog state
+  
+  // States for sandbox review actions (professors)
+  const [showRejectDialog, setShowRejectDialog] = useState(false)
+  const [showReturnDialog, setShowReturnDialog] = useState(false)
+  const [rejectReason, setRejectReason] = useState("")
+  const [returnComments, setReturnComments] = useState("")
 
   // Memoized fetchData to prevent unnecessary re-renders and to satisfy dependency array
   const fetchData = useCallback(async () => {
