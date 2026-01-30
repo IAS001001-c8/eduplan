@@ -51,11 +51,22 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
   - Professeur: auto-sélectionné et non modifiable
   - Sélection de classe simplifiée (menu déroulant ou checkboxes si multi-classes)
 - ✅ "Tout sélectionner" checkbox (respecte les filtres appliqués) pour élèves et professeurs
-- ✅ Téléchargement PDF d'accès groupé:
-  - Génère un PDF avec identifiants de chaque profil sélectionné
-  - Réinitialise automatiquement les mots de passe avec nouveaux aléatoires
+- ✅ Téléchargement ZIP d'accès groupé:
+  - Génère un ZIP avec PDFs individuels pour chaque profil
+  - Utilise les mots de passe existants en base
   - Fonctionne pour élèves et professeurs
 - ✅ Suppression de la fonctionnalité d'envoi par email (mise en pause)
+
+### Session 4 - Nouveau formulaire création salle
+- ✅ Nouveau dialogue "Créer une salle" (`CreateRoomDialog`):
+  - Nom de la salle (ex: Salle Informatique)
+  - Code (ex: B12)
+  - Position du tableau (haut/bas/gauche/droite)
+  - Configuration colonnes: nombre de rangées et places par rangée
+  - Limite de 350 places max
+- ✅ Retrait du bouton "Personnaliser" et de la carte templates
+- ✅ Bouton unique "Créer une salle" dans l'en-tête
+- ✅ JSZip installé pour génération de ZIP côté client
 
 ### Intégrations Jan 30, 2026
 - ✅ Export PDF des plans de classe (jspdf + html2canvas)
