@@ -1242,9 +1242,13 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
                 <Button variant="outline" onClick={() => setIsBulkDemoteDialogOpen(true)}>
                   Rétrograder ({selectedStudents.length})
                 </Button>
-                <Button variant="outline" onClick={handleBulkSendEmails}>
-                  <Mail className="mr-2 h-4 w-4" />
-                  Envoyer accès ({selectedStudents.length})
+                <Button 
+                  variant="outline" 
+                  onClick={handleDownloadCredentialsPDF}
+                  disabled={isDownloadingPDF}
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  {isDownloadingPDF ? "Génération..." : `Télécharger accès PDF (${selectedStudents.length})`}
                 </Button>
               </>
             )}
