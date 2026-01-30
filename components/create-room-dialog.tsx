@@ -272,7 +272,6 @@ export function CreateRoomDialog({
             <h4 className="font-medium text-emerald-800 dark:text-emerald-200 mb-2">Résumé</h4>
             <div className="text-sm text-emerald-700 dark:text-emerald-300 space-y-1">
               <p><strong>{formData.name || "Nom non défini"}</strong> ({formData.code || "Code non défini"})</p>
-              <p>Tableau: {formData.boardPosition === "top" ? "Haut" : formData.boardPosition === "bottom" ? "Bas" : formData.boardPosition === "left" ? "Gauche" : "Droite"}</p>
               <p>{formData.columns.length} colonne(s) • {calculateTotalSeats()} places au total</p>
             </div>
           </div>
