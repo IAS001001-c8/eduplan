@@ -822,21 +822,35 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
     setIsDownloadingPDF(true)
 
     try {
-      // Use API to fetch credentials (bypasses RLS)
-      const profileIds = teachersWithProfiles.map(t => t.profile_id)
-      const response = await fetch("/api/get-credentials", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profileIds, userType: "teacher" })
-      })
+      const supabase = createClient()
+      
+      // Fetch usernames from profiles (public data)
+      const profileIds = teachersWithProfiles.map(t => t.profile_id).filter(Boolean)
+      const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, username")
+        .in("id", profileIds)
 
-      if (!response.ok) {
-        throw new Error("Erreur lors de la récupération des identifiants")
+      if (profilesError) {
+        throw new Error("Erreur lors de la récupération des profils")
       }
 
-      const { credentials } = await response.json()
+      // Create a map of profile_id to username
+      const profileMap = new Map(profiles?.map(p => [p.id, p.username]) || [])
 
-      if (!credentials || credentials.length === 0) {
+      // Build credentials with teacher info and generated password
+      const credentials = teachersWithProfiles
+        .filter(t => profileMap.has(t.profile_id))
+        .map(t => ({
+          first_name: t.first_name,
+          last_name: t.last_name,
+          username: profileMap.get(t.profile_id) || "",
+          password: generatePDFPassword(10),
+          role: "professeur",
+          class_name: ""
+        }))
+
+      if (credentials.length === 0) {
         toast({
           title: "Aucun accès à exporter",
           description: "Impossible de récupérer les identifiants",
@@ -845,6 +859,27 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
         return
       }
 
+      // Update passwords in database for each profile
+      for (const cred of credentials) {
+        const teacher = teachersWithProfiles.find(
+          t => t.first_name === cred.first_name && t.last_name === cred.last_name
+        )
+        if (teacher?.profile_id) {
+          // Hash password before storing
+          const { data: hashedPassword, error: hashError } = await supabase.rpc("hash_password", {
+            password: cred.password,
+          })
+          
+          if (!hashError && hashedPassword) {
+            await supabase
+              .from("profiles")
+              .update({ password_hash: hashedPassword })
+              .eq("id", teacher.profile_id)
+          }
+        }
+      }
+
+      // Generate and download ZIP with PDFs
       await downloadCredentialsPDF(credentials, `identifiants_professeurs`)
 
       toast({
