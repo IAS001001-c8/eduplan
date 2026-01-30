@@ -638,6 +638,8 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
             })
           }}
           establishmentId={establishmentId}
+          userRole={userRole}
+          userId={userId}
         />
 
         {isEditorOpen && selectedSubRoom && (
