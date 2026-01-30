@@ -377,65 +377,43 @@ export function CreateSubRoomDialog({
             />
           </div>
 
-          {isProfessor && (
-            <div className="flex items-center gap-2 border rounded-md p-3">
-              <Checkbox
-                id="collaborative"
-                checked={formData.isCollaborative}
-                onCheckedChange={(checked) => {
-                  setFormData({
-                    ...formData,
-                    isCollaborative: checked as boolean,
-                    selectedTeachers: currentTeacherId ? [currentTeacherId] : [],
-                  })
-                }}
-              />
-              <Label htmlFor="collaborative" className="cursor-pointer text-sm">
-                Salle collaborative (multi-professeurs)
-              </Label>
-            </div>
-          )}
-
-          {/* Pour vie scolaire : sélection du professeur */}
+          {/* Pour vie scolaire : sélection obligatoire du professeur */}
           {isVieScolaire && (
             <div className="space-y-2">
               <Label>
-                Professeur
-                <span className="text-xs text-muted-foreground ml-1">(1 seul)</span>
+                Professeur <span className="text-red-500">*</span>
               </Label>
               {displayedTeachers.length === 0 ? (
                 <div className="text-sm text-muted-foreground border rounded-md p-4">Aucun professeur disponible</div>
               ) : (
-                <div className="border rounded-md p-4 space-y-2 max-h-48 overflow-y-auto">
-                  {displayedTeachers.map((teacher) => (
-                    <div key={teacher.id} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`teacher-${teacher.id}`}
-                        checked={formData.selectedTeachers.includes(teacher.id)}
-                        onCheckedChange={() => handleToggleTeacher(teacher.id)}
-                      />
-                      <Label htmlFor={`teacher-${teacher.id}`} className="text-sm font-normal cursor-pointer flex-1">
+                <Select 
+                  value={formData.selectedTeachers[0] || ""} 
+                  onValueChange={(value) => setFormData({ ...formData, selectedTeachers: [value] })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner un professeur" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {displayedTeachers.map((teacher) => (
+                      <SelectItem key={teacher.id} value={teacher.id}>
                         {teacher.first_name} {teacher.last_name} - {teacher.subject}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             </div>
           )}
 
-          {/* Pour professeur NON collaboratif : auto-sélectionné + options */}
-          {isProfessor && !formData.isCollaborative && (
+          {/* Pour professeur : auto-sélectionné (non modifiable) */}
+          {isProfessor && (
             <div className="space-y-4">
               {currentTeacherId ? (
-                <div className="bg-slate-50 dark:bg-slate-800 rounded-md p-4">
-                  <p className="text-sm text-muted-foreground mb-1">Professeur</p>
-                  <p className="font-medium">
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-md p-4">
+                  <p className="text-sm text-emerald-700 dark:text-emerald-300 mb-1">Professeur (vous)</p>
+                  <p className="font-medium text-emerald-800 dark:text-emerald-200">
                     {teachers.find(t => t.id === currentTeacherId)?.first_name}{' '}
                     {teachers.find(t => t.id === currentTeacherId)?.last_name}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    (La sous-salle sera créée pour vous)
                   </p>
                 </div>
               ) : (
