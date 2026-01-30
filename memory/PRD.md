@@ -34,6 +34,13 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 ### Processus de révision
 - ✅ Professeurs peuvent : Valider / Refuser / Renvoyer avec commentaire
 
+### Corrections Jan 30, 2026 (Session 2)
+- ✅ Création de sous-salles: Amélioration du chargement de l'ID professeur (userId prop + cookie fallback)
+- ✅ Superposition templates: Correction du z-index et de l'affichage hover overlay
+- ✅ Bac à sable révision: Dialog de révision maintenant ouvert pour les profs (avec options Valider/Refuser/Renvoyer)
+- ✅ Ajout bouton "Modifier le plan dans l'éditeur" dans le dialog de révision
+- ✅ Resend 520: Ajout retry logic (2 retries) + meilleur message d'erreur pour timeout plateforme
+
 ### Intégrations Jan 30, 2026
 - ✅ Export PDF des plans de classe (jspdf + html2canvas)
 - ✅ Historique des modifications (HistoryDialog)
