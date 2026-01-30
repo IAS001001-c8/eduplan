@@ -1,4 +1,5 @@
 import jsPDF from "jspdf"
+import JSZip from "jszip"
 
 interface CredentialData {
   first_name: string
@@ -9,12 +10,9 @@ interface CredentialData {
   class_name?: string
 }
 
-// Generate a single credential page
-function addCredentialPage(doc: jsPDF, data: CredentialData, isFirstPage: boolean) {
-  if (!isFirstPage) {
-    doc.addPage()
-  }
-
+// Generate a single credential PDF
+function generateSingleCredentialPDF(data: CredentialData): jsPDF {
+  const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.getWidth()
   const margin = 20
   let y = 30
@@ -105,30 +103,47 @@ function addCredentialPage(doc: jsPDF, data: CredentialData, isFirstPage: boolea
   doc.setTextColor(150, 150, 150)
   doc.setFontSize(9)
   doc.text(`Document généré le ${new Date().toLocaleDateString("fr-FR")} - EduPlan`, pageWidth / 2, y, { align: "center" })
+
+  return doc
 }
 
-// Generate PDF for multiple users
-export function generateCredentialsPDF(credentials: CredentialData[]): Blob {
-  const doc = new jsPDF()
+// Generate ZIP with individual PDFs
+export async function downloadCredentialsAsZip(credentials: CredentialData[], filename: string = "identifiants"): Promise<void> {
+  const zip = new JSZip()
+  const folder = zip.folder("identifiants")
   
-  credentials.forEach((cred, index) => {
-    addCredentialPage(doc, cred, index === 0)
-  })
+  if (!folder) {
+    throw new Error("Failed to create ZIP folder")
+  }
 
-  return doc.output("blob")
-}
+  for (const cred of credentials) {
+    const doc = generateSingleCredentialPDF(cred)
+    const pdfBlob = doc.output("blob")
+    const safeName = `${cred.last_name}_${cred.first_name}`.replace(/[^a-zA-Z0-9]/g, "_")
+    folder.file(`${safeName}.pdf`, pdfBlob)
+  }
 
-// Generate and download PDF
-export function downloadCredentialsPDF(credentials: CredentialData[], filename: string = "identifiants") {
-  const blob = generateCredentialsPDF(credentials)
-  const url = URL.createObjectURL(blob)
+  const zipBlob = await zip.generateAsync({ type: "blob" })
+  const url = URL.createObjectURL(zipBlob)
   const link = document.createElement("a")
   link.href = url
-  link.download = `${filename}_${new Date().toISOString().split("T")[0]}.pdf`
+  link.download = `${filename}_${new Date().toISOString().split("T")[0]}.zip`
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
   URL.revokeObjectURL(url)
+}
+
+// Generate single PDF (kept for backward compatibility)
+export function downloadCredentialsPDF(credentials: CredentialData[], filename: string = "identifiants") {
+  if (credentials.length === 1) {
+    const doc = generateSingleCredentialPDF(credentials[0])
+    doc.save(`${filename}_${new Date().toISOString().split("T")[0]}.pdf`)
+    return
+  }
+  
+  // For multiple credentials, use ZIP
+  downloadCredentialsAsZip(credentials, filename)
 }
 
 // Generate random password
