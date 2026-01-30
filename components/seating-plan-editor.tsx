@@ -532,7 +532,9 @@ export function SeatingPlanEditor({
 
       // Notify the teacher about the submitted proposal
       const proposal = subRoom.proposal_data
-      if (proposal?.teacher_id) {
+      const effectiveEstablishmentId = establishmentId || subRoom.establishment_id || proposal?.establishment_id || ""
+      
+      if (proposal?.teacher_id && effectiveEstablishmentId) {
         // Get teacher's profile_id
         const { data: teacher } = await supabase
           .from("teachers")
@@ -543,7 +545,7 @@ export function SeatingPlanEditor({
         if (teacher?.profile_id) {
           await sendNotification({
             user_id: teacher.profile_id,
-            establishment_id: subRoom.establishment_id || "",
+            establishment_id: effectiveEstablishmentId,
             type: "proposal_submitted",
             title: "Nouvelle proposition",
             message: `Un délégué a soumis une proposition pour "${proposal.name}"`,
