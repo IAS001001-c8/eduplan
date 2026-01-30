@@ -1311,6 +1311,152 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
               )}
             </div>
           )}
+          
+          {/* Table View */}
+          {viewMode === "table" ? (
+            <Card>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {userRole === "vie-scolaire" && (
+                      <TableHead className="w-10">
+                        <Checkbox
+                          checked={isAllSelected}
+                          onCheckedChange={handleSelectAll}
+                        />
+                      </TableHead>
+                    )}
+                    <TableHead>Nom</TableHead>
+                    <TableHead>Prénom</TableHead>
+                    <TableHead>Classe</TableHead>
+                    <TableHead>Rôle</TableHead>
+                    {userRole === "vie-scolaire" && <TableHead>Email</TableHead>}
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredStudents.map((student) => (
+                    <TableRow key={student.id}>
+                      {userRole === "vie-scolaire" && (
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedStudents.includes(student.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedStudents([...selectedStudents, student.id])
+                              } else {
+                                setSelectedStudents(selectedStudents.filter((id) => id !== student.id))
+                              }
+                            }}
+                          />
+                        </TableCell>
+                      )}
+                      <TableCell className="font-medium">{student.last_name}</TableCell>
+                      <TableCell>{student.first_name}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className="text-xs">
+                          {student.classes?.name || "-"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            student.role === "delegue"
+                              ? "default"
+                              : student.role === "eco-delegue"
+                                ? "outline"
+                                : "secondary"
+                          }
+                          className="text-xs"
+                        >
+                          {student.role === "delegue"
+                            ? "Délégué"
+                            : student.role === "eco-delegue"
+                              ? "Éco-délégué"
+                              : "Élève"}
+                        </Badge>
+                      </TableCell>
+                      {userRole === "vie-scolaire" && (
+                        <TableCell className="text-muted-foreground text-sm">
+                          {student.email || "-"}
+                        </TableCell>
+                      )}
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedStudent(student)
+                                setIsViewDialogOpen(true)
+                              }}
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              Regarder
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openEditDialog(student)}>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Modifier
+                            </DropdownMenuItem>
+                            {userRole === "vie-scolaire" && student.role !== "eleve" && student.profile_id && (
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelectedStudent(student)
+                                  openAccessDialog(student)
+                                }}
+                              >
+                                <Key className="mr-2 h-4 w-4" />
+                                Gérer l'accès
+                              </DropdownMenuItem>
+                            )}
+                            {userRole === "vie-scolaire" && student.role === "eleve" && (
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelectedStudent(student)
+                                  openPromoteDialog(student, "delegue")
+                                }}
+                              >
+                                <Key className="mr-2 h-4 w-4" />
+                                Créer un accès
+                              </DropdownMenuItem>
+                            )}
+                            {userRole === "vie-scolaire" && (
+                              <>
+                                {student.role !== "eleve" && (
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      setStudentToDemote(student)
+                                      setIsDemoteDialogOpen(true)
+                                    }}
+                                  >
+                                    Rétrograder en élève
+                                  </DropdownMenuItem>
+                                )}
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setStudentToDelete(student)
+                                    setIsDeleteDialogOpen(true)
+                                  }}
+                                  className="text-destructive"
+                                >
+                                  Supprimer
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+          ) : (
+          /* Grid View */
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredStudents.map((student) => (
             <Card key={student.id} className="hover:shadow-md transition-shadow">
