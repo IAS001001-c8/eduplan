@@ -1272,10 +1272,28 @@ export function SeatingPlanEditor({
             )}
 
             {isSandbox && userRole === "professeur" && subRoom.proposal_data?.status === "pending" && (
-              <Button onClick={handleImpose} disabled={isSubmitting} className="bg-purple-600 hover:bg-purple-700">
-                <CheckCircle2 className="mr-2 h-4 w-4" />
-                {isSubmitting ? "Validation..." : "Valider"}
-              </Button>
+              <>
+                <Button 
+                  onClick={() => setShowReturnDialog(true)} 
+                  disabled={isSubmitting} 
+                  variant="outline"
+                  className="border-orange-300 text-orange-700 hover:bg-orange-50 bg-transparent"
+                >
+                  Renvoyer
+                </Button>
+                <Button 
+                  onClick={() => setShowRejectDialog(true)} 
+                  disabled={isSubmitting} 
+                  variant="outline"
+                  className="border-red-300 text-red-700 hover:bg-red-50 bg-transparent"
+                >
+                  Refuser
+                </Button>
+                <Button onClick={handleImpose} disabled={isSubmitting} className="bg-purple-600 hover:bg-purple-700">
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  {isSubmitting ? "Validation..." : "Valider"}
+                </Button>
+              </>
             )}
           </div>
         </div>
