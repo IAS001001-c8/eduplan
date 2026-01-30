@@ -1519,7 +1519,7 @@ export function SeatingPlanEditor({
                                       // Use the new handleSeatClick
                                       onClick={() => handleSeatClick(seatNumber)}
                                       className={cn(
-                                        "w-12 h-12 border-2 rounded-lg flex items-center justify-center text-xs font-medium transition-all cursor-pointer shadow-sm",
+                                        "w-14 h-14 border-2 rounded-lg flex items-center justify-center text-sm font-medium transition-all cursor-pointer shadow-sm",
                                         student
                                           ? "bg-emerald-600 text-white border-emerald-700 hover:scale-105 hover:shadow-md"
                                           : "bg-white text-gray-400 border-gray-200 hover:border-emerald-400 hover:bg-emerald-50",
@@ -1528,13 +1528,13 @@ export function SeatingPlanEditor({
                                     >
                                       {student ? (
                                         <>
-                                          <span className="text-white text-xs font-semibold">
+                                          <span className="text-white text-sm font-semibold">
                                             {getInitials(student)}
                                           </span>
                                           {/* Removed direct remove button from seat for consistency with dialog */}
                                         </>
                                       ) : (
-                                        <span className="text-xs">{seatNumber}</span>
+                                        <span className="text-sm">{seatNumber}</span>
                                       )}
                                     </div>
                                   )
