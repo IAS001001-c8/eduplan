@@ -359,7 +359,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
         { id: "col3", tables: 4, seatsPerTable: 2 },
       ],
     })
-    setShowCreateTemplate(true)
+    setShowCreateRoom(true)
   }
 
   const handleCreateCustomRoom = () => {

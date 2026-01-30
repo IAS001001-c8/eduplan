@@ -1030,7 +1030,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
 
       toast({
         title: "ZIP généré avec succès",
-        description: `${credentialsToExport.length} identifiant(s) exporté(s)`,
+        description: `${credentials.length} identifiant(s) exporté(s)`,
       })
 
       // Clear selection
