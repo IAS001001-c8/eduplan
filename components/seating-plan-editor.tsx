@@ -1262,6 +1262,15 @@ export function SeatingPlanEditor({
                     <Share2 className="mr-2 h-4 w-4" />
                     Partager
                   </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start mt-2 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 bg-transparent"
+                    onClick={() => setIsHistoryOpen(true)}
+                  >
+                    <History className="mr-2 h-4 w-4" />
+                    Historique
+                  </Button>
                 </div>
 
                 <div className="pt-2 border-t border-gray-200 dark:border-gray-800">
