@@ -1119,14 +1119,20 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
         {userRole === "vie-scolaire" && (
           <div className="flex gap-2">
             {selectedTeachers.length > 0 && (
-              <Button variant="destructive" onClick={() => setIsBulkDeleteDialogOpen(true)}>
-                Supprimer ({selectedTeachers.length})
-              </Button>
+              <>
+                <Button variant="destructive" onClick={() => setIsBulkDeleteDialogOpen(true)}>
+                  Supprimer ({selectedTeachers.length})
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={handleDownloadCredentialsPDF}
+                  disabled={isDownloadingPDF}
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  {isDownloadingPDF ? "Génération..." : `Télécharger accès PDF (${selectedTeachers.length})`}
+                </Button>
+              </>
             )}
-            <Button variant="outline" onClick={handleBulkSendEmails}>
-              <Mail className="mr-2 h-4 w-4" />
-              Envoyer accès ({selectedTeachers.length})
-            </Button>
             <Button variant="outline" onClick={() => setIsImportDialogOpen(true)}>
               <Upload className="mr-2 h-4 w-4" />
               Importer
