@@ -1226,6 +1226,25 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Select all for vie scolaire */}
+          {userRole === "vie-scolaire" && (
+            <div className="flex items-center gap-4 p-3 mb-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+              <Checkbox
+                id="select-all-teachers"
+                checked={isAllSelected}
+                onCheckedChange={handleSelectAll}
+                className="h-5 w-5"
+              />
+              <label htmlFor="select-all-teachers" className="text-sm font-medium cursor-pointer flex-1">
+                {isAllSelected ? "Tout désélectionner" : "Tout sélectionner"} ({filteredTeachers.length} professeurs affichés)
+              </label>
+              {isSomeSelected && (
+                <span className="text-sm text-muted-foreground">
+                  {selectedTeachers.filter(id => filteredTeacherIds.includes(id)).length} sélectionné(s)
+                </span>
+              )}
+            </div>
+          )}
           <Table>
             <TableHeader>
               <TableRow>
