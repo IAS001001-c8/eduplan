@@ -36,7 +36,7 @@ import { CreateRoomDialog } from "@/components/create-room-dialog"
 import { EditRoomDialog } from "@/components/edit-room-dialog"
 import { RoomSeatPreview } from "@/components/room-seat-preview"
 import { ViewToggle } from "@/components/view-toggle"
-import { sendNotification } from "@/lib/notifications"
+import { sendNotification, notifyEstablishmentUsers } from "@/lib/notifications"
 import {
   DropdownMenu,
   DropdownMenuContent,
