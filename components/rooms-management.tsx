@@ -33,6 +33,7 @@ import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialo
 import { TemplateSelectionDialog } from "@/components/template-selection-dialog"
 import { CreateSubRoomDialog } from "@/components/create-sub-room-dialog"
 import { CreateRoomDialog } from "@/components/create-room-dialog"
+import { EditRoomDialog } from "@/components/edit-room-dialog"
 import { RoomSeatPreview } from "@/components/room-seat-preview"
 import { ViewToggle } from "@/components/view-toggle"
 import {
