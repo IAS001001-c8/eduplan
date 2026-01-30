@@ -190,9 +190,6 @@ export function CreateRoomDialog({
               />
             </div>
           </div>
-              </SelectContent>
-            </Select>
-          </div>
 
           {/* Columns configuration */}
           <div className="space-y-4">
