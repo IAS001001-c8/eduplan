@@ -28,6 +28,7 @@ export function ReviewProposalDialog({
   userRole,
   userId,
   onSuccess,
+  onEditInEditor,
 }: ReviewProposalDialogProps) {
   const [rejectionReason, setRejectionReason] = useState("")
   const [isLoading, setIsLoading] = useState(false)
