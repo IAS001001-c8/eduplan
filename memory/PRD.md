@@ -9,6 +9,30 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - **Email**: Resend (noreply@eduplan-lnc.com) - Désactivé dans l'UI
 - **Auth**: Custom auth avec profils Supabase
 
+## Corrections Jan 30, 2026 (Session 7)
+
+### Vue Tableau Élèves ✅
+- Ajout d'un toggle Grid/Table dans la section élèves
+- Vue tableau avec colonnes : Nom, Prénom, Classe, Rôle, Email, Actions
+- Checkbox de sélection multiple en vue tableau
+- Import du composant ViewToggle et Table de shadcn
+
+### Popup Sélection Élève avec Recherche ✅
+- Barre de recherche dans le popup de sélection d'élève (siège vide)
+- Filtrage par nom, prénom et classe
+- Message "Aucun élève trouvé" si recherche sans résultat
+
+### Affichage Prénom.Initiale ✅
+- Changement de T.U → Théo.U dans l'éditeur de plan
+- Format: `${student.first_name}.${student.last_name.charAt(0).toUpperCase()}`
+
+### Script SQL Notifications ✅
+- Créé `/app/scripts/create_notifications_table.sql`
+- Table avec : user_id, establishment_id, type, title, message, sub_room_id, proposal_id, triggered_by, is_read
+- RLS policies pour sécurité
+- Realtime activé pour mises à jour temps réel
+- Trigger pour updated_at automatique
+
 ## Corrections Jan 30, 2026 (Session 6)
 
 ### Toasts Optimisés ✅
