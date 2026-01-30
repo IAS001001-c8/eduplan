@@ -92,13 +92,13 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <Label htmlFor="role">Rôle</Label>
                 <Select value={role} onValueChange={setRole}>
-                  <SelectTrigger id="role">
+                  <SelectTrigger id="role" data-testid="role-select">
                     <SelectValue placeholder="Sélectionnez votre rôle" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="vie-scolaire">Vie Scolaire</SelectItem>
-                    <SelectItem value="professeur">Professeur</SelectItem>
-                    <SelectItem value="delegue">Délégué</SelectItem>
+                    <SelectItem value="vie-scolaire" data-testid="role-vie-scolaire">Vie Scolaire</SelectItem>
+                    <SelectItem value="professeur" data-testid="role-professeur">Professeur</SelectItem>
+                    <SelectItem value="delegue" data-testid="role-delegue">Délégué</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
