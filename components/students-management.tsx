@@ -1456,153 +1456,151 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
               </Table>
             </Card>
           ) : (
-          /* Grid View */
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredStudents.map((student) => (
-              <Card key={student.id} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-2">
-                      {userRole === "vie-scolaire" && (
-                        <input
-                          type="checkbox"
-                          checked={selectedStudents.includes(student.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedStudents([...selectedStudents, student.id])
-                            } else {
-                              setSelectedStudents(selectedStudents.filter((id) => id !== student.id))
-                            }
-                          }}
-                          className="mt-1"
-                        />
-                      )}
-                      <div className="space-y-1">
-                      <CardTitle className="text-lg">
-                        {student.first_name} {student.last_name}
-                      </CardTitle>
-                      <CardDescription className="flex items-center gap-2">
-                        {student.classes?.name && (
-                          <Badge variant="secondary" className="text-xs">
-                            {student.classes.name}
-                          </Badge>
+            /* Grid View */
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {filteredStudents.map((student) => (
+                <Card key={student.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-2">
+                        {userRole === "vie-scolaire" && (
+                          <input
+                            type="checkbox"
+                            checked={selectedStudents.includes(student.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedStudents([...selectedStudents, student.id])
+                              } else {
+                                setSelectedStudents(selectedStudents.filter((id) => id !== student.id))
+                              }
+                            }}
+                            className="mt-1"
+                          />
                         )}
-                        <Badge
-                          variant={
-                            student.role === "delegue"
-                              ? "default"
-                              : student.role === "eco-delegue"
-                                ? "outline"
-                                : "secondary"
-                          }
-                          className="text-xs"
-                        >
-                          {student.role === "delegue"
-                            ? "Délégué"
-                            : student.role === "eco-delegue"
-                              ? "Éco-délégué"
-                              : "Élève"}
-                        </Badge>
-                      </CardDescription>
-                    </div>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setSelectedStudent(student)
-                          setIsViewDialogOpen(true)
-                        }}
-                      >
-                        <Eye className="mr-2 h-4 w-4" />
-                        Regarder
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => openEditDialog(student)}>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Modifier
-                      </DropdownMenuItem>
-
-                      {userRole === "vie-scolaire" && student.role !== "eleve" && student.profile_id && (
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelectedStudent(student)
-                            openAccessDialog(student)
-                          }}
-                        >
-                          <Key className="mr-2 h-4 w-4" />
-                          Gérer l'accès
-                        </DropdownMenuItem>
-                      )}
-                      {userRole === "vie-scolaire" && student.role === "eleve" && (
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelectedStudent(student)
-                            // Use the new openPromoteDialog function
-                            openPromoteDialog(student, "delegue")
-                          }}
-                        >
-                          <Key className="mr-2 h-4 w-4" />
-                          Créer un accès
-                        </DropdownMenuItem>
-                      )}
-                      {userRole === "vie-scolaire" && (
-                        <>
-                          {student.role !== "eleve" && (
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setStudentToDemote(student)
-                                setIsDemoteDialogOpen(true)
-                              }}
+                        <div className="space-y-1">
+                          <CardTitle className="text-lg">
+                            {student.first_name} {student.last_name}
+                          </CardTitle>
+                          <CardDescription className="flex items-center gap-2">
+                            {student.classes?.name && (
+                              <Badge variant="secondary" className="text-xs">
+                                {student.classes.name}
+                              </Badge>
+                            )}
+                            <Badge
+                              variant={
+                                student.role === "delegue"
+                                  ? "default"
+                                  : student.role === "eco-delegue"
+                                    ? "outline"
+                                    : "secondary"
+                              }
+                              className="text-xs"
                             >
-                              Rétrograder en élève
-                            </DropdownMenuItem>
-                          )}
+                              {student.role === "delegue"
+                                ? "Délégué"
+                                : student.role === "eco-delegue"
+                                  ? "Éco-délégué"
+                                  : "Élève"}
+                            </Badge>
+                          </CardDescription>
+                        </div>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
                           <DropdownMenuItem
                             onClick={() => {
-                              setStudentToDelete(student)
-                              setIsDeleteDialogOpen(true)
+                              setSelectedStudent(student)
+                              setIsViewDialogOpen(true)
                             }}
-                            className="text-destructive"
                           >
-                            Supprimer
+                            <Eye className="mr-2 h-4 w-4" />
+                            Regarder
                           </DropdownMenuItem>
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm">
-                {userRole === "vie-scolaire" && (
-                  <>
-                    {student.email && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Mail className="h-3.5 w-3.5" />
-                        <span className="truncate">{student.email}</span>
-                      </div>
+                          <DropdownMenuItem onClick={() => openEditDialog(student)}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Modifier
+                          </DropdownMenuItem>
+                          {userRole === "vie-scolaire" && student.role !== "eleve" && student.profile_id && (
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedStudent(student)
+                                openAccessDialog(student)
+                              }}
+                            >
+                              <Key className="mr-2 h-4 w-4" />
+                              Gérer l'accès
+                            </DropdownMenuItem>
+                          )}
+                          {userRole === "vie-scolaire" && student.role === "eleve" && (
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedStudent(student)
+                                openPromoteDialog(student, "delegue")
+                              }}
+                            >
+                              <Key className="mr-2 h-4 w-4" />
+                              Créer un accès
+                            </DropdownMenuItem>
+                          )}
+                          {userRole === "vie-scolaire" && (
+                            <>
+                              {student.role !== "eleve" && (
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setStudentToDemote(student)
+                                    setIsDemoteDialogOpen(true)
+                                  }}
+                                >
+                                  Rétrograder en élève
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setStudentToDelete(student)
+                                  setIsDeleteDialogOpen(true)
+                                }}
+                                className="text-destructive"
+                              >
+                                Supprimer
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    {userRole === "vie-scolaire" && (
+                      <>
+                        {student.email && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Mail className="h-3.5 w-3.5" />
+                            <span className="truncate">{student.email}</span>
+                          </div>
+                        )}
+                        {student.phone && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <span className="text-xs">📱</span>
+                            <span>{student.phone}</span>
+                          </div>
+                        )}
+                      </>
                     )}
-                    {student.phone && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <span className="text-xs">📱</span>
-                        <span>{student.phone}</span>
-                      </div>
+                    {student.can_create_subrooms && (
+                      <Badge variant="outline" className="text-xs">
+                        Peut créer des sous-salles
+                      </Badge>
                     )}
-                  </>
-                )}
-                {student.can_create_subrooms && (
-                  <Badge variant="outline" className="text-xs">
-                    Peut créer des sous-salles
-                  </Badge>
-                )}
-              </CardContent>
-            </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
         </>
       )}
