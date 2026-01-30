@@ -948,29 +948,22 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
 
       for (const teacher of selectedTeacherObjects) {
         if (!teacher.profile_id) continue
-
-        const newPassword = generatePDFPassword(12)
         
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("username")
+          .select("username, password")
           .eq("id", teacher.profile_id)
           .single()
 
         if (profileError || !profile) continue
 
-        const { error: updateError } = await supabase
-          .from("profiles")
-          .update({ password: newPassword })
-          .eq("id", teacher.profile_id)
-
-        if (updateError) continue
+        const password = profile.password || "[Mot de passe non disponible]"
 
         credentialsToExport.push({
           first_name: teacher.first_name,
           last_name: teacher.last_name,
           username: profile.username,
-          password: newPassword,
+          password: password,
           role: "professeur",
           class_name: teacher.subject || undefined,
         })
@@ -985,11 +978,11 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
         return
       }
 
-      downloadCredentialsPDF(credentialsToExport, `identifiants_professeurs`)
+      await downloadCredentialsPDF(credentialsToExport, `identifiants_professeurs`)
 
       toast({
-        title: "PDF généré avec succès",
-        description: `${credentialsToExport.length} identifiant(s) exporté(s). Les mots de passe ont été réinitialisés.`,
+        title: "ZIP généré avec succès",
+        description: `${credentialsToExport.length} identifiant(s) exporté(s)`,
       })
 
       setSelectedTeachers([])
@@ -997,7 +990,7 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
       console.error("Error generating PDF:", error)
       toast({
         title: "Erreur",
-        description: "Impossible de générer le PDF",
+        description: "Impossible de générer le ZIP",
         variant: "destructive",
       })
     } finally {
