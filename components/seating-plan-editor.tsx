@@ -522,8 +522,31 @@ export function SeatingPlanEditor({
         throw error
       }
 
+      // Notify the teacher about the submitted proposal
+      const proposal = subRoom.proposal_data
+      if (proposal?.teacher_id) {
+        // Get teacher's profile_id
+        const { data: teacher } = await supabase
+          .from("teachers")
+          .select("profile_id")
+          .eq("id", proposal.teacher_id)
+          .single()
+
+        if (teacher?.profile_id) {
+          await sendNotification({
+            user_id: teacher.profile_id,
+            establishment_id: subRoom.establishment_id || "",
+            type: "proposal_submitted",
+            title: "Nouvelle proposition",
+            message: `Un délégué a soumis une proposition pour "${proposal.name}"`,
+            proposal_id: subRoom.proposal_data.id,
+            triggered_by: userId,
+          })
+        }
+      }
+
       toast({
-        title: "Succès",
+        title: "Proposition soumise",
         description: "Votre proposition a été soumise au professeur",
         className: "z-[9999]",
       })
