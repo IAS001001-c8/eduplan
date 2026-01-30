@@ -1330,6 +1330,27 @@ export function SeatingPlanEditor({
         </div>
       </div>
 
+      {/* Alert for teacher comments if delegate received a return */}
+      {isSandbox && userRole === "delegue" && subRoom.proposal_data?.teacher_comments && (
+        <div className="mx-6 mt-4 p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0">
+              <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-bold">!</span>
+              </div>
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-orange-800 dark:text-orange-200 mb-2">
+                Commentaires du professeur
+              </h3>
+              <p className="text-orange-700 dark:text-orange-300 text-sm">
+                {subRoom.proposal_data.teacher_comments}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="p-6 w-full">
         <div className="grid grid-cols-12 gap-6">
           {/* Left Panel - Options */}
