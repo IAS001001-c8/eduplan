@@ -1685,6 +1685,59 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
         onImportComplete={fetchData}
       />
 
+      {/* Excel Import Dialog with Class Selection */}
+      <Dialog open={isExcelImportDialogOpen && !excelImportClassId} onOpenChange={(open) => {
+        if (!open) {
+          setIsExcelImportDialogOpen(false)
+          setExcelImportClassId("")
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Import Excel - Sélection de classe</DialogTitle>
+            <DialogDescription>
+              Sélectionnez la classe dans laquelle importer les élèves
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Classe de destination</Label>
+              <Select value={excelImportClassId} onValueChange={setExcelImportClassId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionnez une classe" />
+                </SelectTrigger>
+                <SelectContent>
+                  {classes.map((cls) => (
+                    <SelectItem key={cls.id} value={cls.id}>{cls.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsExcelImportDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button onClick={() => {}} disabled={!excelImportClassId}>
+              Continuer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Excel Import Dialog - File Selection */}
+      <ImportExcelDialog
+        open={isExcelImportDialogOpen && !!excelImportClassId}
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsExcelImportDialogOpen(false)
+            setExcelImportClassId("")
+          }
+        }}
+        onImport={handleExcelImport}
+        existingStudents={students.map(s => ({ first_name: s.first_name, last_name: s.last_name }))}
+      />
+
       {/* Demote Confirmation Dialog */}
       <DeleteConfirmationDialog
         open={isDemoteDialogOpen}
