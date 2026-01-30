@@ -20,12 +20,13 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { ArrowLeft, Plus, Eye, Key, Mail, FileText, Upload, MoreHorizontal, Users, Pencil, Shuffle, FileSpreadsheet } from "lucide-react"
+import { ArrowLeft, Plus, Eye, Key, FileText, Upload, MoreHorizontal, Users, Pencil, Shuffle, FileSpreadsheet, Download } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { ImportStudentsDialog } from "@/components/import-students-dialog"
 import { ImportExcelDialog, ImportedStudent } from "@/components/import-excel-dialog"
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
-import { Checkbox } from "@/components/ui/checkbox" // Added import for checkbox
+import { Checkbox } from "@/components/ui/checkbox"
+import { downloadCredentialsPDF, generateRandomPassword } from "@/lib/generate-credentials-pdf"
 
 interface Class {
   id: string
