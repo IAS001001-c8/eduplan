@@ -36,11 +36,13 @@ import {
   CheckCircle2,
   User,
   Send,
+  History,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import cn from "classnames"
 import { notifyPlanModified } from "@/lib/notifications"
 import { exportSeatingPlanToPDF } from "@/lib/export-pdf"
+import { HistoryDialog } from "@/components/history-dialog"
 import { Toaster } from "@/components/ui/toaster" // Imported Toaster
 import { useRouter } from "next/navigation" // Import useRouter for navigation
 import { sendNotification } from "@/lib/notifications" // Import sendNotification
