@@ -226,12 +226,16 @@ export function CreateSubRoomDialog({
   const [filteredClasses, setFilteredClasses] = useState<Class[]>([])
 
   useEffect(() => {
-    if (formData.selectedTeachers.length > 0) {
-      getFilteredClasses().then(setFilteredClasses)
+    if (formData.selectedTeachers.length > 0 && classes.length > 0) {
+      console.log("[v0] Filtering classes for teachers:", formData.selectedTeachers)
+      getFilteredClasses().then((filtered) => {
+        console.log("[v0] Filtered classes result:", filtered)
+        setFilteredClasses(filtered)
+      })
     } else {
       setFilteredClasses([])
     }
-  }, [formData.selectedTeachers])
+  }, [formData.selectedTeachers, classes])
 
   const handleCreate = async () => {
     if (!formData.roomId || formData.selectedTeachers.length === 0 || formData.selectedClasses.length === 0) {
