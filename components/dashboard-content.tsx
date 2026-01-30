@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
-import { LogOut, Users, BookOpen, SettingsIcon, Key, LayoutGrid, Lightbulb } from "lucide-react"
+import { LogOut, Users, BookOpen, SettingsIcon, Key, LayoutGrid, Lightbulb, Search as SearchIcon } from "lucide-react"
 import { motion } from "framer-motion"
 import type { User } from "@supabase/supabase-js"
 import type { Profile } from "@/lib/types"
@@ -28,6 +28,9 @@ import { ClassesManagement } from "@/components/classes-management"
 import { RoomsManagement } from "@/components/rooms-management"
 import { SeatingPlanManagement } from "@/components/seating-plan-management"
 import { NotificationsDropdown } from "@/components/notifications-dropdown"
+import { GlobalSearch } from "@/components/global-search"
+import { VieScolaireStats } from "@/components/vie-scolaire-stats"
+import { Search } from "lucide-react"
 
 interface DashboardContentProps {
   user: User
@@ -45,6 +48,7 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
     username: "",
     password: "",
   })
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
 
   function generateStrongPassword(length = 8): string {
     const lowercase = "abcdefghijklmnopqrstuvwxyz"
@@ -308,6 +312,15 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
               </div>
             </div>
             <div className="flex gap-2 items-center">
+              <Button
+                variant="outline"
+                onClick={() => setIsSearchOpen(true)}
+                className="hover:bg-slate-50 hover:border-slate-300 transition-all bg-transparent"
+              >
+                <SearchIcon className="mr-2 h-4 w-4" />
+                Rechercher
+                <kbd className="ml-2 px-2 py-0.5 text-xs bg-slate-100 dark:bg-slate-700 rounded">⌘K</kbd>
+              </Button>
               <NotificationsDropdown userId={profile.id} establishmentId={profile.establishment_id} />
               <Button
                 variant="outline"
