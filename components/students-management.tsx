@@ -270,6 +270,51 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
     setLoading(false)
   }
 
+  // Excel import handler
+  async function handleExcelImport(importedStudents: ImportedStudent[]) {
+    if (!excelImportClassId) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez sélectionner une classe",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const selectedClass = classes.find((c) => c.id === excelImportClassId)
+    if (!selectedClass) {
+      toast({
+        title: "Erreur",
+        description: "Classe introuvable",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const studentsToInsert = importedStudents.map((s) => ({
+      first_name: s.first_name,
+      last_name: s.last_name,
+      email: s.email || null,
+      phone: s.phone || null,
+      class_id: excelImportClassId,
+      class_name: selectedClass.name,
+      role: "eleve",
+      can_create_subrooms: false,
+      establishment_id: establishmentId,
+      profile_id: null,
+      is_deleted: false,
+    }))
+
+    const { error } = await supabase.from("students").insert(studentsToInsert)
+
+    if (error) {
+      console.error("Excel import error:", error)
+      throw new Error("Erreur lors de l'import")
+    }
+
+    fetchData()
+  }
+
   async function handleAdd() {
     if (!formData.first_name.trim() || !formData.last_name.trim() || !formData.class_id) {
       toast({
