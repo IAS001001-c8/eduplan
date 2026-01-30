@@ -504,18 +504,6 @@ export function CreateSubRoomDialog({
               </Select>
             )}
           </div>
-                      id={`class-${cls.id}`}
-                      checked={formData.selectedClasses.includes(cls.id)}
-                      onCheckedChange={() => handleToggleClass(cls.id)}
-                    />
-                    <Label htmlFor={`class-${cls.id}`} className="text-sm font-normal cursor-pointer flex-1">
-                      {cls.name}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
 
         <DialogFooter>
