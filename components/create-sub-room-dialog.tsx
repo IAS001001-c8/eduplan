@@ -270,6 +270,17 @@ export function CreateSubRoomDialog({
 
       console.log("[v0] Sub-room created successfully:", subRoom)
 
+      // Notify other users about the new sub-room
+      await notifyEstablishmentUsers({
+        establishmentId,
+        type: "sub_room_created",
+        title: "Nouvelle sous-salle créée",
+        message: `La sous-salle "${subRoom.name}" a été créée`,
+        triggeredBy: userId,
+        excludeUserId: userId,
+        subRoomId: subRoom.id,
+      })
+
       if (formData.isCollaborative && formData.selectedTeachers.length > 0) {
         const teacherLinks = formData.selectedTeachers.map((teacherId) => ({
           sub_room_id: subRoom.id,
