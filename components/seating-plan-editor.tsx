@@ -835,22 +835,14 @@ export function SeatingPlanEditor({
     if (currentStudentInSeat && existingPlacement) {
       newAssignments.set(existingPlacement[0], currentStudentInSeat)
       newAssignments.set(seatNumber, selectedStudent.id)
-      
-      const otherStudent = students.find((s) => s.id === currentStudentInSeat)
-      toast({
-        title: "Élèves échangés",
-        description: `${selectedStudent.first_name} et ${otherStudent?.first_name || 'l\'élève'} ont échangé leurs places.`,
-      })
+      // No toast for swap - too many notifications
     } else {
       // Normal placement
       if (existingPlacement) {
         newAssignments.delete(existingPlacement[0])
       }
       newAssignments.set(seatNumber, selectedStudent.id)
-      toast({
-        title: "Élève placé",
-        description: `${selectedStudent.first_name} ${selectedStudent.last_name} a été placé sur la place ${seatNumber}.`,
-      })
+      // No toast for placement - too many notifications
     }
 
     setAssignments(newAssignments)
@@ -863,10 +855,7 @@ export function SeatingPlanEditor({
       const newAssignments = new Map(assignments)
       newAssignments.delete(clickedStudentInfo.seatNumber)
       setAssignments(newAssignments)
-      toast({
-        title: "Élève retiré",
-        description: `${clickedStudentInfo.student.first_name} ${clickedStudentInfo.student.last_name} a été retiré du plan.`,
-      })
+      // No toast for removal - too many notifications
       setClickedStudentInfo(null)
     }
   }
