@@ -1601,7 +1601,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
                 )}
               </CardContent>
             </Card>
-          ))}
+            ))}
           </div>
           )}
         </>
