@@ -20,7 +20,7 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { ArrowLeft, Plus, Eye, Key, FileText, Upload, MoreHorizontal, Users, Pencil, Shuffle, FileSpreadsheet, Download } from "lucide-react"
+import { ArrowLeft, Plus, Eye, Key, FileText, Upload, MoreHorizontal, Users, Pencil, Shuffle, FileSpreadsheet, Download, Mail } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { ImportStudentsDialog } from "@/components/import-students-dialog"
 import { ImportExcelDialog, ImportedStudent } from "@/components/import-excel-dialog"
