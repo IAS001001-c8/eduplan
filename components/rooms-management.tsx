@@ -412,26 +412,15 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
               </p>
             </div>
           </div>
-          {canModifyRooms && (
-            <div className="flex gap-3">
-              <Button
-                onClick={() => setShowTemplates(true)}
-                size="lg"
-                variant="outline"
-                className="border-emerald-300 hover:bg-emerald-50 hover:border-emerald-400 dark:border-emerald-700 dark:hover:bg-emerald-900/50"
-              >
-                <LayoutTemplate className="mr-2 h-5 w-5" />
-                Templates
-              </Button>
-              <Button
-                onClick={handleCustomCreation}
-                size="lg"
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all"
-              >
-                <Sparkles className="mr-2 h-5 w-5" />
-                Personnaliser
-              </Button>
-            </div>
+          {canModifyRooms && !isDelegate && (
+            <Button
+              onClick={() => setShowCreateRoom(true)}
+              size="lg"
+              className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all"
+            >
+              <Plus className="mr-2 h-5 w-5" />
+              Créer une salle
+            </Button>
           )}
         </div>
 
