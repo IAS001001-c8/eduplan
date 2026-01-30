@@ -343,6 +343,19 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
           </div>
         </header>
 
+        {/* Stats Vie Scolaire - Only for vie-scolaire role */}
+        {profile.role === "vie-scolaire" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-8"
+          >
+            <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-white">Statistiques de l'établissement</h2>
+            <VieScolaireStats establishmentId={profile.establishment_id} />
+          </motion.div>
+        )}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
