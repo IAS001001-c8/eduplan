@@ -1540,10 +1540,10 @@ export function SeatingPlanEditor({
                                       // Use the new handleSeatClick
                                       onClick={() => handleSeatClick(seatNumber)}
                                       className={cn(
-                                        "w-10 h-10 border-2 rounded flex items-center justify-center text-xs font-medium transition-all cursor-pointer",
+                                        "w-12 h-12 border-2 rounded-lg flex items-center justify-center text-xs font-medium transition-all cursor-pointer shadow-sm",
                                         student
-                                          ? "bg-black text-white border-black hover:scale-105"
-                                          : "bg-gray-100 text-gray-400 border-gray-300 hover:border-gray-400 hover:bg-gray-200",
+                                          ? "bg-emerald-600 text-white border-emerald-700 hover:scale-105 hover:shadow-md"
+                                          : "bg-white text-gray-400 border-gray-200 hover:border-emerald-400 hover:bg-emerald-50",
                                       )}
                                       style={getSeatStyle(isOccupied)}
                                     >
