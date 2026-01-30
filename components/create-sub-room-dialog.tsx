@@ -515,16 +515,25 @@ export function CreateSubRoomDialog({
               Classe{formData.isMultiClass ? "s" : ""}
               {!formData.isMultiClass && <span className="text-xs text-muted-foreground ml-1">(1 seule)</span>}
             </Label>
-            {formData.selectedTeachers.length === 0 ? (
+            {/* Pour vie scolaire, besoin de sélectionner un prof d'abord */}
+            {isVieScolaire && formData.selectedTeachers.length === 0 ? (
               <div className="border border-orange-300 bg-orange-50 dark:bg-orange-950 rounded-md p-4">
                 <p className="text-sm text-orange-800 dark:text-orange-200 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4" />
-                  Veuillez d'abord sélectionner un ou plusieurs professeurs
+                  Veuillez d'abord sélectionner un professeur
+                </p>
+              </div>
+            ) : /* Pour prof sans ID trouvé */
+            isProfessor && !currentTeacherId ? (
+              <div className="border border-orange-300 bg-orange-50 dark:bg-orange-950 rounded-md p-4">
+                <p className="text-sm text-orange-800 dark:text-orange-200 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  Impossible de charger vos classes
                 </p>
               </div>
             ) : filteredClasses.length === 0 ? (
               <div className="text-sm text-muted-foreground border rounded-md p-4">
-                Aucune classe disponible pour ce(s) professeur(s)
+                Aucune classe disponible pour ce professeur
               </div>
             ) : (
               <div className="border rounded-md p-4 space-y-2 max-h-48 overflow-y-auto">
