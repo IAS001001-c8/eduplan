@@ -1025,9 +1025,9 @@ export function SeatingPlanEditor({
     }
   }
 
-  // Helper to get student initials
+  // Helper to get student display name (Prénom.Initiale)
   const getInitials = (student: Student) => {
-    return `${student.last_name.charAt(0)}.${student.first_name.charAt(0)}`.toUpperCase()
+    return `${student.first_name}.${student.last_name.charAt(0).toUpperCase()}`
   }
 
   // Touch event handlers (needed for mobile compatibility)
