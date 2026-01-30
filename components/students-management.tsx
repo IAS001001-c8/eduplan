@@ -1093,6 +1093,122 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
     return true
   })
 
+  // Compute isAllSelected based on filtered students
+  const filteredStudentIds = filteredStudents.map(s => s.id)
+  const isAllSelected = filteredStudentIds.length > 0 && filteredStudentIds.every(id => selectedStudents.includes(id))
+  const isSomeSelected = selectedStudents.some(id => filteredStudentIds.includes(id))
+
+  // Select/deselect all filtered students
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      // Deselect all filtered students
+      setSelectedStudents(selectedStudents.filter(id => !filteredStudentIds.includes(id)))
+    } else {
+      // Select all filtered students
+      const newSelected = [...new Set([...selectedStudents, ...filteredStudentIds])]
+      setSelectedStudents(newSelected)
+    }
+  }
+
+  // Download PDF credentials for selected students
+  const handleDownloadCredentialsPDF = async () => {
+    const selectedStudentObjects = students.filter(s => selectedStudents.includes(s.id))
+    
+    if (selectedStudentObjects.length === 0) {
+      toast({
+        title: "Aucun élève sélectionné",
+        description: "Veuillez sélectionner au moins un élève",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsDownloadingPDF(true)
+
+    try {
+      // Generate new passwords and update profiles
+      const credentialsToExport: Array<{
+        first_name: string
+        last_name: string
+        username: string
+        password: string
+        role: string
+        class_name?: string
+      }> = []
+
+      for (const student of selectedStudentObjects) {
+        // Only process students with profile access
+        if (!student.profile_id) {
+          continue
+        }
+
+        // Generate new password
+        const newPassword = generateRandomPassword(12)
+        
+        // Get current profile to get username
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("username")
+          .eq("id", student.profile_id)
+          .single()
+
+        if (profileError || !profile) {
+          console.error("Error fetching profile for", student.id)
+          continue
+        }
+
+        // Update password in profiles table
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({ password: newPassword })
+          .eq("id", student.profile_id)
+
+        if (updateError) {
+          console.error("Error updating password for", student.id)
+          continue
+        }
+
+        credentialsToExport.push({
+          first_name: student.first_name,
+          last_name: student.last_name,
+          username: profile.username,
+          password: newPassword,
+          role: student.role || "eleve",
+          class_name: student.class_name || student.classes?.name,
+        })
+      }
+
+      if (credentialsToExport.length === 0) {
+        toast({
+          title: "Aucun accès à exporter",
+          description: "Les élèves sélectionnés n'ont pas de compte d'accès",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Generate and download PDF
+      downloadCredentialsPDF(credentialsToExport, `identifiants_eleves`)
+
+      toast({
+        title: "PDF généré avec succès",
+        description: `${credentialsToExport.length} identifiant(s) exporté(s). Les mots de passe ont été réinitialisés.`,
+      })
+
+      // Clear selection
+      setSelectedStudents([])
+    } catch (error) {
+      console.error("Error generating PDF:", error)
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer le PDF",
+        variant: "destructive",
+      })
+    } finally {
+      setIsDownloadingPDF(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
