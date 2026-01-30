@@ -18,6 +18,7 @@ interface ReviewProposalDialogProps {
   userRole: string
   userId: string
   onSuccess: () => void
+  onEditInEditor?: (proposal: any) => void
 }
 
 export function ReviewProposalDialog({
