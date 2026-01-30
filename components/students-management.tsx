@@ -1458,26 +1458,26 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
           ) : (
           /* Grid View */
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredStudents.map((student) => (
-            <Card key={student.id} className="hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-2">
-                    {userRole === "vie-scolaire" && (
-                      <input
-                        type="checkbox"
-                        checked={selectedStudents.includes(student.id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedStudents([...selectedStudents, student.id])
-                          } else {
-                            setSelectedStudents(selectedStudents.filter((id) => id !== student.id))
-                          }
-                        }}
-                        className="mt-1"
-                      />
-                    )}
-                    <div className="space-y-1">
+            {filteredStudents.map((student) => (
+              <Card key={student.id} className="hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-2">
+                      {userRole === "vie-scolaire" && (
+                        <input
+                          type="checkbox"
+                          checked={selectedStudents.includes(student.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedStudents([...selectedStudents, student.id])
+                            } else {
+                              setSelectedStudents(selectedStudents.filter((id) => id !== student.id))
+                            }
+                          }}
+                          className="mt-1"
+                        />
+                      )}
+                      <div className="space-y-1">
                       <CardTitle className="text-lg">
                         {student.first_name} {student.last_name}
                       </CardTitle>
