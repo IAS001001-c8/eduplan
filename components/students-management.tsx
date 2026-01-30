@@ -977,27 +977,52 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
     setIsDownloadingPDF(true)
 
     try {
-      // Use API to fetch credentials (bypasses RLS)
+      // Fetch usernames from profiles (public data)
       const profileIds = studentsWithProfiles.map(s => s.profile_id)
-      const response = await fetch("/api/get-credentials", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profileIds, userType: "student" })
-      })
+      const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, username")
+        .in("id", profileIds)
 
-      if (!response.ok) {
-        throw new Error("Erreur lors de la récupération des identifiants")
+      if (profilesError) {
+        throw new Error("Erreur lors de la récupération des profils")
       }
 
-      const { credentials } = await response.json()
+      // Create a map of profile_id to username
+      const profileMap = new Map(profiles?.map(p => [p.id, p.username]) || [])
 
-      if (!credentials || credentials.length === 0) {
+      // Build credentials with student info and generated password
+      const credentials = studentsWithProfiles
+        .filter(s => profileMap.has(s.profile_id))
+        .map(s => ({
+          first_name: s.first_name,
+          last_name: s.last_name,
+          username: profileMap.get(s.profile_id) || "",
+          password: generateRandomPassword(10),
+          role: s.role || "eleve",
+          class_name: s.class_name || s.classes?.name || ""
+        }))
+
+      if (credentials.length === 0) {
         toast({
           title: "Aucun accès à exporter",
           description: "Impossible de récupérer les identifiants",
           variant: "destructive",
         })
         return
+      }
+
+      // Update passwords in database for each profile
+      for (const cred of credentials) {
+        const student = studentsWithProfiles.find(
+          s => s.first_name === cred.first_name && s.last_name === cred.last_name
+        )
+        if (student?.profile_id) {
+          await supabase
+            .from("profiles")
+            .update({ password: cred.password })
+            .eq("id", student.profile_id)
+        }
       }
 
       // Generate and download ZIP with PDFs
