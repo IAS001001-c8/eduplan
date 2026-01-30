@@ -842,6 +842,16 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
     setIsAccessDialogOpen(false)
     fetchData()
   }
+
+  async function handleSendEmail() {
+    if (!selectedStudent) return
+    
+    toast({
+      title: "Fonctionnalité à venir",
+      description: "L'envoi d'email sera disponible prochainement",
+      variant: "default",
+    })
+  }
   // END OF MODIFIED FUNCTIONS
 
   function openEditDialog(student: Student) {
