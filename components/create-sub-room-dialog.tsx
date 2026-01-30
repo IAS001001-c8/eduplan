@@ -490,7 +490,8 @@ export function CreateSubRoomDialog({
             </div>
           )}
 
-          {formData.selectedTeachers.length > 0 && (
+          {/* Option Multi-classes - visible pour profs et vie scolaire quand un prof est sélectionné */}
+          {(isProfessor || (isVieScolaire && formData.selectedTeachers.length > 0)) && (
             <div className="flex items-center gap-2 border rounded-md p-3">
               <Checkbox
                 id="multiclass"
@@ -502,13 +503,9 @@ export function CreateSubRoomDialog({
                     selectedClasses: [],
                   })
                 }}
-                disabled={isDelegate}
               />
               <Label htmlFor="multiclass" className="cursor-pointer text-sm">
                 Multi-classes
-                {isDelegate && (
-                  <span className="text-xs text-muted-foreground ml-2">(Non disponible pour les délégués)</span>
-                )}
               </Label>
             </div>
           )}
