@@ -327,14 +327,21 @@ export function CreateSubRoomDialog({
   }
 
   // Pour les professeurs, sélectionner automatiquement leur ID
-  const displayedTeachers =
-    formData.isCollaborative && isProfessor && currentTeacherId
+  // Pour vie scolaire, afficher tous les professeurs
+  const displayedTeachers = isVieScolaire
+    ? teachers.sort((a, b) => a.last_name.localeCompare(b.last_name))
+    : formData.isCollaborative && isProfessor && currentTeacherId
       ? teachers.filter((t) => t.id !== currentTeacherId).slice(0, 3).sort((a, b) => a.last_name.localeCompare(b.last_name))
-      : isVieScolaire
-      ? teachers.sort((a, b) => a.last_name.localeCompare(b.last_name))
       : []
 
-  console.log("[v0] CreateSubRoomDialog about to return JSX")
+  console.log("[v0] CreateSubRoomDialog state:", {
+    isVieScolaire,
+    isProfessor,
+    currentTeacherId,
+    teachersCount: teachers.length,
+    displayedTeachersCount: displayedTeachers.length,
+    selectedTeachers: formData.selectedTeachers
+  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
