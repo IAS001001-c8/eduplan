@@ -104,6 +104,8 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [isAccessDialogOpen, setIsAccessDialogOpen] = useState(false)
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false) // Added import dialog state
+  const [isExcelImportDialogOpen, setIsExcelImportDialogOpen] = useState(false) // Excel import dialog
+  const [excelImportClassId, setExcelImportClassId] = useState<string>("")
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
   const [formData, setFormData] = useState({
     first_name: "",
