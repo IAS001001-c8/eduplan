@@ -9,6 +9,18 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - **Email**: Resend (noreply@eduplan-lnc.com) - Désactivé dans l'UI
 - **Auth**: Custom auth avec profils Supabase
 
+## Corrections Jan 30, 2026 (Session 10)
+
+### Commentaires du professeur pour les délégués ✅
+- Section "Commentaires du professeur" ajoutée sous le plan de classe
+- Visible uniquement pour les délégués/éco-délégués
+- Affiche :
+  - Les commentaires du professeur (`teacher_comments`)
+  - La raison du refus/renvoi (`rejection_reason`)
+  - La date de dernière révision (`reviewed_at`)
+- Style orange pour attirer l'attention
+- Conserve la liste des élèves non placés dans la colonne de droite
+
 ## Corrections Jan 30, 2026 (Session 9)
 
 ### Fix SandboxEditor - establishmentId ✅
