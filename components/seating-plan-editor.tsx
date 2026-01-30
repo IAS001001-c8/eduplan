@@ -879,10 +879,7 @@ export function SeatingPlanEditor({
     setShowRemoveConfirmation(false)
     setStudentToRemove(null)
     setDontShowAgain(false)
-    toast({
-      title: "Élève retiré",
-      description: "L'élève a été retiré du plan de classe",
-    })
+    // No toast - too many notifications
   }
 
   const handleCancelRemove = () => {
@@ -918,10 +915,7 @@ export function SeatingPlanEditor({
     })
 
     setAssignments(newAssignments)
-    toast({
-      title: "Placement aléatoire",
-      description: `${Math.min(shuffledStudents.length, shuffledSeats.length)} élève(s) placé(s) aléatoirement`,
-    })
+    // No toast - too many notifications
   }
 
   const handleAlphabeticalPlacement = (order: "asc" | "desc") => {
@@ -941,10 +935,7 @@ export function SeatingPlanEditor({
     })
 
     setAssignments(newAssignments)
-    toast({
-      title: `Placement alphabétique ${order === "asc" ? "A-Z" : "Z-A"}`,
-      description: `${Math.min(sorted.length, totalSeats)} élève(s) placé(s)`,
-    })
+    // No toast - too many notifications
   }
 
   const handleCompletePlan = () => {
@@ -977,26 +968,17 @@ export function SeatingPlanEditor({
     })
 
     setAssignments(newAssignments)
-    toast({
-      title: "Plan complété",
-      description: `${Math.min(sorted.length, availableSeats.length)} élève(s) placé(s)`,
-    })
+    // No toast - too many notifications
   }
 
   const handleRemoveAll = () => {
     setAssignments(new Map())
-    toast({
-      title: "Plan vidé",
-      description: "Tous les élèves ont été retirés du plan",
-    })
+    // No toast - too many notifications
   }
 
   const handleReset = () => {
     setAssignments(new Map(savedAssignments))
-    toast({
-      title: "Plan réinitialisé",
-      description: "Le plan a été restauré à la dernière sauvegarde",
-    })
+    // No toast - too many notifications
   }
 
   const handleDropToUnplacedArea = () => {
