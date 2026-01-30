@@ -85,11 +85,11 @@ export function TemplateSelectionDialog({
         </div>
 
         {template.isCustom && userId && establishmentId && (
-          <div className="absolute top-3 right-3 flex gap-2 z-20">
+          <div className="absolute top-3 right-3 flex gap-2 z-40">
             <Button
               size="sm"
               variant="ghost"
-              className="h-8 w-8 p-0 bg-white dark:bg-slate-800"
+              className="h-8 w-8 p-0 bg-white dark:bg-slate-800 shadow-sm"
               onClick={async (e) => {
                 e.stopPropagation()
                 await toggleTemplatePin(template.id, userId, establishmentId)
@@ -102,7 +102,7 @@ export function TemplateSelectionDialog({
             <Button
               size="sm"
               variant="ghost"
-              className="h-8 w-8 p-0 bg-white dark:bg-slate-800"
+              className="h-8 w-8 p-0 bg-white dark:bg-slate-800 shadow-sm"
               onClick={async (e) => {
                 e.stopPropagation()
                 if (confirm("Supprimer ce template personnalisé ?")) {
