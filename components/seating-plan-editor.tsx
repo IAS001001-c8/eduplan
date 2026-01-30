@@ -1477,13 +1477,13 @@ export function SeatingPlanEditor({
                   </div>
                 ) : (
                   <div className="w-full overflow-x-auto">
-                    <div className={`${getResponsiveGap()} flex justify-center items-start min-w-min p-4`}>
+                    <div className="flex justify-center items-start gap-6 min-w-min p-4">
                       {room.config.columns.map((column, colIndex) => (
-                        <div key={column.id} className={`${getResponsiveGap()} flex flex-col`}>
+                        <div key={column.id} className="flex flex-col gap-4">
                           {Array.from({ length: column.tables }).map((_, tableIndex) => (
                             <div
                               key={tableIndex}
-                              className={`relative ${getResponsiveTableSize(column.seatsPerTable)} rounded-lg border-2 flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-700`}
+                              className="relative rounded-lg border-2 flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-700 transition-all"
                               style={getTableStyle(column.seatsPerTable)}
                               onDragOver={handleDragOver}
                               onDrop={(e) => {
@@ -1493,19 +1493,10 @@ export function SeatingPlanEditor({
                               }}
                             >
                               <div
-                                className={`grid ${
-                                  column.seatsPerTable === 1
-                                    ? "grid-cols-1"
-                                    : column.seatsPerTable === 2
-                                      ? "grid-cols-2"
-                                      : column.seatsPerTable === 3
-                                        ? "grid-cols-3"
-                                        : column.seatsPerTable === 4
-                                          ? "grid-cols-2"
-                                          : column.seatsPerTable === 6
-                                            ? "grid-cols-3"
-                                            : "grid-cols-2"
-                                } gap-3 p-4 place-items-center w-full h-full`}
+                                className="grid gap-3 p-3 place-items-center w-full h-full"
+                                style={{ 
+                                  gridTemplateColumns: `repeat(${getGridCols(column.seatsPerTable)}, minmax(0, 1fr))` 
+                                }}
                               >
                                 {Array.from({ length: column.seatsPerTable }).map((_, seatIndex) => {
                                   const seatNumber = getSeatNumber(colIndex, tableIndex, seatIndex)
