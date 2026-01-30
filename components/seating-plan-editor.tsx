@@ -349,23 +349,14 @@ export function SeatingPlanEditor({
       // Swap: move the other student to the dragged student's old seat
       newAssignments.set(existingSeat, currentStudentIdInSeat)
       newAssignments.set(seatNumber, studentId)
-      
-      const otherStudent = students.find((s) => s.id === currentStudentIdInSeat)
-      toast({
-        title: "Élèves échangés",
-        description: `${studentToPlace.first_name} et ${otherStudent?.first_name || 'l\'élève'} ont échangé leurs places.`,
-      })
+      // No toast for swap - too many notifications
     } else {
       // Normal placement
       if (existingSeat !== undefined) {
         newAssignments.delete(existingSeat)
       }
       newAssignments.set(seatNumber, studentId)
-      
-      toast({
-        title: "Élève placé",
-        description: `${studentToPlace.first_name} ${studentToPlace.last_name} a été placé sur la place ${seatNumber}.`,
-      })
+      // No toast for placement - too many notifications
     }
 
     setAssignments(newAssignments)
