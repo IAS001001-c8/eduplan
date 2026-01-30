@@ -424,17 +424,28 @@ export function CreateSubRoomDialog({
             </div>
           )}
 
-          {/* Pour professeur : auto-sélectionné */}
-          {isProfessor && !formData.isCollaborative && currentTeacherId && (
-            <div className="bg-slate-50 dark:bg-slate-800 rounded-md p-4">
-              <p className="text-sm text-muted-foreground mb-1">Professeur</p>
-              <p className="font-medium">
-                {teachers.find(t => t.id === currentTeacherId)?.first_name}{' '}
-                {teachers.find(t => t.id === currentTeacherId)?.last_name}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                (La sous-salle sera créée pour vous)
-              </p>
+          {/* Pour professeur NON collaboratif : auto-sélectionné + options */}
+          {isProfessor && !formData.isCollaborative && (
+            <div className="space-y-4">
+              {currentTeacherId ? (
+                <div className="bg-slate-50 dark:bg-slate-800 rounded-md p-4">
+                  <p className="text-sm text-muted-foreground mb-1">Professeur</p>
+                  <p className="font-medium">
+                    {teachers.find(t => t.id === currentTeacherId)?.first_name}{' '}
+                    {teachers.find(t => t.id === currentTeacherId)?.last_name}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    (La sous-salle sera créée pour vous)
+                  </p>
+                </div>
+              ) : (
+                <div className="border border-orange-300 bg-orange-50 dark:bg-orange-950 rounded-md p-4">
+                  <p className="text-sm text-orange-800 dark:text-orange-200 flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4" />
+                    Impossible de trouver votre profil professeur. Veuillez vous reconnecter.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
