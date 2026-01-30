@@ -172,11 +172,14 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
 
   const handleReviewProposal = (proposal: Proposal) => {
     setSelectedProposal(proposal)
-    if (isTeacher && proposal.status === "pending") {
-      setIsEditorOpen(true)
-    } else {
-      setIsReviewDialogOpen(true)
-    }
+    // For teachers with pending proposals, show review dialog with validation options
+    setIsReviewDialogOpen(true)
+  }
+
+  const handleEditInEditor = (proposal: Proposal) => {
+    setSelectedProposal(proposal)
+    setIsReviewDialogOpen(false)
+    setIsEditorOpen(true)
   }
 
   const handleDeleteProposals = async () => {
