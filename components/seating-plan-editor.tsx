@@ -720,13 +720,13 @@ export function SeatingPlanEditor({
 
       // Notify delegate
       await sendNotification({
-        userId: proposal?.proposed_by || "",
-        establishmentId: subRoom.establishment_id || "",
+        user_id: proposal?.proposed_by || "",
+        establishment_id: subRoom.establishment_id || "",
         type: "plan_rejected",
         title: "Proposition refusée",
         message: `Le professeur a refusé définitivement votre proposition "${proposal?.name}"`,
-        proposalId: subRoom.id,
-        triggeredBy: userId,
+        proposal_id: subRoom.id,
+        triggered_by: userId,
       })
 
       toast({
