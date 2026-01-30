@@ -746,15 +746,18 @@ export function SeatingPlanEditor({
       if (error) throw error
 
       // Notify delegate
-      await sendNotification({
-        user_id: proposal?.proposed_by || "",
-        establishment_id: subRoom.establishment_id || "",
-        type: "plan_rejected",
-        title: "Proposition refusée",
-        message: `Le professeur a refusé définitivement votre proposition "${proposal?.name}"`,
-        proposal_id: subRoom.id,
-        triggered_by: userId,
-      })
+      const notifEstablishmentId = establishmentId || subRoom.establishment_id || proposal?.establishment_id || ""
+      if (notifEstablishmentId && proposal?.proposed_by) {
+        await sendNotification({
+          user_id: proposal.proposed_by,
+          establishment_id: notifEstablishmentId,
+          type: "plan_rejected",
+          title: "Proposition refusée",
+          message: `Le professeur a refusé définitivement votre proposition "${proposal?.name}"`,
+          proposal_id: subRoom.id,
+          triggered_by: userId,
+        })
+      }
 
       toast({
         title: "Proposition refusée",
