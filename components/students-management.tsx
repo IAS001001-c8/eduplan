@@ -1433,7 +1433,27 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <>
+          {/* Select all for vie scolaire */}
+          {userRole === "vie-scolaire" && (
+            <div className="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg">
+              <Checkbox
+                id="select-all"
+                checked={isAllSelected}
+                onCheckedChange={handleSelectAll}
+                className="h-5 w-5"
+              />
+              <label htmlFor="select-all" className="text-sm font-medium cursor-pointer flex-1">
+                {isAllSelected ? "Tout désélectionner" : "Tout sélectionner"} ({filteredStudents.length} élèves affichés)
+              </label>
+              {isSomeSelected && (
+                <span className="text-sm text-muted-foreground">
+                  {selectedStudents.filter(id => filteredStudentIds.includes(id)).length} sélectionné(s)
+                </span>
+              )}
+            </div>
+          )}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredStudents.map((student) => (
             <Card key={student.id} className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-3">
