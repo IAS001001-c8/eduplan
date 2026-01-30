@@ -679,16 +679,19 @@ export function SeatingPlanEditor({
         if (updateError) throw updateError
 
         // Notify delegate
-        await sendNotification({
-          userId: proposal!.proposed_by,
-          establishmentId: subRoom.establishment_id || "", // Assuming establishmentId is available in subRoom or can be fetched
-          type: "plan_validated",
-          title: "Proposition validée",
-          message: `Le professeur a validé votre proposition "${proposal!.name}"`,
-          subRoomId: subRoomData.id,
-          proposalId: subRoom.id,
-          triggeredBy: userId,
-        })
+        const notifEstablishmentId = establishmentId || subRoom.establishment_id || proposal?.establishment_id || ""
+        if (notifEstablishmentId) {
+          await sendNotification({
+            userId: proposal!.proposed_by,
+            establishmentId: notifEstablishmentId,
+            type: "plan_validated",
+            title: "Proposition validée",
+            message: `Le professeur a validé votre proposition "${proposal!.name}"`,
+            subRoomId: subRoomData.id,
+            proposalId: subRoom.id,
+            triggeredBy: userId,
+          })
+        }
       }
 
       toast({
