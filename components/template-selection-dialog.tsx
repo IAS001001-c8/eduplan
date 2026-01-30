@@ -121,27 +121,28 @@ export function TemplateSelectionDialog({
           </div>
         )}
 
-        <div
-          className={`absolute inset-0 bg-gradient-to-t from-emerald-600/95 to-emerald-500/95 flex items-center justify-center transition-opacity duration-300 z-10 ${
-            hoveredTemplate === template.id ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
-          onClick={() => {
-            onSelectTemplate(template)
-            if (onTemplateSelected) {
-              onTemplateSelected()
-            }
-            onOpenChange(false)
-          }}
-        >
-          <Button
-            size="lg"
-            variant="secondary"
-            className="bg-white text-emerald-700 hover:bg-white/90 font-semibold shadow-lg"
+        {/* Hover overlay - only show on actual hover, not on card load */}
+        {hoveredTemplate === template.id && (
+          <div
+            className="absolute inset-0 bg-gradient-to-t from-emerald-600/95 to-emerald-500/95 flex items-center justify-center transition-opacity duration-200 z-30 rounded-lg"
+            onClick={() => {
+              onSelectTemplate(template)
+              if (onTemplateSelected) {
+                onTemplateSelected()
+              }
+              onOpenChange(false)
+            }}
           >
-            <LayoutGrid className="mr-2 h-5 w-5" />
-            Utiliser ce template
-          </Button>
-        </div>
+            <Button
+              size="lg"
+              variant="secondary"
+              className="bg-white text-emerald-700 hover:bg-white/90 font-semibold shadow-lg"
+            >
+              <LayoutGrid className="mr-2 h-5 w-5" />
+              Utiliser ce template
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

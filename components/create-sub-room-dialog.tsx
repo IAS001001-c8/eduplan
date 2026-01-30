@@ -83,25 +83,42 @@ export function CreateSubRoomDialog({
 
   useEffect(() => {
     async function loadCurrentTeacher() {
-      if (userRole === "professeur") {
+      if (userRole === "professeur" && userId) {
         try {
+          // Try cookie first
+          let profileId = userId
           const cookieSession = document.cookie
             .split("; ")
             .find((row) => row.startsWith("custom_auth_user="))
             ?.split("=")[1]
 
           if (cookieSession) {
-            const sessionData = JSON.parse(decodeURIComponent(cookieSession))
-            const { data: teacher } = await supabase
-              .from("teachers")
-              .select("id")
-              .eq("profile_id", sessionData.id)
-              .single()
-
-            if (teacher) {
-              setCurrentTeacherId(teacher.id)
-              setFormData((prev) => ({ ...prev, selectedTeachers: [teacher.id] }))
+            try {
+              const sessionData = JSON.parse(decodeURIComponent(cookieSession))
+              profileId = sessionData.id || profileId
+            } catch (e) {
+              console.error("[v0] Error parsing cookie:", e)
             }
+          }
+
+          console.log("[v0] Looking for teacher with profile_id:", profileId)
+          
+          const { data: teacher, error } = await supabase
+            .from("teachers")
+            .select("id")
+            .eq("profile_id", profileId)
+            .single()
+
+          if (error) {
+            console.error("[v0] Error fetching teacher:", error)
+          }
+
+          if (teacher) {
+            console.log("[v0] Found teacher:", teacher.id)
+            setCurrentTeacherId(teacher.id)
+            setFormData((prev) => ({ ...prev, selectedTeachers: [teacher.id] }))
+          } else {
+            console.warn("[v0] No teacher found for profile_id:", profileId)
           }
         } catch (error) {
           console.error("[v0] Error loading current teacher:", error)
@@ -112,7 +129,7 @@ export function CreateSubRoomDialog({
     if (open) {
       loadCurrentTeacher()
     }
-  }, [open, userRole])
+  }, [open, userRole, userId])
 
   useEffect(() => {
     if (open) {
