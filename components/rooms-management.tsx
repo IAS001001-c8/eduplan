@@ -438,47 +438,6 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
         </div>
 
         {canModifyRooms && (
-          <Card className="mb-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-emerald-200 dark:border-emerald-800 shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-xl text-emerald-900 dark:text-emerald-100">Créer une nouvelle salle</CardTitle>
-              <CardDescription>Utilisez un template prédéfini ou créez une configuration personnalisée</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-3">
-                {!isDelegate && (
-                  <Button
-                    onClick={() => setShowTemplates(true)}
-                    variant="outline"
-                    className="flex-1 h-16 border-2 border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
-                  >
-                    <Grid className="mr-2 h-5 w-5" />
-                    Templates
-                  </Button>
-                )}
-                {!isDelegate && (
-                  <Button
-                    onClick={handleCustomCreation}
-                    className="flex-1 h-16 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg"
-                  >
-                    <LayoutGrid className="mr-2 h-5 w-5" />
-                    Personnalisée
-                  </Button>
-                )}
-                {isDelegate && (
-                  <Button
-                    onClick={() => setShowTemplates(true)}
-                    className="flex-1 h-16 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg"
-                  >
-                    <Grid className="mr-2 h-5 w-5" />
-                    Voir les templates
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {canModifyRooms && (
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800">
               <Checkbox
