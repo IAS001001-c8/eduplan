@@ -1175,15 +1175,62 @@ export function SeatingPlanEditor({
     return "gap-4" // Example: Adjust as needed for responsiveness
   }
 
-  const getResponsiveTableSize = () => {
-    // Add logic to return a class string based on screen size if needed
-    // For now, returning a default size
-    return "w-32 h-24" // Example: Adjust as needed for responsiveness
+  // Calculate table width based on number of seats per table
+  const getTableWidth = (seatsPerTable: number): string => {
+    // Base width per seat cell (including gap)
+    const seatWidth = 48 // 12 * 4 = 48px (w-12)
+    const gapWidth = 12 // gap-3 = 12px
+    
+    // Calculate columns in grid
+    let cols = 2 // default
+    if (seatsPerTable === 1) cols = 1
+    else if (seatsPerTable === 2) cols = 2
+    else if (seatsPerTable === 3) cols = 3
+    else if (seatsPerTable === 4) cols = 2 // 2x2 grid
+    else if (seatsPerTable === 5) cols = 3
+    else if (seatsPerTable === 6) cols = 3 // 2x3 grid
+    else if (seatsPerTable === 7) cols = 4
+    else cols = Math.min(seatsPerTable, 4)
+    
+    // Calculate total width
+    const totalWidth = cols * seatWidth + (cols - 1) * gapWidth + 32 // +32 for padding
+    return `${totalWidth}px`
   }
 
-  const getTableStyle = (): React.CSSProperties => {
-    // Add any specific styling for tables if required
-    return {}
+  // Calculate table height based on number of seats and layout
+  const getTableHeight = (seatsPerTable: number): string => {
+    const seatHeight = 48
+    const gapHeight = 12
+    
+    // Calculate rows based on seats and columns
+    let cols = 2
+    if (seatsPerTable === 1) cols = 1
+    else if (seatsPerTable === 2) cols = 2
+    else if (seatsPerTable === 3) cols = 3
+    else if (seatsPerTable === 4) cols = 2
+    else if (seatsPerTable === 5) cols = 3
+    else if (seatsPerTable === 6) cols = 3
+    else cols = Math.min(seatsPerTable, 4)
+    
+    const rows = Math.ceil(seatsPerTable / cols)
+    const totalHeight = rows * seatHeight + (rows - 1) * gapHeight + 32
+    return `${totalHeight}px`
+  }
+
+  const getResponsiveTableSize = (seatsPerTable?: number) => {
+    // If no seatsPerTable provided, return default
+    if (!seatsPerTable) return "w-32 h-24"
+    // Return empty string - we'll use inline styles for dynamic sizing
+    return ""
+  }
+
+  const getTableStyle = (seatsPerTable?: number): React.CSSProperties => {
+    if (!seatsPerTable) return {}
+    return {
+      width: getTableWidth(seatsPerTable),
+      height: getTableHeight(seatsPerTable),
+      minWidth: getTableWidth(seatsPerTable),
+    }
   }
 
   const getSeatNumber = (colIndex: number, tableIndex: number, seatIndex: number): number => {
