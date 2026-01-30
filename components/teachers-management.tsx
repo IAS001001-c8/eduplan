@@ -19,11 +19,13 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { toast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
-import { ArrowLeft, Plus, MoreVertical, Eye, Key, Mail, FileText, Upload, Pencil, Shuffle } from "lucide-react" // Added Shuffle icon import
+import { ArrowLeft, Plus, MoreVertical, Eye, Key, FileText, Upload, Pencil, Shuffle, Download } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { ImportTeachersDialog } from "@/components/import-teachers-dialog"
-import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog" // Added import for bulk delete dialog
+import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
+import { Checkbox } from "@/components/ui/checkbox"
+import { downloadCredentialsPDF, generateRandomPassword as generatePDFPassword } from "@/lib/generate-credentials-pdf"
 import type { Teacher } from "@/lib/types"
 import { isAdminSession } from "@/lib/admin-auth"
 import { adminStorage } from "@/lib/admin-storage"
