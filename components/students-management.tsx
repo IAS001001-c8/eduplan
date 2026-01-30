@@ -963,60 +963,45 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       return
     }
 
+    // Filter only students with profile_id
+    const studentsWithProfiles = selectedStudentObjects.filter(s => s.profile_id)
+    if (studentsWithProfiles.length === 0) {
+      toast({
+        title: "Aucun accès à exporter",
+        description: "Les élèves sélectionnés n'ont pas de compte d'accès",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsDownloadingPDF(true)
 
     try {
-      const credentialsToExport: Array<{
-        first_name: string
-        last_name: string
-        username: string
-        password: string
-        role: string
-        class_name?: string
-      }> = []
+      // Use API to fetch credentials (bypasses RLS)
+      const profileIds = studentsWithProfiles.map(s => s.profile_id)
+      const response = await fetch("/api/get-credentials", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profileIds, userType: "student" })
+      })
 
-      for (const student of selectedStudentObjects) {
-        // Only process students with profile access
-        if (!student.profile_id) {
-          continue
-        }
-        
-        // Get current profile with username and password
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("username, password")
-          .eq("id", student.profile_id)
-          .single()
-
-        if (profileError || !profile) {
-          console.error("Error fetching profile for", student.id)
-          continue
-        }
-
-        // Use existing password or generate a placeholder
-        const password = profile.password || "[Mot de passe non disponible]"
-
-        credentialsToExport.push({
-          first_name: student.first_name,
-          last_name: student.last_name,
-          username: profile.username,
-          password: password,
-          role: student.role || "eleve",
-          class_name: student.class_name || student.classes?.name,
-        })
+      if (!response.ok) {
+        throw new Error("Erreur lors de la récupération des identifiants")
       }
 
-      if (credentialsToExport.length === 0) {
+      const { credentials } = await response.json()
+
+      if (!credentials || credentials.length === 0) {
         toast({
           title: "Aucun accès à exporter",
-          description: "Les élèves sélectionnés n'ont pas de compte d'accès",
+          description: "Impossible de récupérer les identifiants",
           variant: "destructive",
         })
         return
       }
 
       // Generate and download ZIP with PDFs
-      await downloadCredentialsPDF(credentialsToExport, `identifiants_eleves`)
+      await downloadCredentialsPDF(credentials, `identifiants_eleves`)
 
       toast({
         title: "ZIP généré avec succès",
