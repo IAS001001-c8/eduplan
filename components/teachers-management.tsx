@@ -905,6 +905,106 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
     return true
   })
 
+  // Compute isAllSelected based on filtered teachers
+  const filteredTeacherIds = filteredTeachers.map(t => t.id)
+  const isAllSelected = filteredTeacherIds.length > 0 && filteredTeacherIds.every(id => selectedTeachers.includes(id))
+  const isSomeSelected = selectedTeachers.some(id => filteredTeacherIds.includes(id))
+
+  // Select/deselect all filtered teachers
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedTeachers(selectedTeachers.filter(id => !filteredTeacherIds.includes(id)))
+    } else {
+      const newSelected = [...new Set([...selectedTeachers, ...filteredTeacherIds])]
+      setSelectedTeachers(newSelected)
+    }
+  }
+
+  // Download PDF credentials for selected teachers
+  const handleDownloadCredentialsPDF = async () => {
+    const selectedTeacherObjects = teachers.filter(t => selectedTeachers.includes(t.id))
+    
+    if (selectedTeacherObjects.length === 0) {
+      toast({
+        title: "Aucun professeur sélectionné",
+        description: "Veuillez sélectionner au moins un professeur",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsDownloadingPDF(true)
+
+    try {
+      const supabase = createClient()
+      const credentialsToExport: Array<{
+        first_name: string
+        last_name: string
+        username: string
+        password: string
+        role: string
+        class_name?: string
+      }> = []
+
+      for (const teacher of selectedTeacherObjects) {
+        if (!teacher.profile_id) continue
+
+        const newPassword = generatePDFPassword(12)
+        
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("username")
+          .eq("id", teacher.profile_id)
+          .single()
+
+        if (profileError || !profile) continue
+
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({ password: newPassword })
+          .eq("id", teacher.profile_id)
+
+        if (updateError) continue
+
+        credentialsToExport.push({
+          first_name: teacher.first_name,
+          last_name: teacher.last_name,
+          username: profile.username,
+          password: newPassword,
+          role: "professeur",
+          class_name: teacher.subject || undefined,
+        })
+      }
+
+      if (credentialsToExport.length === 0) {
+        toast({
+          title: "Aucun accès à exporter",
+          description: "Les professeurs sélectionnés n'ont pas de compte d'accès",
+          variant: "destructive",
+        })
+        return
+      }
+
+      downloadCredentialsPDF(credentialsToExport, `identifiants_professeurs`)
+
+      toast({
+        title: "PDF généré avec succès",
+        description: `${credentialsToExport.length} identifiant(s) exporté(s). Les mots de passe ont été réinitialisés.`,
+      })
+
+      setSelectedTeachers([])
+    } catch (error) {
+      console.error("Error generating PDF:", error)
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer le PDF",
+        variant: "destructive",
+      })
+    } finally {
+      setIsDownloadingPDF(false)
+    }
+  }
+
   async function handleBulkDeleteTeachers() {
     try {
       const supabase = createClient()
