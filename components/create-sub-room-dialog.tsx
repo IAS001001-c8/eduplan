@@ -427,47 +427,6 @@ export function CreateSubRoomDialog({
             </div>
           )}
 
-          {isProfessor && formData.isCollaborative && (
-            <div className="space-y-2">
-              <Label>
-                Inviter d'autres professeurs
-                <span className="text-xs text-muted-foreground ml-1">(3 maximum)</span>
-              </Label>
-              {displayedTeachers.length === 0 ? (
-                <div className="text-sm text-muted-foreground border rounded-md p-4">
-                  Aucun autre professeur disponible
-                </div>
-              ) : (
-                <div className="border rounded-md p-4 space-y-2 max-h-48 overflow-y-auto">
-                  {displayedTeachers.map((teacher) => {
-                    const isSelected = formData.selectedTeachers.includes(teacher.id)
-                    const canSelect = isSelected || formData.selectedTeachers.filter(id => id !== currentTeacherId).length < 3
-                    
-                    return (
-                      <div key={teacher.id} className="flex items-center gap-2">
-                        <Checkbox
-                          id={`teacher-${teacher.id}`}
-                          checked={isSelected}
-                          onCheckedChange={() => handleToggleTeacher(teacher.id)}
-                          disabled={!canSelect && !isSelected}
-                        />
-                        <Label 
-                          htmlFor={`teacher-${teacher.id}`} 
-                          className={`text-sm font-normal cursor-pointer flex-1 ${!canSelect && !isSelected ? 'text-muted-foreground' : ''}`}
-                        >
-                          {teacher.first_name} {teacher.last_name} - {teacher.subject}
-                        </Label>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground">
-                Les professeurs sélectionnés recevront une invitation à accepter.
-              </p>
-            </div>
-          )}
-
           {/* Option Multi-classes - visible pour profs et vie scolaire quand un prof est sélectionné */}
           {(isProfessor || (isVieScolaire && formData.selectedTeachers.length > 0)) && (
             <div className="flex items-center gap-2 border rounded-md p-3">
@@ -490,8 +449,7 @@ export function CreateSubRoomDialog({
 
           <div className="space-y-2">
             <Label>
-              Classe{formData.isMultiClass ? "s" : ""}
-              {!formData.isMultiClass && <span className="text-xs text-muted-foreground ml-1">(1 seule)</span>}
+              Classe{formData.isMultiClass ? "s" : ""} <span className="text-red-500">*</span>
             </Label>
             {/* Pour vie scolaire, besoin de sélectionner un prof d'abord */}
             {isVieScolaire && formData.selectedTeachers.length === 0 ? (
@@ -513,11 +471,39 @@ export function CreateSubRoomDialog({
               <div className="text-sm text-muted-foreground border rounded-md p-4">
                 Aucune classe disponible pour ce professeur
               </div>
-            ) : (
+            ) : formData.isMultiClass ? (
               <div className="border rounded-md p-4 space-y-2 max-h-48 overflow-y-auto">
                 {filteredClasses.map((cls) => (
                   <div key={cls.id} className="flex items-center gap-2">
                     <Checkbox
+                      id={`class-${cls.id}`}
+                      checked={formData.selectedClasses.includes(cls.id)}
+                      onCheckedChange={() => handleToggleClass(cls.id)}
+                    />
+                    <Label htmlFor={`class-${cls.id}`} className="text-sm font-normal cursor-pointer flex-1">
+                      {cls.name}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <Select 
+                value={formData.selectedClasses[0] || ""} 
+                onValueChange={(value) => setFormData({ ...formData, selectedClasses: [value] })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner une classe" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filteredClasses.map((cls) => (
+                    <SelectItem key={cls.id} value={cls.id}>
+                      {cls.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
                       id={`class-${cls.id}`}
                       checked={formData.selectedClasses.includes(cls.id)}
                       onCheckedChange={() => handleToggleClass(cls.id)}
