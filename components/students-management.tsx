@@ -973,7 +973,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
         }
 
         // Generate new password
-        const newPassword = generateRandomPassword(12)
+        const newPassword = generateLocalRandomPassword(12)
         
         // Get current profile to get username
         const { data: profile, error: profileError } = await supabase
