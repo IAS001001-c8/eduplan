@@ -688,6 +688,127 @@ export function SeatingPlanEditor({
     }
   }
 
+  // Handle rejection of proposal by professor
+  const handleReject = async () => {
+    if (!isSandbox || !subRoom.is_sandbox || userRole !== "professeur") return
+    if (!rejectReason.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez indiquer une raison pour le refus",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      const supabase = createClient()
+      const proposal = subRoom.proposal_data
+
+      const { error } = await supabase
+        .from("sub_room_proposals")
+        .update({
+          status: "rejected",
+          reviewed_by: userId,
+          reviewed_at: new Date().toISOString(),
+          rejection_reason: rejectReason,
+        })
+        .eq("id", subRoom.id)
+
+      if (error) throw error
+
+      // Notify delegate
+      await sendNotification({
+        userId: proposal?.proposed_by || "",
+        establishmentId: subRoom.establishment_id || "",
+        type: "plan_rejected",
+        title: "Proposition refusée",
+        message: `Le professeur a refusé définitivement votre proposition "${proposal?.name}"`,
+        proposalId: subRoom.id,
+        triggeredBy: userId,
+      })
+
+      toast({
+        title: "Proposition refusée",
+        description: "Le délégué a été notifié du refus",
+      })
+
+      setShowRejectDialog(false)
+      setRejectReason("")
+      router.push("/dashboard/sandbox")
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de refuser la proposition",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  // Handle return of proposal with comments by professor
+  const handleReturn = async () => {
+    if (!isSandbox || !subRoom.is_sandbox || userRole !== "professeur") return
+    if (!returnComments.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez indiquer des commentaires pour le délégué",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      const supabase = createClient()
+      const proposal = subRoom.proposal_data
+
+      const { error } = await supabase
+        .from("sub_room_proposals")
+        .update({
+          status: "draft",
+          is_submitted: false,
+          teacher_comments: returnComments,
+          reviewed_by: userId,
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq("id", subRoom.id)
+
+      if (error) throw error
+
+      // Notify delegate
+      await sendNotification({
+        userId: proposal?.proposed_by || "",
+        establishmentId: subRoom.establishment_id || "",
+        type: "plan_returned",
+        title: "Proposition renvoyée",
+        message: `Le professeur a renvoyé votre proposition "${proposal?.name}" avec des commentaires`,
+        proposalId: subRoom.id,
+        triggeredBy: userId,
+      })
+
+      toast({
+        title: "Proposition renvoyée",
+        description: "Le délégué peut maintenant modifier et resoumettre sa proposition",
+      })
+
+      setShowReturnDialog(false)
+      setReturnComments("")
+      router.push("/dashboard/sandbox")
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: error.message || "Impossible de renvoyer la proposition",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const handleSeatClick = (seatNumber: number) => {
     if (!selectedStudent) {
       // If no student is selected, and the seat is occupied, show student info popup
