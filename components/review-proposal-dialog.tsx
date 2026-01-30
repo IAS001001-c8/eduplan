@@ -412,6 +412,18 @@ export function ReviewProposalDialog({
 
           {isPending && isTeacher && (
             <div className="space-y-4 pt-4">
+              {/* Button to edit in editor */}
+              {onEditInEditor && (
+                <Button
+                  variant="outline"
+                  onClick={() => onEditInEditor(proposal)}
+                  className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Modifier le plan dans l'éditeur
+                </Button>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="return-comments">Commentaires pour le délégué (optionnel)</Label>
                 <Textarea
