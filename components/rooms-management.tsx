@@ -800,6 +800,16 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
         />
       )}
 
+      {/* Edit Room Dialog */}
+      <EditRoomDialog
+        open={editingRoom !== null}
+        onOpenChange={(open) => {
+          if (!open) setEditingRoom(null)
+        }}
+        onSuccess={loadRooms}
+        room={editingRoom}
+      />
+
       <div />
     </div>
   )
