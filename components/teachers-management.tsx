@@ -1718,16 +1718,10 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
                 Annuler
               </Button>
             </div>
-            <div className="grid grid-cols-2 gap-2 w-full">
-              <Button variant="secondary" onClick={handleSendCredentials} className="w-full">
-                <Mail className="mr-1 h-4 w-4" />
-                <span className="truncate">Email</span>
-              </Button>
-              <Button variant="secondary" onClick={handleDownloadPDF} className="w-full">
-                <FileText className="mr-1 h-4 w-4" />
-                <span className="truncate">PDF</span>
-              </Button>
-            </div>
+            <Button variant="secondary" onClick={handleDownloadPDF} className="w-full">
+              <FileText className="mr-1 h-4 w-4" />
+              Télécharger PDF
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
