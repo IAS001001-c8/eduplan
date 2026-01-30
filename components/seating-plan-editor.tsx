@@ -994,11 +994,7 @@ export function SeatingPlanEditor({
         const newAssignments = new Map(assignments)
         newAssignments.delete(seatNumber)
         setAssignments(newAssignments)
-
-        toast({
-          title: "Élève retiré",
-          description: `${students.find((s) => s.id === draggedStudent)?.first_name} ${students.find((s) => s.id === draggedStudent)?.last_name} a été retiré de la place ${seatNumber}`,
-        })
+        // No toast - too many notifications
       }
 
       setDraggedStudent(null)
