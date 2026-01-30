@@ -1858,6 +1858,78 @@ export function SeatingPlanEditor({
         establishmentId={students[0]?.establishment_id || ""}
       />
 
+      {/* Reject Proposal Dialog */}
+      <AlertDialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Refuser définitivement cette proposition ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est définitive. Le délégué ne pourra pas resoumettre cette proposition.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="my-4">
+            <label className="text-sm font-medium mb-2 block">Raison du refus (obligatoire)</label>
+            <textarea
+              className="w-full p-3 border rounded-md min-h-[100px] text-sm"
+              placeholder="Ex: Le plan ne convient pas pour ce type de cours..."
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setShowRejectDialog(false)
+              setRejectReason("")
+            }}>
+              Annuler
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleReject}
+              disabled={!rejectReason.trim() || isSubmitting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isSubmitting ? "Refus..." : "Refuser définitivement"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Return Proposal Dialog */}
+      <AlertDialog open={showReturnDialog} onOpenChange={setShowReturnDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Renvoyer cette proposition au délégué ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Le délégué pourra modifier sa proposition et la resoumettre.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="my-4">
+            <label className="text-sm font-medium mb-2 block">Commentaires pour le délégué (obligatoire)</label>
+            <textarea
+              className="w-full p-3 border rounded-md min-h-[100px] text-sm"
+              placeholder="Ex: Pouvez-vous placer les élèves turbulents plus près du tableau..."
+              value={returnComments}
+              onChange={(e) => setReturnComments(e.target.value)}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setShowReturnDialog(false)
+              setReturnComments("")
+            }}>
+              Annuler
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleReturn}
+              disabled={!returnComments.trim() || isSubmitting}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              {isSubmitting ? "Renvoi..." : "Renvoyer avec commentaires"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Toaster />
     </div>
   )
