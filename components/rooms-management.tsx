@@ -32,6 +32,7 @@ import type { RoomTemplate } from "@/components/room-templates"
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
 import { TemplateSelectionDialog } from "@/components/template-selection-dialog"
 import { CreateSubRoomDialog } from "@/components/create-sub-room-dialog"
+import { CreateRoomDialog } from "@/components/create-room-dialog"
 import { RoomSeatPreview } from "@/components/room-seat-preview"
 import { ViewToggle } from "@/components/view-toggle"
 import {
