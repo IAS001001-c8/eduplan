@@ -133,6 +133,7 @@ export function SeatingPlanEditor({
   isSandbox = false,
   userRole,
   userId,
+  establishmentId,
 }: SeatingPlanEditorProps) {
   const router = useRouter() // Initialize useRouter
   const [students, setStudents] = useState<Student[]>([])
