@@ -77,6 +77,7 @@ interface SubRoom {
   name: string
   room_id: string
   class_ids: string[]
+  establishment_id?: string
   is_sandbox?: boolean // Added for sandbox functionality
   proposal_data?: {
     id: string
@@ -87,13 +88,16 @@ interface SubRoom {
     class_id: string
     name: string
     seat_assignments: { seat_id: string; student_id: string; seat_number: number }[]
-    status: "pending" | "approved" | "rejected" | "draft"
+    status: "pending" | "approved" | "rejected" | "draft" | "returned"
     is_submitted: boolean
     reviewed_by: string | null
     reviewed_at: string | null
     created_at: string
     updated_at: string
     proposed_by: string
+    rejection_reason?: string
+    teacher_comments?: string
+    establishment_id?: string
   }
 }
 
