@@ -379,7 +379,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
   console.log("[v0] RoomsManagement component rendering with props:", { rooms: initialRooms, userRole, userId })
 
   console.log("[v0] About to render Dialogs - state:", {
-    showCreateTemplate,
+    showCreateRoom,
     editingRoom: editingRoom !== null,
     selectedRoomIds: selectedRoomIds.length,
     showTemplates,
