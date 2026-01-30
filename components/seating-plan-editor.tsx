@@ -40,6 +40,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import cn from "classnames"
 import { notifyPlanModified } from "@/lib/notifications"
+import { exportSeatingPlanToPDF } from "@/lib/export-pdf"
 import { Toaster } from "@/components/ui/toaster" // Imported Toaster
 import { useRouter } from "next/navigation" // Import useRouter for navigation
 import { sendNotification } from "@/lib/notifications" // Import sendNotification
@@ -990,11 +991,43 @@ export function SeatingPlanEditor({
   }
 
   const handleDownloadPDF = () => {
-    // Implement PDF download logic here
-    toast({
-      title: "Fonctionnalité non implémentée",
-      description: "Le téléchargement PDF n'est pas encore disponible.",
-    })
+    if (!room?.config?.columns) {
+      toast({
+        title: "Erreur",
+        description: "Configuration de la salle non disponible",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      const teacherName = "Professeur" // Can be enhanced to get actual teacher name
+      const className = students[0]?.class_name || "Classe"
+
+      const fileName = exportSeatingPlanToPDF({
+        subRoomName: subRoom.name,
+        roomName: room.name,
+        teacherName,
+        className,
+        columns: room.config.columns,
+        assignments,
+        students,
+        boardPosition: room.board_position || "top",
+        establishmentName: "EduPlan"
+      })
+
+      toast({
+        title: "PDF généré",
+        description: `Le fichier ${fileName} a été téléchargé`,
+      })
+    } catch (error) {
+      console.error("Error generating PDF:", error)
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer le PDF",
+        variant: "destructive",
+      })
+    }
   }
 
   const handleCreateLink = () => {
