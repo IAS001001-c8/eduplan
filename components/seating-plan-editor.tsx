@@ -1704,6 +1704,15 @@ export function SeatingPlanEditor({
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* History Dialog */}
+      <HistoryDialog
+        open={isHistoryOpen}
+        onOpenChange={setIsHistoryOpen}
+        entityType="sub_room"
+        entityId={subRoom.id}
+        establishmentId={students[0]?.establishment_id || ""}
+      />
+
       <Toaster />
     </div>
   )
