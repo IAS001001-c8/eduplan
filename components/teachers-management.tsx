@@ -111,10 +111,8 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
 
   const [teachersWithPPBadge, setTeachersWithPPBadge] = useState<Set<string>>(new Set())
 
-  const [isEmailConfirmDialogOpen, setIsEmailConfirmDialogOpen] = useState(false)
-  const [emailToConfirm, setEmailToConfirm] = useState("")
-  const [isSendingEmail, setIsSendingEmail] = useState(false)
-  const [isBulkEmailDialogOpen, setIsBulkEmailDialogOpen] = useState(false)
+  // PDF Download state
+  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false)
 
   const [isTeacherEditDialogOpen, setIsTeacherEditDialogOpen] = useState(false)
   const [teacherEditFormData, setTeacherEditFormData] = useState({
