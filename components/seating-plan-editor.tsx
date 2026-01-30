@@ -138,6 +138,7 @@ export function SeatingPlanEditor({
   // Added state for dragging over the unplaced students area
   const [isDragOverUnplaced, setIsDragOverUnplaced] = useState(false)
   const [selectedSeatForDialog, setSelectedSeatForDialog] = useState<number | null>(null)
+  const [seatDialogSearchQuery, setSeatDialogSearchQuery] = useState("") // Search in seat selection dialog
   const [isDragging, setIsDragging] = useState(false)
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
   const [shareEmail, setShareEmail] = useState("")
