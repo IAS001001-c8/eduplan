@@ -1495,8 +1495,8 @@ export function SeatingPlanEditor({
                           {Array.from({ length: column.tables }).map((_, tableIndex) => (
                             <div
                               key={tableIndex}
-                              className={`relative ${getResponsiveTableSize()} rounded-lg border-2 flex items-center justify-center`}
-                              style={getTableStyle()}
+                              className={`relative ${getResponsiveTableSize(column.seatsPerTable)} rounded-lg border-2 flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-700`}
+                              style={getTableStyle(column.seatsPerTable)}
                               onDragOver={handleDragOver}
                               onDrop={(e) => {
                                 // Determine the first seat number in this table for the drop target
