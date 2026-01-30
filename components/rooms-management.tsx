@@ -302,9 +302,23 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
     if (idsToDelete.length === 0) return
 
     try {
+      // Get room names before deletion for notification
+      const roomsToDelete = localRooms.filter(r => idsToDelete.includes(r.id))
+      const roomNames = roomsToDelete.map(r => r.name).join(", ")
+
       const { error } = await supabase.from("rooms").delete().in("id", idsToDelete)
 
       if (error) throw error
+
+      // Notify users about deletion
+      await notifyEstablishmentUsers({
+        establishmentId,
+        type: "room_deleted",
+        title: "Salle(s) supprimée(s)",
+        message: `La/les salle(s) "${roomNames}" a/ont été supprimée(s)`,
+        triggeredBy: userId,
+        excludeUserId: userId,
+      })
 
       loadRooms()
       setSelectedRoomIds([])
