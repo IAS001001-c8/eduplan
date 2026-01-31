@@ -669,19 +669,33 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
                               <Eye className="mr-2 h-4 w-4" />
                               Visualiser
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => openEditDialog(room)}>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Modifier
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDuplicateRooms([room.id])}>
-                              <Copy className="mr-2 h-4 w-4" />
-                              Dupliquer
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => openDeleteDialog([room.id])} className="text-red-600">
-                              <Trash className="mr-2 h-4 w-4" />
-                              Supprimer
-                            </DropdownMenuItem>
+                            {canCreateSubRooms && (
+                              <DropdownMenuItem onClick={() => {
+                                setSelectedRoomForSubRoom(room)
+                                setShowCreateSubRoom(true)
+                              }}>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Créer une sous-salle
+                              </DropdownMenuItem>
+                            )}
+                            {canModifyRooms && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => openEditDialog(room)}>
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Modifier
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDuplicateRooms([room.id])}>
+                                  <Copy className="mr-2 h-4 w-4" />
+                                  Dupliquer
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => openDeleteDialog([room.id])} className="text-red-600">
+                                  <Trash className="mr-2 h-4 w-4" />
+                                  Supprimer
+                                </DropdownMenuItem>
+                              </>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </td>
