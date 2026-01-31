@@ -387,11 +387,15 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
   }
 
   const isVieScolaire = userRole === "vie-scolaire"
-  const canCreateSubRooms =
-    isVieScolaire || userRole === "professeur" || userRole === "delegue" || userRole === "eco-delegue"
+  const isTeacher = userRole === "professeur"
+  const isDelegate = userRole === "delegue" || userRole === "eco-delegue"
+  
+  // Only vie-scolaire and teachers can create sub-rooms directly
+  // Delegates must use the sandbox (bac à sable) mode
+  const canCreateSubRooms = isVieScolaire || isTeacher
 
   const filterTeachers = userRole === "professeur" ? teachers.filter((t) => t.id === userId) : teachers
-  const filterClasses = userRole === "delegue" || userRole === "eco-delegue" ? availableClasses : classes
+  const filterClasses = isDelegate ? availableClasses : classes
 
   return (
     <div className="min-h-screen bg-white dark:bg-black">
