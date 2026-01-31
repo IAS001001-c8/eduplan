@@ -433,7 +433,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
               </p>
             </div>
           </div>
-          {canModifyRooms && !isDelegate && (
+          {canModifyRooms && (
             <Button
               onClick={() => setShowCreateRoom(true)}
               size="lg"
