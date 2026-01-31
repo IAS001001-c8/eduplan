@@ -17,16 +17,19 @@ interface NotificationData {
 }
 
 export async function sendNotification(data: NotificationData) {
-  // Normalize to snake_case for the API
+  const supabase = createClient()
+  
+  // Normalize to snake_case
   const normalizedData = {
     user_id: data.user_id || data.userId,
     establishment_id: data.establishment_id || data.establishmentId,
     type: data.type,
     title: data.title,
     message: data.message,
-    sub_room_id: data.sub_room_id || data.subRoomId,
-    proposal_id: data.proposal_id || data.proposalId,
-    triggered_by: data.triggered_by || data.triggeredBy,
+    sub_room_id: data.sub_room_id || data.subRoomId || null,
+    proposal_id: data.proposal_id || data.proposalId || null,
+    triggered_by: data.triggered_by || data.triggeredBy || null,
+    is_read: false,
   }
 
   if (!normalizedData.user_id || !normalizedData.establishment_id) {
@@ -35,22 +38,20 @@ export async function sendNotification(data: NotificationData) {
   }
 
   try {
-    const response = await fetch("/api/notifications", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(normalizedData),
-    })
+    // Insert directly into Supabase instead of using API route
+    const { data: notification, error } = await supabase
+      .from("notifications")
+      .insert(normalizedData)
+      .select()
+      .single()
 
-    if (!response.ok) {
-      const error = await response.json()
-      console.error("[Notifications] Error sending notification:", error)
+    if (error) {
+      console.error("[Notifications] Supabase error:", error)
       return
     }
 
-    const result = await response.json()
-    console.log("[Notifications] Notification sent:", result)
+    console.log("[Notifications] Notification created:", notification?.id)
+    return notification
   } catch (error) {
     console.error("[Notifications] Exception:", error)
   }
