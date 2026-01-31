@@ -9,6 +9,31 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - **Email**: Resend (noreply@eduplan-lnc.com) - Désactivé dans l'UI
 - **Auth**: Custom auth avec profils Supabase
 
+## Corrections Jan 30, 2026 (Session 11)
+
+### Notifications - Fix erreurs 520 ✅
+- Changé `sendNotification` pour utiliser Supabase directement au lieu de l'API
+- Plus d'erreurs 520 sur `/api/notifications`
+- Les notifications sont maintenant créées directement dans la base de données
+
+### Drag & Drop amélioré ✅
+- Zones de drop précises sur chaque siège individuellement
+- Effet visuel au survol (ring vert + scale)
+- Suppression du drop sur la table entière (évite les placements imprécis)
+- Style "dashed" pour les sièges vides quand on drag
+- `e.stopPropagation()` pour éviter les conflits
+
+### Historique et commentaires dans l'éditeur sandbox ✅
+- Section "Historique et commentaires" sous le plan de classe
+- Affichage du statut actuel avec badge coloré
+- Statut de soumission (soumis au professeur)
+- Commentaires du professeur (renvoi) en orange
+- Raison du refus définitif en rouge
+- Chronologie complète avec points colorés :
+  - Bleu : Création
+  - Violet : Soumission
+  - Vert/Rouge/Orange : Validation/Refus/Renvoi
+
 ## Corrections Jan 30, 2026 (Session 10)
 
 ### Commentaires du professeur pour les délégués ✅
