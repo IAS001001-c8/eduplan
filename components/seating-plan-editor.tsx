@@ -1521,36 +1521,47 @@ export function SeatingPlanEditor({
                                   const assignment = assignments.get(seatNumber)
                                   const student = assignment ? students.find((s) => s.id === assignment) : null
                                   const isOccupied = !!student
+                                  const isDragTarget = draggedStudent && !isOccupied
 
                                   return (
                                     <div
                                       key={`seat-${tableIndex}-${seatIndex}`}
                                       data-seat-number={seatNumber}
                                       draggable={!!student}
-                                      // Pass student.id to handleDragStart
                                       onDragStart={(e) => student && handleDragStart(e as any, student.id)}
-                                      onDragOver={handleDragOver}
-                                      onDrop={(e) => handleDrop(e, seatNumber)}
+                                      onDragOver={(e) => {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                        e.currentTarget.classList.add("ring-2", "ring-emerald-500", "scale-110")
+                                      }}
+                                      onDragLeave={(e) => {
+                                        e.currentTarget.classList.remove("ring-2", "ring-emerald-500", "scale-110")
+                                      }}
+                                      onDrop={(e) => {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                        e.currentTarget.classList.remove("ring-2", "ring-emerald-500", "scale-110")
+                                        handleDrop(e, seatNumber)
+                                      }}
                                       onTouchStart={(e) => student && handleTouchStart(e as any, student.id)}
                                       onTouchMove={handleTouchMove}
                                       onTouchEnd={(e) => handleTouchEnd(e, seatNumber)}
-                                      // Use the new handleSeatClick
                                       onClick={() => handleSeatClick(seatNumber)}
                                       className={cn(
-                                        "w-14 h-14 border-2 rounded-lg flex items-center justify-center text-sm font-medium transition-all cursor-pointer shadow-sm",
+                                        "w-14 h-14 border-2 rounded-lg flex items-center justify-center text-sm font-medium cursor-pointer shadow-sm",
+                                        "transition-all duration-150 ease-in-out",
                                         student
                                           ? "bg-emerald-600 text-white border-emerald-700 hover:scale-105 hover:shadow-md"
-                                          : "bg-white text-gray-400 border-gray-200 hover:border-emerald-400 hover:bg-emerald-50",
+                                          : isDragTarget
+                                            ? "bg-emerald-100 text-emerald-600 border-emerald-400 border-dashed"
+                                            : "bg-white text-gray-400 border-gray-200 hover:border-emerald-400 hover:bg-emerald-50",
                                       )}
                                       style={getSeatStyle(isOccupied)}
                                     >
                                       {student ? (
-                                        <>
-                                          <span className="text-white text-sm font-semibold">
-                                            {getInitials(student)}
-                                          </span>
-                                          {/* Removed direct remove button from seat for consistency with dialog */}
-                                        </>
+                                        <span className="text-white text-sm font-semibold truncate max-w-full px-1">
+                                          {getInitials(student)}
+                                        </span>
                                       ) : (
                                         <span className="text-sm">{seatNumber}</span>
                                       )}
