@@ -1573,45 +1573,114 @@ export function SeatingPlanEditor({
               </CardContent>
             </Card>
 
-            {/* Teacher Comments Section - Visible for delegates when plan is returned */}
-            {(userRole === "delegue" || userRole === "eco-delegue") && 
-              subRoom.proposal_data && 
-              (subRoom.proposal_data.status === "returned" || subRoom.proposal_data.teacher_comments || subRoom.proposal_data.rejection_reason) && (
-              <Card className="mt-4 border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20">
+            {/* Proposal History & Comments Section - Visible in sandbox mode */}
+            {isSandbox && subRoom.proposal_data && (
+              <Card className="mt-4 border-gray-200 dark:border-gray-800">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2 text-orange-700 dark:text-orange-300">
-                    <AlertTriangle className="h-4 w-4" />
-                    Commentaires du professeur
+                  <CardTitle className="text-sm flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                    <History className="h-4 w-4" />
+                    Historique et commentaires
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-0">
-                  {subRoom.proposal_data.teacher_comments && (
-                    <div className="mb-3">
-                      <p className="text-xs text-orange-600 dark:text-orange-400 font-medium mb-1">Commentaires :</p>
-                      <p className="text-sm text-orange-800 dark:text-orange-200 bg-white dark:bg-orange-900/30 p-2 rounded border border-orange-200 dark:border-orange-700">
+                <CardContent className="pt-0 space-y-3">
+                  {/* Current Status */}
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">Statut actuel :</span>
+                    <Badge variant={
+                      subRoom.proposal_data.status === "approved" ? "default" :
+                      subRoom.proposal_data.status === "rejected" ? "destructive" :
+                      subRoom.proposal_data.status === "returned" ? "outline" :
+                      subRoom.proposal_data.status === "pending" ? "secondary" :
+                      "outline"
+                    }>
+                      {subRoom.proposal_data.status === "approved" ? "✓ Validé" :
+                       subRoom.proposal_data.status === "rejected" ? "✗ Refusé" :
+                       subRoom.proposal_data.status === "returned" ? "↩ Renvoyé" :
+                       subRoom.proposal_data.status === "pending" ? "⏳ En attente" :
+                       subRoom.proposal_data.status === "draft" ? "📝 Brouillon" :
+                       subRoom.proposal_data.status}
+                    </Badge>
+                  </div>
+
+                  {/* Submission status */}
+                  {subRoom.proposal_data.is_submitted && (
+                    <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800">
+                      <p className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                        <Send className="h-3 w-3" />
+                        Proposition soumise au professeur
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Teacher comments if returned */}
+                  {subRoom.proposal_data.status === "returned" && subRoom.proposal_data.teacher_comments && (
+                    <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded border border-orange-200 dark:border-orange-800">
+                      <p className="text-xs text-orange-600 dark:text-orange-400 font-medium mb-1 flex items-center gap-1">
+                        <AlertTriangle className="h-3 w-3" />
+                        Commentaires du professeur (Renvoi) :
+                      </p>
+                      <p className="text-sm text-orange-800 dark:text-orange-200">
                         {subRoom.proposal_data.teacher_comments}
                       </p>
                     </div>
                   )}
-                  {subRoom.proposal_data.rejection_reason && (
-                    <div>
-                      <p className="text-xs text-orange-600 dark:text-orange-400 font-medium mb-1">Raison du refus/renvoi :</p>
-                      <p className="text-sm text-orange-800 dark:text-orange-200 bg-white dark:bg-orange-900/30 p-2 rounded border border-orange-200 dark:border-orange-700">
+
+                  {/* Rejection reason if rejected */}
+                  {subRoom.proposal_data.status === "rejected" && subRoom.proposal_data.rejection_reason && (
+                    <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-800">
+                      <p className="text-xs text-red-600 dark:text-red-400 font-medium mb-1 flex items-center gap-1">
+                        <AlertTriangle className="h-3 w-3" />
+                        Raison du refus définitif :
+                      </p>
+                      <p className="text-sm text-red-800 dark:text-red-200">
                         {subRoom.proposal_data.rejection_reason}
                       </p>
                     </div>
                   )}
-                  {subRoom.proposal_data.reviewed_at && (
-                    <p className="text-xs text-orange-500 dark:text-orange-400 mt-2">
-                      Dernière révision : {new Date(subRoom.proposal_data.reviewed_at).toLocaleDateString("fr-FR", { 
-                        day: "numeric", 
-                        month: "long", 
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit"
-                      })}
-                    </p>
-                  )}
+
+                  {/* Timeline */}
+                  <div className="border-t pt-3 mt-3">
+                    <p className="text-xs text-muted-foreground font-medium mb-2">Chronologie :</p>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        <span>Créé le {new Date(subRoom.proposal_data.created_at).toLocaleDateString("fr-FR", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit"
+                        })}</span>
+                      </div>
+                      {subRoom.proposal_data.is_submitted && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                          <span>Soumis au professeur</span>
+                        </div>
+                      )}
+                      {subRoom.proposal_data.reviewed_at && (
+                        <div className="flex items-center gap-2">
+                          <div className={cn(
+                            "w-2 h-2 rounded-full",
+                            subRoom.proposal_data.status === "approved" ? "bg-green-500" :
+                            subRoom.proposal_data.status === "rejected" ? "bg-red-500" :
+                            "bg-orange-500"
+                          )}></div>
+                          <span>
+                            {subRoom.proposal_data.status === "approved" ? "Validé" :
+                             subRoom.proposal_data.status === "rejected" ? "Refusé" :
+                             "Renvoyé"} le {new Date(subRoom.proposal_data.reviewed_at).toLocaleDateString("fr-FR", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit"
+                            })}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}
