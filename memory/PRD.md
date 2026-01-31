@@ -9,6 +9,29 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - **Email**: Resend (noreply@eduplan-lnc.com) - Désactivé dans l'UI
 - **Auth**: Custom auth avec profils Supabase
 
+## Corrections Jan 30, 2026 (Session 12)
+
+### Permissions corrigées ✅
+**Vie Scolaire** :
+- ✅ Créer/Modifier/Supprimer des salles
+- ✅ Créer/Modifier/Supprimer des sous-salles
+
+**Professeurs** :
+- ❌ NE PEUVENT PAS créer/modifier des salles
+- ✅ Peuvent créer des sous-salles
+- ✅ Peuvent voir et visualiser les salles
+- ✅ Option "Créer une sous-salle" dans le menu
+
+**Délégués** :
+- ❌ NE PEUVENT PAS créer/modifier de salles
+- ❌ NE PEUVENT PAS créer de sous-salles directement
+- ✅ Doivent utiliser le bac à sable (sandbox)
+- ✅ Leurs propositions sont validées par le professeur
+
+### Variables de permissions
+- `canModifyRooms` = vie-scolaire uniquement
+- `canCreateSubRooms` = vie-scolaire + professeurs
+
 ## Corrections Jan 30, 2026 (Session 11)
 
 ### Notifications - Fix erreurs 520 ✅
