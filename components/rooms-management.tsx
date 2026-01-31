@@ -107,7 +107,12 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
   const isTeacher = effectiveUserRole === "professeur"
   const isDelegate = effectiveUserRole === "delegue" || effectiveUserRole === "eco-delegue"
 
-  const canModifyRooms = isVieScolaire || isTeacher || isDelegate
+  // Permissions:
+  // - Vie Scolaire: can create/modify rooms and sub-rooms
+  // - Professeurs: can create sub-rooms only (NOT rooms)
+  // - Délégués: can only use sandbox mode (no direct room/sub-room creation)
+  const canModifyRooms = isVieScolaire // Only vie-scolaire can modify rooms
+  const canCreateSubRooms = isVieScolaire || isTeacher // Both can create sub-rooms
 
   const canViewRooms = true
 
