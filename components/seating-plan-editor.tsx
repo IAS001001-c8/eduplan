@@ -1501,17 +1501,11 @@ export function SeatingPlanEditor({
                           {Array.from({ length: column.tables }).map((_, tableIndex) => (
                             <div
                               key={tableIndex}
-                              className="relative rounded-lg border-2 flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-700 transition-all"
+                              className="relative rounded-lg border-2 flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-700"
                               style={getTableStyle(column.seatsPerTable)}
-                              onDragOver={handleDragOver}
-                              onDrop={(e) => {
-                                // Determine the first seat number in this table for the drop target
-                                const firstSeatInTable = getSeatNumber(colIndex, tableIndex, 0)
-                                handleDrop(e, firstSeatInTable)
-                              }}
                             >
                               <div
-                                className="grid gap-3 p-3 place-items-center w-full h-full"
+                                className="grid gap-2 p-2 place-items-center w-full h-full"
                                 style={{ 
                                   gridTemplateColumns: `repeat(${getGridCols(column.seatsPerTable)}, minmax(0, 1fr))` 
                                 }}
