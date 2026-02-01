@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Search, Settings, LogOut, Moon, Sun, Command } from "lucide-react"
+import { Search, Settings, LogOut, Command } from "lucide-react"
 import { NotificationsDropdown } from "@/components/notifications-dropdown"
 import { GlobalSearch } from "@/components/global-search"
 import type { UserRole } from "@/lib/types"
