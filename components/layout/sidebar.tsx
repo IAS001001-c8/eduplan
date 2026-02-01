@@ -148,18 +148,22 @@ export function Sidebar({
             {!isCollapsed && (
               <div className="flex items-center gap-2">
                 <Image
-                  src="/images/logo-edu-plan-remove.png"
+                  src="/images/logo-eduplan.png"
                   alt="EduPlan"
-                  width={120}
-                  height={40}
-                  className="h-8 w-auto"
+                  width={130}
+                  height={45}
+                  className="h-9 w-auto"
                 />
               </div>
             )}
             {isCollapsed && (
-              <div className="w-8 h-8 rounded-lg bg-[#E7A541] flex items-center justify-center text-white font-bold text-sm">
-                E
-              </div>
+              <Image
+                src="/images/logo-eduplan.png"
+                alt="EduPlan"
+                width={32}
+                height={32}
+                className="h-8 w-8 object-contain"
+              />
             )}
             <Button
               variant="ghost"
