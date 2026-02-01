@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import * as XLSX from "xlsx"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -11,7 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { toast } from "@/components/ui/use-toast"
-import { Upload, FileSpreadsheet, AlertCircle, CheckCircle, X, ArrowRight } from "lucide-react"
+import { Upload, FileSpreadsheet, AlertCircle, CheckCircle, X, ArrowRight, Info } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface ImportExcelDialogProps {
   open: boolean
@@ -25,6 +26,7 @@ export interface ImportedStudent {
   last_name: string
   email?: string
   phone?: string
+  gender?: number // 1 = Homme, 2 = Femme, 3 = Non identifié
 }
 
 type ColumnMapping = {
@@ -32,6 +34,7 @@ type ColumnMapping = {
   last_name: string | null
   email: string | null
   phone: string | null
+  gender: string | null
 }
 
 export function ImportExcelDialog({ 
@@ -48,21 +51,54 @@ export function ImportExcelDialog({
     first_name: null,
     last_name: null,
     email: null,
-    phone: null
+    phone: null,
+    gender: null
   })
   const [previewData, setPreviewData] = useState<ImportedStudent[]>([])
   const [duplicates, setDuplicates] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [hasReadDisclaimer, setHasReadDisclaimer] = useState(false)
+  const [disclaimerProgress, setDisclaimerProgress] = useState(0)
+  const [isDisclaimerTimerActive, setIsDisclaimerTimerActive] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Timer pour le disclaimer (3 secondes)
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+    if (isDisclaimerTimerActive && disclaimerProgress < 100) {
+      interval = setInterval(() => {
+        setDisclaimerProgress(prev => {
+          const newProgress = prev + (100 / 30) // 30 steps over 3 seconds (100ms each)
+          if (newProgress >= 100) {
+            setHasReadDisclaimer(true)
+            setIsDisclaimerTimerActive(false)
+            return 100
+          }
+          return newProgress
+        })
+      }, 100)
+    }
+    return () => clearInterval(interval)
+  }, [isDisclaimerTimerActive, disclaimerProgress])
+
+  // Démarrer le timer quand on arrive sur l'étape mapping avec une colonne genre
+  useEffect(() => {
+    if (step === "mapping" && mapping.gender && !hasReadDisclaimer) {
+      setIsDisclaimerTimerActive(true)
+    }
+  }, [step, mapping.gender])
 
   function reset() {
     setStep("upload")
     setFile(null)
     setHeaders([])
     setRawData([])
-    setMapping({ first_name: null, last_name: null, email: null, phone: null })
+    setMapping({ first_name: null, last_name: null, email: null, phone: null, gender: null })
     setPreviewData([])
     setDuplicates([])
+    setHasReadDisclaimer(false)
+    setDisclaimerProgress(0)
+    setIsDisclaimerTimerActive(false)
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
@@ -102,19 +138,22 @@ export function ImportExcelDialog({
           first_name: null,
           last_name: null,
           email: null,
-          phone: null
+          phone: null,
+          gender: null
         }
 
-        headerRow.forEach((header, index) => {
+        headerRow.forEach((header) => {
           const headerLower = header.toLowerCase()
           if (headerLower.includes("prénom") || headerLower.includes("prenom") || headerLower === "firstname") {
             autoMapping.first_name = header
-          } else if (headerLower.includes("nom") && !headerLower.includes("prénom") || headerLower === "lastname" || headerLower === "name") {
+          } else if ((headerLower.includes("nom") && !headerLower.includes("prénom")) || headerLower === "lastname" || headerLower === "name") {
             autoMapping.last_name = header
           } else if (headerLower.includes("email") || headerLower.includes("mail") || headerLower.includes("courriel")) {
             autoMapping.email = header
           } else if (headerLower.includes("tel") || headerLower.includes("phone") || headerLower.includes("portable") || headerLower.includes("mobile")) {
             autoMapping.phone = header
+          } else if (headerLower.includes("sexe") || headerLower.includes("genre") || headerLower === "gender" || headerLower === "sex") {
+            autoMapping.gender = header
           }
         })
 
@@ -132,11 +171,35 @@ export function ImportExcelDialog({
     reader.readAsBinaryString(selectedFile)
   }
 
+  // Convertir les valeurs de genre en format numérique
+  function parseGender(value: any): number | undefined {
+    if (value === undefined || value === null || value === "") return undefined
+    
+    const strValue = String(value).trim().toUpperCase()
+    
+    // Format numérique
+    if (strValue === "1" || strValue === "M" || strValue === "H" || strValue === "HOMME" || strValue === "MASCULIN") return 1
+    if (strValue === "2" || strValue === "F" || strValue === "FEMME" || strValue === "FÉMININ" || strValue === "FEMININ") return 2
+    if (strValue === "3" || strValue === "X" || strValue === "NB" || strValue === "NON IDENTIFIÉ" || strValue === "NON IDENTIFIE" || strValue === "AUTRE") return 3
+    
+    return undefined
+  }
+
   function handleMappingComplete() {
     if (!mapping.first_name || !mapping.last_name) {
       toast({
         title: "Mapping incomplet",
         description: "Les champs Prénom et Nom sont obligatoires",
+        variant: "destructive"
+      })
+      return
+    }
+
+    // Si une colonne genre est mappée et le disclaimer n'est pas lu
+    if (mapping.gender && !hasReadDisclaimer) {
+      toast({
+        title: "Veuillez patienter",
+        description: "Lisez les informations sur le format du sexe avant de continuer",
         variant: "destructive"
       })
       return
@@ -151,6 +214,7 @@ export function ImportExcelDialog({
       const lastNameIndex = headers.indexOf(mapping.last_name!)
       const emailIndex = mapping.email ? headers.indexOf(mapping.email) : -1
       const phoneIndex = mapping.phone ? headers.indexOf(mapping.phone) : -1
+      const genderIndex = mapping.gender ? headers.indexOf(mapping.gender) : -1
 
       const firstName = String(row[firstNameIndex] || "").trim()
       const lastName = String(row[lastNameIndex] || "").trim()
@@ -170,7 +234,8 @@ export function ImportExcelDialog({
         first_name: firstName,
         last_name: lastName,
         email: emailIndex >= 0 ? String(row[emailIndex] || "").trim() || undefined : undefined,
-        phone: phoneIndex >= 0 ? String(row[phoneIndex] || "").trim() || undefined : undefined
+        phone: phoneIndex >= 0 ? String(row[phoneIndex] || "").trim() || undefined : undefined,
+        gender: genderIndex >= 0 ? parseGender(row[genderIndex]) : undefined
       })
     })
 
@@ -208,15 +273,25 @@ export function ImportExcelDialog({
     }
   }
 
+  // Afficher le genre en texte
+  function getGenderLabel(gender?: number): string {
+    switch (gender) {
+      case 1: return "H"
+      case 2: return "F"
+      case 3: return "X"
+      default: return "-"
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={(open) => { if (!open) reset(); onOpenChange(open) }}>
       <DialogContent className="max-w-3xl max-h-[85vh]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <FileSpreadsheet className="h-5 w-5" />
+          <DialogTitle className="flex items-center gap-2 text-[#29282B]">
+            <FileSpreadsheet className="h-5 w-5 text-[#E7A541]" />
             Import Excel
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-[#29282B]/60">
             {step === "upload" && "Sélectionnez un fichier Excel (.xlsx, .xls) ou CSV"}
             {step === "mapping" && "Associez les colonnes du fichier aux champs"}
             {step === "preview" && "Vérifiez les données avant l'import"}
@@ -227,14 +302,15 @@ export function ImportExcelDialog({
         <div className="flex items-center justify-center gap-2 py-4">
           {["upload", "mapping", "preview"].map((s, i) => (
             <div key={s} className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                step === s ? "bg-emerald-600 text-white" : 
-                ["mapping", "preview"].indexOf(step) > i ? "bg-emerald-100 text-emerald-700" : 
-                "bg-slate-100 text-slate-400"
-              }`}>
+              <div className={cn(
+                "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors",
+                step === s ? "bg-[#E7A541] text-white" : 
+                ["mapping", "preview"].indexOf(step) > i ? "bg-[#E7A541]/20 text-[#E7A541]" : 
+                "bg-[#F5F5F6] text-[#29282B]/40"
+              )}>
                 {i + 1}
               </div>
-              {i < 2 && <ArrowRight className="h-4 w-4 mx-2 text-slate-300" />}
+              {i < 2 && <ArrowRight className="h-4 w-4 mx-2 text-[#D9DADC]" />}
             </div>
           ))}
         </div>
@@ -243,13 +319,13 @@ export function ImportExcelDialog({
         {step === "upload" && (
           <div className="space-y-4">
             <div 
-              className="border-2 border-dashed rounded-lg p-12 text-center cursor-pointer hover:border-emerald-500 transition-colors"
+              className="border-2 border-dashed border-[#D9DADC] rounded-lg p-12 text-center cursor-pointer hover:border-[#E7A541] transition-colors"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Upload className="h-12 w-12 mx-auto mb-4 text-slate-400" />
-              <p className="text-lg font-medium mb-1">Glissez votre fichier ici</p>
-              <p className="text-sm text-muted-foreground mb-4">ou cliquez pour sélectionner</p>
-              <p className="text-xs text-muted-foreground">Formats acceptés: .xlsx, .xls, .csv</p>
+              <Upload className="h-12 w-12 mx-auto mb-4 text-[#D9DADC]" />
+              <p className="text-lg font-medium text-[#29282B] mb-1">Glissez votre fichier ici</p>
+              <p className="text-sm text-[#29282B]/60 mb-4">ou cliquez pour sélectionner</p>
+              <p className="text-xs text-[#29282B]/40">Formats acceptés: .xlsx, .xls, .csv</p>
             </div>
             <Input
               ref={fileInputRef}
@@ -264,16 +340,16 @@ export function ImportExcelDialog({
         {/* Step 2: Mapping */}
         {step === "mapping" && (
           <div className="space-y-4">
-            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 mb-4">
-              <p className="text-sm font-medium mb-2">Fichier: {file?.name}</p>
-              <p className="text-xs text-muted-foreground">{rawData.length} ligne(s) détectée(s)</p>
+            <div className="bg-[#F5F5F6] rounded-lg p-4 mb-4">
+              <p className="text-sm font-medium text-[#29282B] mb-2">Fichier: {file?.name}</p>
+              <p className="text-xs text-[#29282B]/60">{rawData.length} ligne(s) détectée(s)</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Prénom <span className="text-red-500">*</span></Label>
+                <Label className="text-[#29282B]">Prénom <span className="text-red-500">*</span></Label>
                 <Select value={mapping.first_name || ""} onValueChange={(v) => setMapping(m => ({ ...m, first_name: v }))}>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-[#D9DADC]">
                     <SelectValue placeholder="Sélectionner la colonne" />
                   </SelectTrigger>
                   <SelectContent>
@@ -285,9 +361,9 @@ export function ImportExcelDialog({
               </div>
 
               <div className="space-y-2">
-                <Label>Nom <span className="text-red-500">*</span></Label>
+                <Label className="text-[#29282B]">Nom <span className="text-red-500">*</span></Label>
                 <Select value={mapping.last_name || ""} onValueChange={(v) => setMapping(m => ({ ...m, last_name: v }))}>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-[#D9DADC]">
                     <SelectValue placeholder="Sélectionner la colonne" />
                   </SelectTrigger>
                   <SelectContent>
@@ -299,9 +375,9 @@ export function ImportExcelDialog({
               </div>
 
               <div className="space-y-2">
-                <Label>Email</Label>
+                <Label className="text-[#29282B]">Email</Label>
                 <Select value={mapping.email || ""} onValueChange={(v) => setMapping(m => ({ ...m, email: v || null }))}>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-[#D9DADC]">
                     <SelectValue placeholder="Optionnel" />
                   </SelectTrigger>
                   <SelectContent>
@@ -314,9 +390,33 @@ export function ImportExcelDialog({
               </div>
 
               <div className="space-y-2">
-                <Label>Téléphone</Label>
+                <Label className="text-[#29282B]">Téléphone</Label>
                 <Select value={mapping.phone || ""} onValueChange={(v) => setMapping(m => ({ ...m, phone: v || null }))}>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-[#D9DADC]">
+                    <SelectValue placeholder="Optionnel" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Non mappé</SelectItem>
+                    {headers.map(h => (
+                      <SelectItem key={h} value={h}>{h}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2 col-span-2">
+                <Label className="text-[#29282B]">Sexe</Label>
+                <Select 
+                  value={mapping.gender || ""} 
+                  onValueChange={(v) => {
+                    setMapping(m => ({ ...m, gender: v || null }))
+                    if (v && !hasReadDisclaimer) {
+                      setDisclaimerProgress(0)
+                      setIsDisclaimerTimerActive(true)
+                    }
+                  }}
+                >
+                  <SelectTrigger className="border-[#D9DADC]">
                     <SelectValue placeholder="Optionnel" />
                   </SelectTrigger>
                   <SelectContent>
@@ -328,6 +428,38 @@ export function ImportExcelDialog({
                 </Select>
               </div>
             </div>
+
+            {/* Disclaimer pour le format du sexe */}
+            {mapping.gender && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+                <div className="flex items-start gap-3">
+                  <Info className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
+                  <div className="space-y-2">
+                    <p className="font-medium text-blue-900">Format du champ "Sexe"</p>
+                    <p className="text-sm text-blue-800">
+                      Le sexe de l'élève doit respecter l'un des formats suivants :
+                    </p>
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <div className="bg-white rounded p-2 text-center">
+                        <span className="font-bold text-blue-900">1</span> ou <span className="font-bold">H</span> ou <span className="font-bold">M</span>
+                        <p className="text-xs text-blue-600 mt-1">= Homme</p>
+                      </div>
+                      <div className="bg-white rounded p-2 text-center">
+                        <span className="font-bold text-blue-900">2</span> ou <span className="font-bold">F</span>
+                        <p className="text-xs text-blue-600 mt-1">= Femme</p>
+                      </div>
+                      <div className="bg-white rounded p-2 text-center">
+                        <span className="font-bold text-blue-900">3</span> ou <span className="font-bold">X</span> ou <span className="font-bold">NB</span>
+                        <p className="text-xs text-blue-600 mt-1">= Non identifié</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-blue-600">
+                      Les valeurs non reconnues seront ignorées. Ce champ est utilisé pour le placement intelligent des élèves (mixité).
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -344,13 +476,14 @@ export function ImportExcelDialog({
               </div>
             )}
 
-            <ScrollArea className="h-[300px] border rounded-lg">
+            <ScrollArea className="h-[300px] border border-[#D9DADC] rounded-lg">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Statut</TableHead>
                     <TableHead>Prénom</TableHead>
                     <TableHead>Nom</TableHead>
+                    <TableHead>Sexe</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Téléphone</TableHead>
                   </TableRow>
@@ -362,21 +495,35 @@ export function ImportExcelDialog({
                       <TableRow key={index} className={isDuplicate ? "opacity-50" : ""}>
                         <TableCell>
                           {isDuplicate ? (
-                            <Badge variant="outline" className="text-amber-600">
+                            <Badge variant="outline" className="text-amber-600 border-amber-300">
                               <X className="h-3 w-3 mr-1" />
                               Doublon
                             </Badge>
                           ) : (
-                            <Badge variant="outline" className="text-emerald-600">
+                            <Badge variant="outline" className="text-green-600 border-green-300">
                               <CheckCircle className="h-3 w-3 mr-1" />
                               OK
                             </Badge>
                           )}
                         </TableCell>
-                        <TableCell>{student.first_name}</TableCell>
+                        <TableCell className="font-medium">{student.first_name}</TableCell>
                         <TableCell>{student.last_name}</TableCell>
-                        <TableCell className="text-muted-foreground">{student.email || "-"}</TableCell>
-                        <TableCell className="text-muted-foreground">{student.phone || "-"}</TableCell>
+                        <TableCell>
+                          {student.gender ? (
+                            <Badge className={cn(
+                              "text-xs",
+                              student.gender === 1 ? "bg-blue-100 text-blue-700" :
+                              student.gender === 2 ? "bg-pink-100 text-pink-700" :
+                              "bg-gray-100 text-gray-700"
+                            )}>
+                              {getGenderLabel(student.gender)}
+                            </Badge>
+                          ) : (
+                            <span className="text-[#29282B]/40">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-[#29282B]/60">{student.email || "-"}</TableCell>
+                        <TableCell className="text-[#29282B]/60">{student.phone || "-"}</TableCell>
                       </TableRow>
                     )
                   })}
@@ -385,10 +532,10 @@ export function ImportExcelDialog({
             </ScrollArea>
 
             <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">
+              <span className="text-[#29282B]/60">
                 {previewData.length - duplicates.length} élève(s) à importer
               </span>
-              <span className="text-emerald-600 font-medium">
+              <span className="text-[#E7A541] font-medium">
                 {duplicates.length > 0 && `${duplicates.length} ignoré(s)`}
               </span>
             </div>
@@ -397,17 +544,45 @@ export function ImportExcelDialog({
 
         <DialogFooter className="gap-2">
           {step !== "upload" && (
-            <Button variant="outline" onClick={() => setStep(step === "preview" ? "mapping" : "upload")}>
+            <Button 
+              variant="outline" 
+              onClick={() => setStep(step === "preview" ? "mapping" : "upload")}
+              className="border-[#D9DADC]"
+            >
               Retour
             </Button>
           )}
           {step === "mapping" && (
-            <Button onClick={handleMappingComplete} disabled={!mapping.first_name || !mapping.last_name}>
-              Continuer
-            </Button>
+            <div className="relative">
+              <Button 
+                onClick={handleMappingComplete} 
+                disabled={!mapping.first_name || !mapping.last_name || (mapping.gender && !hasReadDisclaimer)}
+                className={cn(
+                  "bg-[#E7A541] hover:bg-[#D4933A] text-white min-w-[140px] overflow-hidden",
+                  mapping.gender && !hasReadDisclaimer && "opacity-80"
+                )}
+              >
+                {mapping.gender && !hasReadDisclaimer ? (
+                  <>
+                    <span className="relative z-10">Veuillez lire...</span>
+                    {/* Barre de progression qui remplit le bouton */}
+                    <div 
+                      className="absolute inset-0 bg-[#D4933A] transition-all duration-100"
+                      style={{ width: `${disclaimerProgress}%` }}
+                    />
+                  </>
+                ) : (
+                  "Continuer"
+                )}
+              </Button>
+            </div>
           )}
           {step === "preview" && (
-            <Button onClick={handleImport} disabled={isLoading || previewData.length === duplicates.length}>
+            <Button 
+              onClick={handleImport} 
+              disabled={isLoading || previewData.length === duplicates.length}
+              className="bg-[#E7A541] hover:bg-[#D4933A] text-white"
+            >
               {isLoading ? "Import en cours..." : `Importer ${previewData.length - duplicates.length} élève(s)`}
             </Button>
           )}
