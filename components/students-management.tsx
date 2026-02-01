@@ -930,7 +930,6 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
           old_value: { special_needs: selectedStudent.special_needs || [] },
           new_value: { special_needs: editData.special_needs },
           user_id: userId,
-          user_name: userName,
           establishment_id: establishmentId,
         })
       }

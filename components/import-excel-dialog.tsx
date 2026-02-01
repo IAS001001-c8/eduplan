@@ -431,30 +431,30 @@ export function ImportExcelDialog({
 
             {/* Disclaimer pour le format du sexe */}
             {mapping.gender && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
-                <div className="flex items-start gap-3">
-                  <Info className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
-                  <div className="space-y-2">
-                    <p className="font-medium text-blue-900">Format du champ "Sexe"</p>
-                    <p className="text-sm text-blue-800">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-2">
+                <div className="flex items-start gap-2">
+                  <Info className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
+                  <div className="space-y-1.5 min-w-0">
+                    <p className="font-medium text-blue-900 text-sm">Format du champ "Sexe"</p>
+                    <p className="text-xs text-blue-800">
                       Le sexe de l'élève doit respecter l'un des formats suivants :
                     </p>
-                    <div className="grid grid-cols-3 gap-2 text-sm">
-                      <div className="bg-white rounded p-2 text-center">
-                        <span className="font-bold text-blue-900">1</span> ou <span className="font-bold">H</span> ou <span className="font-bold">M</span>
-                        <p className="text-xs text-blue-600 mt-1">= Homme</p>
+                    <div className="flex flex-wrap gap-1.5 text-xs">
+                      <div className="bg-white rounded px-2 py-1 text-center border border-blue-100">
+                        <span className="font-bold text-blue-900">1</span>/<span className="font-bold">H</span>/<span className="font-bold">M</span>
+                        <span className="text-blue-600 ml-1">= Homme</span>
                       </div>
-                      <div className="bg-white rounded p-2 text-center">
-                        <span className="font-bold text-blue-900">2</span> ou <span className="font-bold">F</span>
-                        <p className="text-xs text-blue-600 mt-1">= Femme</p>
+                      <div className="bg-white rounded px-2 py-1 text-center border border-blue-100">
+                        <span className="font-bold text-blue-900">2</span>/<span className="font-bold">F</span>
+                        <span className="text-blue-600 ml-1">= Femme</span>
                       </div>
-                      <div className="bg-white rounded p-2 text-center">
-                        <span className="font-bold text-blue-900">3</span> ou <span className="font-bold">X</span> ou <span className="font-bold">NB</span>
-                        <p className="text-xs text-blue-600 mt-1">= Non identifié</p>
+                      <div className="bg-white rounded px-2 py-1 text-center border border-blue-100">
+                        <span className="font-bold text-blue-900">3</span>/<span className="font-bold">X</span>/<span className="font-bold">NB</span>
+                        <span className="text-blue-600 ml-1">= Non identifié</span>
                       </div>
                     </div>
-                    <p className="text-xs text-blue-600">
-                      Les valeurs non reconnues seront ignorées. Ce champ est utilisé pour le placement intelligent des élèves (mixité).
+                    <p className="text-[10px] text-blue-500">
+                      Valeurs non reconnues ignorées. Utilisé pour le placement intelligent (mixité).
                     </p>
                   </div>
                 </div>
