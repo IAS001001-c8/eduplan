@@ -84,7 +84,7 @@ const navItems: NavItem[] = [
   },
   {
     id: "establishment-settings",
-    label: "Réglages A/B",
+    label: "Réglages Établissement",
     icon: Sliders,
     roles: ["vie-scolaire"],
   },
@@ -113,7 +113,13 @@ export function Sidebar({
   onNavigate,
   activeSection,
 }: SidebarProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  // Sidebar fermée par défaut sauf pour vie-scolaire
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    // Pour vie-scolaire, ouverte par défaut
+    if (userRole === "vie-scolaire") return false
+    // Pour les autres rôles, fermée par défaut
+    return true
+  })
   const filteredNavItems = navItems.filter((item) => item.roles.includes(userRole))
 
   // Custom labels based on role
