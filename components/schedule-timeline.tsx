@@ -29,7 +29,7 @@ interface ScheduleEvent {
 const DAYS_OF_WEEK = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
 const HOURS_START = 7.5 // 7h30
 const HOURS_END = 19.5 // 19h30
-const HOUR_HEIGHT = 50 // pixels par heure
+const HOUR_HEIGHT = 60 // pixels par heure - augmenté pour plus de lisibilité
 
 // Fonction pour obtenir le numéro de semaine ISO
 function getWeekNumber(date: Date): number {
