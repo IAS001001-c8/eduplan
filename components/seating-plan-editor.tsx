@@ -1272,12 +1272,22 @@ export function SeatingPlanEditor({
         newAssignments.set(bestSeat.seatNumber, student.id)
         placedStudents.add(student.id)
       } else {
-        // Fallback: n'importe quelle place sur les bords
+        // Fallback 1: n'importe quelle place sur les bords
         for (const seatInfo of edgeSeats) {
           if (!newAssignments.has(seatInfo.seatNumber)) {
             newAssignments.set(seatInfo.seatNumber, student.id)
             placedStudents.add(student.id)
             break
+          }
+        }
+        // Fallback 2: n'importe quelle place libre (comme élève normal)
+        if (!placedStudents.has(student.id)) {
+          for (const seatInfo of allSeatsSorted) {
+            if (!newAssignments.has(seatInfo.seatNumber)) {
+              newAssignments.set(seatInfo.seatNumber, student.id)
+              placedStudents.add(student.id)
+              break
+            }
           }
         }
       }
