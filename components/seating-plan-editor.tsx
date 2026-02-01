@@ -1025,6 +1025,294 @@ export function SeatingPlanEditor({
     // No toast - too many notifications
   }
 
+  // === PLACEMENT INTELLIGENT EBP ===
+  
+  // Codes EBP nécessitant le premier rang (vue/audition)
+  const FRONT_ROW_NEEDS = ["VUE", "AUDITION", "VISION", "MALVOYANT", "MALENTENDANT"]
+  // Codes EBP nécessitant la périphérie avec place libre adjacente (TSA)
+  const PERIPHERAL_NEEDS = ["TSA", "AUTISME", "AESH"]
+  
+  // Helper: Obtenir les places du premier rang
+  const getFirstRowSeats = (): number[] => {
+    if (!room) return []
+    const firstRowSeats: number[] = []
+    let seatNumber = 1
+    
+    for (const column of room.config.columns) {
+      // Premier rang = premier "étage" de tables de chaque colonne
+      for (let seatIndex = 0; seatIndex < column.seatsPerTable; seatIndex++) {
+        firstRowSeats.push(seatNumber + seatIndex)
+      }
+      // Passer aux tables suivantes de cette colonne
+      seatNumber += column.tables * column.seatsPerTable
+    }
+    return firstRowSeats
+  }
+  
+  // Helper: Obtenir les places périphériques (bord gauche/droite)
+  const getPeripheralSeats = (): number[] => {
+    if (!room) return []
+    const peripheralSeats: number[] = []
+    let seatNumber = 1
+    
+    for (let colIndex = 0; colIndex < room.config.columns.length; colIndex++) {
+      const column = room.config.columns[colIndex]
+      const isLeftEdge = colIndex === 0
+      const isRightEdge = colIndex === room.config.columns.length - 1
+      
+      if (isLeftEdge || isRightEdge) {
+        for (let tableIndex = 0; tableIndex < column.tables; tableIndex++) {
+          for (let seatIndex = 0; seatIndex < column.seatsPerTable; seatIndex++) {
+            peripheralSeats.push(seatNumber + tableIndex * column.seatsPerTable + seatIndex)
+          }
+        }
+      }
+      seatNumber += column.tables * column.seatsPerTable
+    }
+    return peripheralSeats
+  }
+  
+  // Helper: Obtenir les places adjacentes
+  const getAdjacentSeats = (seatNum: number): number[] => {
+    if (!room) return []
+    const adjacent: number[] = []
+    const totalSeats = getTotalSeats()
+    
+    // Calcul simplifié: places voisines (±1 dans la même rangée)
+    if (seatNum > 1) adjacent.push(seatNum - 1)
+    if (seatNum < totalSeats) adjacent.push(seatNum + 1)
+    
+    return adjacent
+  }
+  
+  // Helper: Vérifier si une place est à côté d'un EBP
+  const isNextToEBP = (seatNum: number, currentAssignments: Map<number, string>): boolean => {
+    const adjacent = getAdjacentSeats(seatNum)
+    return adjacent.some(adjSeat => {
+      const studentId = currentAssignments.get(adjSeat)
+      if (!studentId) return false
+      const student = students.find(s => s.id === studentId)
+      return student?.special_needs && student.special_needs.length > 0
+    })
+  }
+  
+  // Helper: Vérifier si un élève a un besoin spécifique
+  const hasNeed = (student: Student, needCodes: string[]): boolean => {
+    if (!student.special_needs) return false
+    return student.special_needs.some(need => 
+      needCodes.some(code => need.toUpperCase().includes(code))
+    )
+  }
+  
+  // PLACEMENT INTELLIGENT - Place tous les élèves avec l'algorithme EBP
+  const handleIntelligentPlacement = () => {
+    const newAssignments = new Map<number, string>()
+    const placedStudents = new Set<string>()
+    
+    // Trier les élèves par priorité EBP
+    const ebpStudents = students.filter(s => s.special_needs && s.special_needs.length > 0)
+    const regularStudents = students.filter(s => !s.special_needs || s.special_needs.length === 0)
+    
+    // 1. PRIORITÉ 1: Élèves avec problèmes de vue/audition → Premier rang
+    const frontRowStudents = ebpStudents.filter(s => hasNeed(s, FRONT_ROW_NEEDS))
+    const frontRowSeats = getFirstRowSeats()
+    
+    frontRowStudents.forEach((student, index) => {
+      if (index < frontRowSeats.length) {
+        newAssignments.set(frontRowSeats[index], student.id)
+        placedStudents.add(student.id)
+      }
+    })
+    
+    // 2. PRIORITÉ 2: Élèves TSA → Périphérie avec place adjacente libre
+    const peripheralStudents = ebpStudents.filter(s => 
+      hasNeed(s, PERIPHERAL_NEEDS) && !placedStudents.has(s.id)
+    )
+    const peripheralSeats = getPeripheralSeats().filter(s => !newAssignments.has(s))
+    
+    peripheralStudents.forEach((student) => {
+      // Trouver une place périphérique avec au moins une place adjacente libre
+      for (const seat of peripheralSeats) {
+        if (newAssignments.has(seat)) continue
+        
+        const adjacent = getAdjacentSeats(seat)
+        const hasAdjacentFree = adjacent.some(adjSeat => !newAssignments.has(adjSeat))
+        
+        if (hasAdjacentFree) {
+          newAssignments.set(seat, student.id)
+          placedStudents.add(student.id)
+          break
+        }
+      }
+    })
+    
+    // 3. PRIORITÉ 3: Autres EBP - pas côte à côte
+    const otherEBP = ebpStudents.filter(s => !placedStudents.has(s.id))
+    const allSeats = Array.from({ length: getTotalSeats() }, (_, i) => i + 1)
+    
+    otherEBP.forEach((student) => {
+      for (const seat of allSeats) {
+        if (newAssignments.has(seat)) continue
+        if (isNextToEBP(seat, newAssignments)) continue
+        
+        newAssignments.set(seat, student.id)
+        placedStudents.add(student.id)
+        break
+      }
+      
+      // Si pas trouvé de place isolée, prendre n'importe quelle place libre
+      if (!placedStudents.has(student.id)) {
+        for (const seat of allSeats) {
+          if (!newAssignments.has(seat)) {
+            newAssignments.set(seat, student.id)
+            placedStudents.add(student.id)
+            break
+          }
+        }
+      }
+    })
+    
+    // 4. PRIORITÉ 4: Élèves réguliers avec mixité garçon/fille
+    const unplacedRegular = regularStudents.filter(s => !placedStudents.has(s.id))
+    const boys = unplacedRegular.filter(s => (s as any).gender === 1)
+    const girls = unplacedRegular.filter(s => (s as any).gender === 2)
+    const others = unplacedRegular.filter(s => !(s as any).gender || (s as any).gender === 3)
+    
+    // Alterner garçon/fille autant que possible
+    const mixedOrder: Student[] = []
+    const maxLen = Math.max(boys.length, girls.length)
+    for (let i = 0; i < maxLen; i++) {
+      if (i < boys.length) mixedOrder.push(boys[i])
+      if (i < girls.length) mixedOrder.push(girls[i])
+    }
+    mixedOrder.push(...others)
+    
+    // Placer les élèves réguliers
+    mixedOrder.forEach((student) => {
+      for (const seat of allSeats) {
+        if (!newAssignments.has(seat)) {
+          newAssignments.set(seat, student.id)
+          placedStudents.add(student.id)
+          break
+        }
+      }
+    })
+    
+    setAssignments(newAssignments)
+    toast({
+      title: "Placement intelligent",
+      description: `${placedStudents.size} élèves placés avec priorités EBP`,
+    })
+  }
+  
+  // COMPLÉTION INTELLIGENTE - Complète avec l'algorithme EBP
+  const handleIntelligentComplete = () => {
+    const newAssignments = new Map(assignments)
+    const alreadyPlaced = new Set(assignments.values())
+    const unassigned = students.filter(s => !alreadyPlaced.has(s.id))
+    
+    if (unassigned.length === 0) {
+      toast({
+        title: "Plan complet",
+        description: "Tous les élèves sont déjà placés",
+      })
+      return
+    }
+    
+    const allSeats = Array.from({ length: getTotalSeats() }, (_, i) => i + 1)
+    const availableSeats = allSeats.filter(s => !newAssignments.has(s))
+    const placedStudents = new Set<string>()
+    
+    // Trier les non-placés par priorité EBP
+    const unassignedEBP = unassigned.filter(s => s.special_needs && s.special_needs.length > 0)
+    const unassignedRegular = unassigned.filter(s => !s.special_needs || s.special_needs.length === 0)
+    
+    // 1. D'abord les EBP avec vue/audition → places avant disponibles
+    const frontRowStudents = unassignedEBP.filter(s => hasNeed(s, FRONT_ROW_NEEDS))
+    const frontRowSeats = getFirstRowSeats().filter(s => !newAssignments.has(s))
+    
+    frontRowStudents.forEach((student, index) => {
+      if (index < frontRowSeats.length) {
+        newAssignments.set(frontRowSeats[index], student.id)
+        placedStudents.add(student.id)
+      }
+    })
+    
+    // 2. EBP TSA → périphérie disponible
+    const peripheralStudents = unassignedEBP.filter(s => 
+      hasNeed(s, PERIPHERAL_NEEDS) && !placedStudents.has(s.id)
+    )
+    const peripheralSeats = getPeripheralSeats().filter(s => !newAssignments.has(s))
+    
+    peripheralStudents.forEach((student) => {
+      for (const seat of peripheralSeats) {
+        if (newAssignments.has(seat)) continue
+        const adjacent = getAdjacentSeats(seat)
+        const hasAdjacentFree = adjacent.some(adjSeat => !newAssignments.has(adjSeat))
+        
+        if (hasAdjacentFree) {
+          newAssignments.set(seat, student.id)
+          placedStudents.add(student.id)
+          break
+        }
+      }
+    })
+    
+    // 3. Autres EBP non placés - pas côte à côte si possible
+    const otherEBP = unassignedEBP.filter(s => !placedStudents.has(s.id))
+    otherEBP.forEach((student) => {
+      for (const seat of availableSeats) {
+        if (newAssignments.has(seat)) continue
+        if (!isNextToEBP(seat, newAssignments)) {
+          newAssignments.set(seat, student.id)
+          placedStudents.add(student.id)
+          break
+        }
+      }
+      // Fallback
+      if (!placedStudents.has(student.id)) {
+        for (const seat of availableSeats) {
+          if (!newAssignments.has(seat)) {
+            newAssignments.set(seat, student.id)
+            placedStudents.add(student.id)
+            break
+          }
+        }
+      }
+    })
+    
+    // 4. Élèves réguliers avec mixité
+    const boys = unassignedRegular.filter(s => (s as any).gender === 1 && !placedStudents.has(s.id))
+    const girls = unassignedRegular.filter(s => (s as any).gender === 2 && !placedStudents.has(s.id))
+    const others = unassignedRegular.filter(s => 
+      (!(s as any).gender || (s as any).gender === 3) && !placedStudents.has(s.id)
+    )
+    
+    const mixedOrder: Student[] = []
+    const maxLen = Math.max(boys.length, girls.length)
+    for (let i = 0; i < maxLen; i++) {
+      if (i < boys.length) mixedOrder.push(boys[i])
+      if (i < girls.length) mixedOrder.push(girls[i])
+    }
+    mixedOrder.push(...others)
+    
+    mixedOrder.forEach((student) => {
+      for (const seat of allSeats) {
+        if (!newAssignments.has(seat)) {
+          newAssignments.set(seat, student.id)
+          placedStudents.add(student.id)
+          break
+        }
+      }
+    })
+    
+    setAssignments(newAssignments)
+    toast({
+      title: "Complétion intelligente",
+      description: `${placedStudents.size} élèves ajoutés avec priorités EBP`,
+    })
+  }
+
   const handleRemoveAll = () => {
     setAssignments(new Map())
     // No toast - too many notifications
