@@ -113,13 +113,8 @@ export function Sidebar({
   onNavigate,
   activeSection,
 }: SidebarProps) {
-  // Sidebar fermée par défaut sauf pour vie-scolaire
-  const [isCollapsed, setIsCollapsed] = useState(() => {
-    // Pour vie-scolaire, ouverte par défaut
-    if (userRole === "vie-scolaire") return false
-    // Pour les autres rôles, fermée par défaut
-    return true
-  })
+  // Sidebar fermée par défaut pour tous les rôles
+  const [isCollapsed, setIsCollapsed] = useState(true)
   const filteredNavItems = navItems.filter((item) => item.roles.includes(userRole))
 
   // Custom labels based on role
