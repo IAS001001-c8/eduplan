@@ -205,12 +205,31 @@ export function CreateProposalDialog({
       if (useExistingSubRoom && selectedSubRoomId) {
         const subRoom = subRooms.find((sr) => sr.id === selectedSubRoomId)
         if (subRoom) {
-          // Copy seat_assignments from the existing sub-room as initial configuration
-          seatAssignments = subRoom.seat_assignments || []
-          console.log("[CreateProposal] Importing seat_assignments from sub-room:", subRoom.id, "count:", Array.isArray(seatAssignments) ? seatAssignments.length : 'object')
-
           // Get room_id from the sub_room
           roomId = subRoom.room_id
+          
+          // Fetch actual seat assignments from seating_assignments table
+          const { data: assignmentsData, error: assignmentsError } = await supabase
+            .from("seating_assignments")
+            .select("student_id, seat_position")
+            .eq("sub_room_id", selectedSubRoomId)
+          
+          if (assignmentsError) {
+            console.error("[CreateProposal] Error fetching seat assignments:", assignmentsError)
+          }
+          
+          if (assignmentsData && assignmentsData.length > 0) {
+            // Convert to the format expected by proposals: [{seat_id, student_id, seat_number}]
+            seatAssignments = assignmentsData.map((a: any) => ({
+              seat_id: `seat-${a.seat_position}`,
+              student_id: a.student_id,
+              seat_number: a.seat_position,
+            }))
+            console.log("[CreateProposal] Imported", seatAssignments.length, "seat assignments from sub-room:", selectedSubRoomId)
+          } else {
+            console.log("[CreateProposal] No existing seat assignments found for sub-room:", selectedSubRoomId)
+            seatAssignments = []
+          }
         }
       }
 
