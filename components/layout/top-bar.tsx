@@ -96,16 +96,6 @@ export function TopBar({
 
           {/* Actions */}
           <div className="flex items-center gap-2 ml-4">
-            {/* Theme Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 text-[#29282B]/60 hover:text-[#E7A541] hover:bg-[#FDF6E9]"
-              onClick={toggleTheme}
-            >
-              {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </Button>
-
             {/* Notifications */}
             <NotificationsDropdown userId={userId} establishmentId={establishmentId} />
 
