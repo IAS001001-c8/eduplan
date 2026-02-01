@@ -32,6 +32,21 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - 🟠 **Orange** : Délégué
 - 🟢 **Vert** : Éco-délégué
 
+### Placement Intelligent EBP - Feb 1, 2026 (Session 14)
+| Fonctionnalité | Description | Status |
+|----------------|-------------|--------|
+| **Placement Intelligent** | Place tous les élèves avec priorités EBP | ✅ |
+| **Complétion Intelligente** | Complète les places vides avec priorités EBP | ✅ |
+| **Sidebar fermée par défaut** | Fermée pour tous sauf vie-scolaire | ✅ |
+| **Réglages Établissement** | Renommé depuis "Réglages A/B" | ✅ |
+| **Gestion caractéristiques EBP** | Ajouter/supprimer des caractéristiques personnalisées | ✅ |
+
+### Algorithme de Placement Intelligent
+1. **Priorité 1** : Élèves vue/audition → 1er rang
+2. **Priorité 2** : Élèves TSA → Périphérie avec place adjacente libre (AESH)
+3. **Priorité 3** : Autres EBP → Pas côte à côte si possible
+4. **Priorité 4** : Élèves réguliers → Mixité garçon/fille
+
 ### Caractéristiques EBP par défaut
 PAP, PAI, TDAH, Problèmes de vue, Problèmes d'audition, Troubles moteurs, DYS, Anxiété/Panique, TSA, HPI, PTSD, Allophone, ULIS, SEGPA
 
