@@ -260,6 +260,7 @@ export function ReviewProposalDialog({
         .from("sub_room_proposals")
         .update({
           status: "draft",
+          is_submitted: false,
           teacher_comments: returnComments,
           reviewed_by: userId,
           reviewed_at: new Date().toISOString(),
