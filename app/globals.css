@@ -46,38 +46,39 @@
 }
 
 .dark {
-  --background: hsl(222.2 84% 4.9%);
-  --foreground: hsl(210 40% 98%);
-  --card: hsl(222.2 84% 4.9%);
-  --card-foreground: hsl(210 40% 98%);
-  --popover: hsl(222.2 84% 4.9%);
-  --popover-foreground: hsl(210 40% 98%);
-  --primary: hsl(210 100% 50%);
-  --primary-foreground: hsl(222.2 47.4% 11.2%);
-  --secondary: hsl(180 70% 40%);
-  --secondary-foreground: hsl(210 40% 98%);
-  --muted: hsl(217.2 32.6% 17.5%);
-  --muted-foreground: hsl(215 20.2% 65.1%);
-  --accent: hsl(35 100% 50%);
-  --accent-foreground: hsl(210 40% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(210 40% 98%);
-  --border: hsl(217.2 32.6% 17.5%);
-  --input: hsl(217.2 32.6% 17.5%);
-  --ring: hsl(212.7 26.8% 83.9%);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  /* EduPlan Dark Mode - Subtle variation */
+  --background: #1A1A1B;
+  --foreground: #F5F5F6;
+  --card: #242425;
+  --card-foreground: #F5F5F6;
+  --popover: #242425;
+  --popover-foreground: #F5F5F6;
+  --primary: #E7A541;
+  --primary-foreground: #29282B;
+  --secondary: #3A3A3C;
+  --secondary-foreground: #F5F5F6;
+  --muted: #2A2A2C;
+  --muted-foreground: #A0A0A2;
+  --accent: #E7A541;
+  --accent-foreground: #F5F5F6;
+  --destructive: #EF4444;
+  --destructive-foreground: #F5F5F6;
+  --border: #3A3A3C;
+  --input: #3A3A3C;
+  --ring: #E7A541;
+  --chart-1: #E7A541;
+  --chart-2: #D9DADC;
+  --chart-3: #8B7355;
+  --chart-4: #F5A623;
+  --chart-5: #C4956A;
+  --sidebar: #1A1A1B;
+  --sidebar-foreground: #F5F5F6;
+  --sidebar-primary: #E7A541;
+  --sidebar-primary-foreground: #29282B;
+  --sidebar-accent: #2A2A2C;
+  --sidebar-accent-foreground: #F5F5F6;
+  --sidebar-border: #3A3A3C;
+  --sidebar-ring: #E7A541;
 }
 
 @theme inline {
