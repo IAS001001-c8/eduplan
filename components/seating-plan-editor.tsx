@@ -1526,11 +1526,6 @@ export function SeatingPlanEditor({
       description: `${placedStudents.size} élèves ajoutés avec priorités EBP et mixité`,
     })
   }
-    toast({
-      title: "Complétion intelligente",
-      description: `${placedStudents.size} élèves ajoutés avec priorités EBP`,
-    })
-  }
 
   const handleRemoveAll = () => {
     setAssignments(new Map())
