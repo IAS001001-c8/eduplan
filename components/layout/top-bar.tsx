@@ -64,11 +64,6 @@ export function TopBar({
     return () => document.removeEventListener("keydown", handleKeyDown)
   }, [])
 
-  const toggleTheme = () => {
-    setIsDark(!isDark)
-    document.documentElement.classList.toggle("dark")
-  }
-
   return (
     <>
       <header
