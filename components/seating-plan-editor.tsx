@@ -1026,69 +1026,115 @@ export function SeatingPlanEditor({
     // No toast - too many notifications
   }
 
-  // === PLACEMENT INTELLIGENT EBP ===
+  // === PLACEMENT INTELLIGENT EBP V2 ===
   
   // Codes EBP nécessitant le premier rang (vue/audition)
-  const FRONT_ROW_NEEDS = ["VUE", "AUDITION", "VISION", "MALVOYANT", "MALENTENDANT"]
+  const FRONT_ROW_NEEDS = ["VUE", "AUDITION", "VISION", "MALVOYANT", "MALENTENDANT", "SOURD", "AVEUGLE"]
   // Codes EBP nécessitant la périphérie avec place libre adjacente (TSA)
-  const PERIPHERAL_NEEDS = ["TSA", "AUTISME", "AESH"]
+  const PERIPHERAL_NEEDS = ["TSA", "AUTISME", "AESH", "ASPERGER"]
   
-  // Helper: Obtenir les places du premier rang
-  const getFirstRowSeats = (): number[] => {
-    if (!room) return []
-    const firstRowSeats: number[] = []
-    let seatNumber = 1
-    
-    for (const column of room.config.columns) {
-      // Premier rang = premier "étage" de tables de chaque colonne
-      for (let seatIndex = 0; seatIndex < column.seatsPerTable; seatIndex++) {
-        firstRowSeats.push(seatNumber + seatIndex)
-      }
-      // Passer aux tables suivantes de cette colonne
-      seatNumber += column.tables * column.seatsPerTable
-    }
-    return firstRowSeats
+  // Structure pour représenter une place avec ses coordonnées
+  interface SeatInfo {
+    seatNumber: number
+    colIndex: number      // Index de la colonne (0 = gauche)
+    tableIndex: number    // Index de la table dans la colonne (0 = proche du tableau si top)
+    seatIndex: number     // Index du siège dans la table
+    isEdge: boolean       // Est sur un bord (gauche ou droite de la salle)
+    distanceFromBoard: number  // Distance par rapport au tableau
+    distanceFromCenter: number // Distance par rapport au centre
   }
   
-  // Helper: Obtenir les places périphériques (bord gauche/droite)
-  const getPeripheralSeats = (): number[] => {
-    if (!room) return []
-    const peripheralSeats: number[] = []
+  // Construire la carte des places avec leurs positions
+  const buildSeatMap = (): Map<number, SeatInfo> => {
+    if (!room) return new Map()
+    const seatMap = new Map<number, SeatInfo>()
     let seatNumber = 1
+    const numColumns = room.config.columns.length
+    const centerColIndex = (numColumns - 1) / 2
     
-    for (let colIndex = 0; colIndex < room.config.columns.length; colIndex++) {
+    for (let colIndex = 0; colIndex < numColumns; colIndex++) {
       const column = room.config.columns[colIndex]
-      const isLeftEdge = colIndex === 0
-      const isRightEdge = colIndex === room.config.columns.length - 1
+      const isEdge = colIndex === 0 || colIndex === numColumns - 1
+      const distanceFromCenter = Math.abs(colIndex - centerColIndex)
       
-      if (isLeftEdge || isRightEdge) {
-        for (let tableIndex = 0; tableIndex < column.tables; tableIndex++) {
-          for (let seatIndex = 0; seatIndex < column.seatsPerTable; seatIndex++) {
-            peripheralSeats.push(seatNumber + tableIndex * column.seatsPerTable + seatIndex)
-          }
+      for (let tableIndex = 0; tableIndex < column.tables; tableIndex++) {
+        // Calculer la distance par rapport au tableau selon sa position
+        let distanceFromBoard: number
+        switch (room.board_position) {
+          case "top":
+            distanceFromBoard = tableIndex
+            break
+          case "bottom":
+            distanceFromBoard = column.tables - 1 - tableIndex
+            break
+          case "left":
+            distanceFromBoard = colIndex
+            break
+          case "right":
+            distanceFromBoard = numColumns - 1 - colIndex
+            break
+          default:
+            distanceFromBoard = tableIndex
+        }
+        
+        for (let seatIndex = 0; seatIndex < column.seatsPerTable; seatIndex++) {
+          seatMap.set(seatNumber, {
+            seatNumber,
+            colIndex,
+            tableIndex,
+            seatIndex,
+            isEdge,
+            distanceFromBoard,
+            distanceFromCenter,
+          })
+          seatNumber++
         }
       }
-      seatNumber += column.tables * column.seatsPerTable
     }
-    return peripheralSeats
+    return seatMap
   }
   
-  // Helper: Obtenir les places adjacentes
-  const getAdjacentSeats = (seatNum: number): number[] => {
-    if (!room) return []
-    const adjacent: number[] = []
-    const totalSeats = getTotalSeats()
+  // Obtenir les places adjacentes (même table ou tables voisines)
+  const getAdjacentSeatsV2 = (seatNum: number, seatMap: Map<number, SeatInfo>): number[] => {
+    const seatInfo = seatMap.get(seatNum)
+    if (!seatInfo || !room) return []
     
-    // Calcul simplifié: places voisines (±1 dans la même rangée)
-    if (seatNum > 1) adjacent.push(seatNum - 1)
-    if (seatNum < totalSeats) adjacent.push(seatNum + 1)
+    const adjacent: number[] = []
+    
+    // Parcourir toutes les places pour trouver les voisines
+    seatMap.forEach((info, num) => {
+      if (num === seatNum) return
+      
+      // Même table = voisin direct
+      if (info.colIndex === seatInfo.colIndex && info.tableIndex === seatInfo.tableIndex) {
+        adjacent.push(num)
+        return
+      }
+      
+      // Table adjacente dans la même colonne
+      if (info.colIndex === seatInfo.colIndex && Math.abs(info.tableIndex - seatInfo.tableIndex) === 1) {
+        adjacent.push(num)
+        return
+      }
+      
+      // Colonne adjacente, même rangée de table
+      if (Math.abs(info.colIndex - seatInfo.colIndex) === 1 && info.tableIndex === seatInfo.tableIndex) {
+        adjacent.push(num)
+      }
+    })
     
     return adjacent
   }
   
-  // Helper: Vérifier si une place est à côté d'un EBP
-  const isNextToEBP = (seatNum: number, currentAssignments: Map<number, string>): boolean => {
-    const adjacent = getAdjacentSeats(seatNum)
+  // Compter les voisins occupés
+  const countOccupiedNeighbors = (seatNum: number, assignments: Map<number, string>, seatMap: Map<number, SeatInfo>): number => {
+    const adjacent = getAdjacentSeatsV2(seatNum, seatMap)
+    return adjacent.filter(s => assignments.has(s)).length
+  }
+  
+  // Vérifier si une place est à côté d'un EBP
+  const isNextToEBPV2 = (seatNum: number, currentAssignments: Map<number, string>, seatMap: Map<number, SeatInfo>): boolean => {
+    const adjacent = getAdjacentSeatsV2(seatNum, seatMap)
     return adjacent.some(adjSeat => {
       const studentId = currentAssignments.get(adjSeat)
       if (!studentId) return false
@@ -1097,7 +1143,7 @@ export function SeatingPlanEditor({
     })
   }
   
-  // Helper: Vérifier si un élève a un besoin spécifique
+  // Vérifier si un élève a un besoin spécifique
   const hasNeed = (student: Student, needCodes: string[]): boolean => {
     if (!student.special_needs) return false
     return student.special_needs.some(need => 
@@ -1105,67 +1151,89 @@ export function SeatingPlanEditor({
     )
   }
   
-  // PLACEMENT INTELLIGENT - Place tous les élèves avec l'algorithme EBP
+  // Obtenir le genre du voisin (pour la mixité)
+  const getNeighborGenders = (seatNum: number, assignments: Map<number, string>, seatMap: Map<number, SeatInfo>): number[] => {
+    const adjacent = getAdjacentSeatsV2(seatNum, seatMap)
+    const genders: number[] = []
+    adjacent.forEach(adjSeat => {
+      const studentId = assignments.get(adjSeat)
+      if (studentId) {
+        const student = students.find(s => s.id === studentId)
+        if (student?.gender) genders.push(student.gender)
+      }
+    })
+    return genders
+  }
+  
+  // Score d'une place pour la mixité (plus élevé = meilleur pour ce genre)
+  const getMixityScore = (seatNum: number, studentGender: number | undefined, assignments: Map<number, string>, seatMap: Map<number, SeatInfo>): number => {
+    if (!studentGender || studentGender === 3) return 0
+    const neighborGenders = getNeighborGenders(seatNum, assignments, seatMap)
+    if (neighborGenders.length === 0) return 0
+    
+    // Si garçon (1), préférer être à côté d'une fille (2) et vice versa
+    const oppositeGender = studentGender === 1 ? 2 : 1
+    const hasOpposite = neighborGenders.includes(oppositeGender)
+    const hasSame = neighborGenders.includes(studentGender)
+    
+    if (hasOpposite && !hasSame) return 2  // Parfait: que des genres opposés
+    if (hasOpposite) return 1              // Bien: au moins un genre opposé
+    if (hasSame) return -1                 // Éviter: même genre
+    return 0
+  }
+  
+  // PLACEMENT INTELLIGENT V2 - Algorithme amélioré
   const handleIntelligentPlacement = () => {
+    const seatMap = buildSeatMap()
+    const totalSeats = getTotalSeats()
+    const numStudents = students.length
     const newAssignments = new Map<number, string>()
     const placedStudents = new Set<string>()
     
-    // Trier les élèves par priorité EBP
-    const ebpStudents = students.filter(s => s.special_needs && s.special_needs.length > 0)
+    // Calculer l'espacement si on a plus de places que d'élèves
+    const extraSeats = totalSeats - numStudents
+    const shouldSpace = extraSeats > 0
+    
+    // Trier les élèves par priorité
+    const ebpVisionHearing = students.filter(s => hasNeed(s, FRONT_ROW_NEEDS))
+    const ebpTSA = students.filter(s => hasNeed(s, PERIPHERAL_NEEDS) && !hasNeed(s, FRONT_ROW_NEEDS))
+    const ebpOther = students.filter(s => 
+      s.special_needs && s.special_needs.length > 0 && 
+      !hasNeed(s, FRONT_ROW_NEEDS) && 
+      !hasNeed(s, PERIPHERAL_NEEDS)
+    )
     const regularStudents = students.filter(s => !s.special_needs || s.special_needs.length === 0)
     
-    // 1. PRIORITÉ 1: Élèves avec problèmes de vue/audition → Premier rang
-    const frontRowStudents = ebpStudents.filter(s => hasNeed(s, FRONT_ROW_NEEDS))
-    const frontRowSeats = getFirstRowSeats()
+    // Toutes les places triées par distance au tableau
+    const allSeatsSorted = Array.from(seatMap.values())
+      .sort((a, b) => a.distanceFromBoard - b.distanceFromBoard)
     
-    frontRowStudents.forEach((student, index) => {
-      if (index < frontRowSeats.length) {
-        newAssignments.set(frontRowSeats[index], student.id)
-        placedStudents.add(student.id)
-      }
-    })
+    // Places sur les bords, triées par distance du centre (plus loin = mieux pour TSA)
+    const edgeSeats = allSeatsSorted
+      .filter(s => s.isEdge)
+      .sort((a, b) => b.distanceFromCenter - a.distanceFromCenter)
     
-    // 2. PRIORITÉ 2: Élèves TSA → Périphérie avec place adjacente libre
-    const peripheralStudents = ebpStudents.filter(s => 
-      hasNeed(s, PERIPHERAL_NEEDS) && !placedStudents.has(s.id)
-    )
-    const peripheralSeats = getPeripheralSeats().filter(s => !newAssignments.has(s))
+    // ====== 1. PLACER LES EBP VUE/AUDITION AU PREMIER RANG ======
+    const frontRowSeats = allSeatsSorted.filter(s => s.distanceFromBoard === 0)
     
-    peripheralStudents.forEach((student) => {
-      // Trouver une place périphérique avec au moins une place adjacente libre
-      for (const seat of peripheralSeats) {
-        if (newAssignments.has(seat)) continue
+    ebpVisionHearing.forEach((student) => {
+      // Trouver la meilleure place au premier rang
+      for (const seatInfo of frontRowSeats) {
+        if (newAssignments.has(seatInfo.seatNumber)) continue
         
-        const adjacent = getAdjacentSeats(seat)
-        const hasAdjacentFree = adjacent.some(adjSeat => !newAssignments.has(adjSeat))
-        
-        if (hasAdjacentFree) {
-          newAssignments.set(seat, student.id)
+        // Éviter d'être à côté d'un autre EBP si possible
+        if (!isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)) {
+          newAssignments.set(seatInfo.seatNumber, student.id)
           placedStudents.add(student.id)
           break
         }
       }
-    })
-    
-    // 3. PRIORITÉ 3: Autres EBP - pas côte à côte
-    const otherEBP = ebpStudents.filter(s => !placedStudents.has(s.id))
-    const allSeats = Array.from({ length: getTotalSeats() }, (_, i) => i + 1)
-    
-    otherEBP.forEach((student) => {
-      for (const seat of allSeats) {
-        if (newAssignments.has(seat)) continue
-        if (isNextToEBP(seat, newAssignments)) continue
-        
-        newAssignments.set(seat, student.id)
-        placedStudents.add(student.id)
-        break
-      }
       
-      // Si pas trouvé de place isolée, prendre n'importe quelle place libre
+      // Fallback: n'importe quelle place au premier rang
       if (!placedStudents.has(student.id)) {
-        for (const seat of allSeats) {
-          if (!newAssignments.has(seat)) {
-            newAssignments.set(seat, student.id)
+        for (const seatInfo of frontRowSeats) {
+          if (!newAssignments.has(seatInfo.seatNumber)) {
+            newAssignments.set(seatInfo.seatNumber, student.id)
             placedStudents.add(student.id)
             break
           }
@@ -1173,41 +1241,165 @@ export function SeatingPlanEditor({
       }
     })
     
-    // 4. PRIORITÉ 4: Élèves réguliers avec mixité garçon/fille
-    const unplacedRegular = regularStudents.filter(s => !placedStudents.has(s.id))
-    const boys = unplacedRegular.filter(s => s.gender === 1)
-    const girls = unplacedRegular.filter(s => s.gender === 2)
-    const others = unplacedRegular.filter(s => !s.gender || s.gender === 3)
-    
-    // Alterner garçon/fille autant que possible
-    const mixedOrder: Student[] = []
-    const maxLen = Math.max(boys.length, girls.length)
-    for (let i = 0; i < maxLen; i++) {
-      if (i < boys.length) mixedOrder.push(boys[i])
-      if (i < girls.length) mixedOrder.push(girls[i])
-    }
-    mixedOrder.push(...others)
-    
-    // Placer les élèves réguliers
-    mixedOrder.forEach((student) => {
-      for (const seat of allSeats) {
-        if (!newAssignments.has(seat)) {
-          newAssignments.set(seat, student.id)
-          placedStudents.add(student.id)
-          break
+    // ====== 2. PLACER LES TSA SUR LES BORDS, ISOLÉS SI POSSIBLE ======
+    ebpTSA.forEach((student) => {
+      let bestSeat: SeatInfo | null = null
+      let bestScore = -Infinity
+      
+      for (const seatInfo of edgeSeats) {
+        if (newAssignments.has(seatInfo.seatNumber)) continue
+        if (isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)) continue
+        
+        const neighbors = countOccupiedNeighbors(seatInfo.seatNumber, newAssignments, seatMap)
+        const adjacentSeats = getAdjacentSeatsV2(seatInfo.seatNumber, seatMap)
+        const freeAdjacent = adjacentSeats.filter(s => !newAssignments.has(s)).length
+        
+        // Score: préférer les places avec moins de voisins et au moins une place libre pour AESH
+        let score = -neighbors * 10 + freeAdjacent * 5 + seatInfo.distanceFromCenter * 2
+        
+        // Bonus si on a de l'espace et qu'on peut être complètement seul
+        if (shouldSpace && neighbors === 0 && freeAdjacent >= 2) {
+          score += 20
+        }
+        
+        if (score > bestScore) {
+          bestScore = score
+          bestSeat = seatInfo
+        }
+      }
+      
+      if (bestSeat) {
+        newAssignments.set(bestSeat.seatNumber, student.id)
+        placedStudents.add(student.id)
+      } else {
+        // Fallback: n'importe quelle place sur les bords
+        for (const seatInfo of edgeSeats) {
+          if (!newAssignments.has(seatInfo.seatNumber)) {
+            newAssignments.set(seatInfo.seatNumber, student.id)
+            placedStudents.add(student.id)
+            break
+          }
         }
       }
     })
     
+    // ====== 3. PLACER LES AUTRES EBP - JAMAIS CÔTE À CÔTE ======
+    ebpOther.forEach((student) => {
+      let bestSeat: SeatInfo | null = null
+      let bestScore = -Infinity
+      
+      for (const seatInfo of allSeatsSorted) {
+        if (newAssignments.has(seatInfo.seatNumber)) continue
+        if (isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)) continue
+        
+        const neighbors = countOccupiedNeighbors(seatInfo.seatNumber, newAssignments, seatMap)
+        
+        // Préférer les places avec peu de voisins
+        let score = -neighbors * 5
+        
+        // Bonus pour la mixité si on a le genre
+        score += getMixityScore(seatInfo.seatNumber, student.gender, newAssignments, seatMap) * 3
+        
+        if (score > bestScore) {
+          bestScore = score
+          bestSeat = seatInfo
+        }
+      }
+      
+      if (bestSeat) {
+        newAssignments.set(bestSeat.seatNumber, student.id)
+        placedStudents.add(student.id)
+      } else {
+        // Fallback sans contrainte EBP
+        for (const seatInfo of allSeatsSorted) {
+          if (!newAssignments.has(seatInfo.seatNumber)) {
+            newAssignments.set(seatInfo.seatNumber, student.id)
+            placedStudents.add(student.id)
+            break
+          }
+        }
+      }
+    })
+    
+    // ====== 4. PLACER LES ÉLÈVES RÉGULIERS AVEC MIXITÉ ======
+    // Trier par genre pour alterner
+    const boys = regularStudents.filter(s => s.gender === 1)
+    const girls = regularStudents.filter(s => s.gender === 2)
+    const others = regularStudents.filter(s => !s.gender || s.gender === 3)
+    
+    // Créer une liste alternée garçon/fille
+    const mixedOrder: Student[] = []
+    let bi = 0, gi = 0
+    let lastGender = 0
+    
+    while (bi < boys.length || gi < girls.length) {
+      if (lastGender !== 1 && bi < boys.length) {
+        mixedOrder.push(boys[bi++])
+        lastGender = 1
+      } else if (lastGender !== 2 && gi < girls.length) {
+        mixedOrder.push(girls[gi++])
+        lastGender = 2
+      } else if (bi < boys.length) {
+        mixedOrder.push(boys[bi++])
+        lastGender = 1
+      } else if (gi < girls.length) {
+        mixedOrder.push(girls[gi++])
+        lastGender = 2
+      }
+    }
+    mixedOrder.push(...others)
+    
+    // Placer avec espacement si possible
+    const seatsToSkip = shouldSpace ? Math.floor(extraSeats / numStudents) : 0
+    let skipCounter = 0
+    
+    mixedOrder.forEach((student) => {
+      if (placedStudents.has(student.id)) return
+      
+      let bestSeat: SeatInfo | null = null
+      let bestScore = -Infinity
+      
+      for (const seatInfo of allSeatsSorted) {
+        if (newAssignments.has(seatInfo.seatNumber)) continue
+        
+        const neighbors = countOccupiedNeighbors(seatInfo.seatNumber, newAssignments, seatMap)
+        
+        // Score de base: préférer moins de voisins pour espacer
+        let score = shouldSpace ? -neighbors * 3 : 0
+        
+        // Bonus mixité
+        score += getMixityScore(seatInfo.seatNumber, student.gender, newAssignments, seatMap) * 5
+        
+        // Éviter d'être à côté d'un EBP
+        if (isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)) {
+          score -= 10
+        }
+        
+        if (score > bestScore) {
+          bestScore = score
+          bestSeat = seatInfo
+        }
+      }
+      
+      if (bestSeat) {
+        newAssignments.set(bestSeat.seatNumber, student.id)
+        placedStudents.add(student.id)
+      }
+    })
+    
     setAssignments(newAssignments)
+    
+    // Générer un résumé
+    const placedEBP = ebpVisionHearing.length + ebpTSA.length + ebpOther.length
     toast({
-      title: "Placement intelligent",
-      description: `${placedStudents.size} élèves placés avec priorités EBP`,
+      title: "✅ Placement intelligent terminé",
+      description: `${placedStudents.size}/${numStudents} élèves placés (${placedEBP} EBP). Mixité et espacement optimisés.`,
     })
   }
   
-  // COMPLÉTION INTELLIGENTE - Complète avec l'algorithme EBP
+  // COMPLÉTION INTELLIGENTE V2
   const handleIntelligentComplete = () => {
+    const seatMap = buildSeatMap()
     const newAssignments = new Map(assignments)
     const alreadyPlaced = new Set(assignments.values())
     const unassigned = students.filter(s => !alreadyPlaced.has(s.id))
@@ -1220,94 +1412,120 @@ export function SeatingPlanEditor({
       return
     }
     
-    const allSeats = Array.from({ length: getTotalSeats() }, (_, i) => i + 1)
-    const availableSeats = allSeats.filter(s => !newAssignments.has(s))
     const placedStudents = new Set<string>()
+    const totalSeats = getTotalSeats()
+    const remainingSeats = totalSeats - newAssignments.size
+    const shouldSpace = remainingSeats > unassigned.length
     
-    // Trier les non-placés par priorité EBP
-    const unassignedEBP = unassigned.filter(s => s.special_needs && s.special_needs.length > 0)
+    // Toutes les places triées
+    const allSeatsSorted = Array.from(seatMap.values())
+      .sort((a, b) => a.distanceFromBoard - b.distanceFromBoard)
+    
+    const edgeSeats = allSeatsSorted
+      .filter(s => s.isEdge)
+      .sort((a, b) => b.distanceFromCenter - a.distanceFromCenter)
+    
+    // Catégoriser les non-placés
+    const unassignedEBPVision = unassigned.filter(s => hasNeed(s, FRONT_ROW_NEEDS))
+    const unassignedEBPTSA = unassigned.filter(s => hasNeed(s, PERIPHERAL_NEEDS) && !hasNeed(s, FRONT_ROW_NEEDS))
+    const unassignedEBPOther = unassigned.filter(s => 
+      s.special_needs && s.special_needs.length > 0 && 
+      !hasNeed(s, FRONT_ROW_NEEDS) && 
+      !hasNeed(s, PERIPHERAL_NEEDS)
+    )
     const unassignedRegular = unassigned.filter(s => !s.special_needs || s.special_needs.length === 0)
     
-    // 1. D'abord les EBP avec vue/audition → places avant disponibles
-    const frontRowStudents = unassignedEBP.filter(s => hasNeed(s, FRONT_ROW_NEEDS))
-    const frontRowSeats = getFirstRowSeats().filter(s => !newAssignments.has(s))
-    
-    frontRowStudents.forEach((student, index) => {
-      if (index < frontRowSeats.length) {
-        newAssignments.set(frontRowSeats[index], student.id)
+    // 1. EBP Vue/Audition → Premier rang disponible
+    const frontRowSeats = allSeatsSorted.filter(s => s.distanceFromBoard === 0 && !newAssignments.has(s.seatNumber))
+    unassignedEBPVision.forEach((student, idx) => {
+      if (idx < frontRowSeats.length) {
+        newAssignments.set(frontRowSeats[idx].seatNumber, student.id)
         placedStudents.add(student.id)
       }
     })
     
-    // 2. EBP TSA → périphérie disponible
-    const peripheralStudents = unassignedEBP.filter(s => 
-      hasNeed(s, PERIPHERAL_NEEDS) && !placedStudents.has(s.id)
-    )
-    const peripheralSeats = getPeripheralSeats().filter(s => !newAssignments.has(s))
-    
-    peripheralStudents.forEach((student) => {
-      for (const seat of peripheralSeats) {
-        if (newAssignments.has(seat)) continue
-        const adjacent = getAdjacentSeats(seat)
-        const hasAdjacentFree = adjacent.some(adjSeat => !newAssignments.has(adjSeat))
+    // 2. TSA → Bords disponibles, isolés
+    unassignedEBPTSA.forEach((student) => {
+      let bestSeat: SeatInfo | null = null
+      let bestScore = -Infinity
+      
+      for (const seatInfo of edgeSeats) {
+        if (newAssignments.has(seatInfo.seatNumber)) continue
+        if (isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)) continue
         
-        if (hasAdjacentFree) {
-          newAssignments.set(seat, student.id)
+        const neighbors = countOccupiedNeighbors(seatInfo.seatNumber, newAssignments, seatMap)
+        const freeAdjacent = getAdjacentSeatsV2(seatInfo.seatNumber, seatMap).filter(s => !newAssignments.has(s)).length
+        let score = -neighbors * 10 + freeAdjacent * 5
+        
+        if (score > bestScore) {
+          bestScore = score
+          bestSeat = seatInfo
+        }
+      }
+      
+      if (bestSeat) {
+        newAssignments.set(bestSeat.seatNumber, student.id)
+        placedStudents.add(student.id)
+      }
+    })
+    
+    // 3. Autres EBP
+    unassignedEBPOther.forEach((student) => {
+      for (const seatInfo of allSeatsSorted) {
+        if (newAssignments.has(seatInfo.seatNumber)) continue
+        if (!isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)) {
+          newAssignments.set(seatInfo.seatNumber, student.id)
           placedStudents.add(student.id)
           break
         }
       }
     })
     
-    // 3. Autres EBP non placés - pas côte à côte si possible
-    const otherEBP = unassignedEBP.filter(s => !placedStudents.has(s.id))
-    otherEBP.forEach((student) => {
-      for (const seat of availableSeats) {
-        if (newAssignments.has(seat)) continue
-        if (!isNextToEBP(seat, newAssignments)) {
-          newAssignments.set(seat, student.id)
-          placedStudents.add(student.id)
-          break
-        }
-      }
-      // Fallback
-      if (!placedStudents.has(student.id)) {
-        for (const seat of availableSeats) {
-          if (!newAssignments.has(seat)) {
-            newAssignments.set(seat, student.id)
-            placedStudents.add(student.id)
-            break
-          }
-        }
-      }
-    })
-    
-    // 4. Élèves réguliers avec mixité
+    // 4. Réguliers avec mixité
     const boys = unassignedRegular.filter(s => s.gender === 1 && !placedStudents.has(s.id))
     const girls = unassignedRegular.filter(s => s.gender === 2 && !placedStudents.has(s.id))
-    const others = unassignedRegular.filter(s => 
-      (!s.gender || s.gender === 3) && !placedStudents.has(s.id)
-    )
+    const others = unassignedRegular.filter(s => (!s.gender || s.gender === 3) && !placedStudents.has(s.id))
     
     const mixedOrder: Student[] = []
-    const maxLen = Math.max(boys.length, girls.length)
-    for (let i = 0; i < maxLen; i++) {
-      if (i < boys.length) mixedOrder.push(boys[i])
-      if (i < girls.length) mixedOrder.push(girls[i])
+    let bi = 0, gi = 0, lastGender = 0
+    while (bi < boys.length || gi < girls.length) {
+      if (lastGender !== 1 && bi < boys.length) { mixedOrder.push(boys[bi++]); lastGender = 1 }
+      else if (lastGender !== 2 && gi < girls.length) { mixedOrder.push(girls[gi++]); lastGender = 2 }
+      else if (bi < boys.length) { mixedOrder.push(boys[bi++]); lastGender = 1 }
+      else if (gi < girls.length) { mixedOrder.push(girls[gi++]); lastGender = 2 }
     }
     mixedOrder.push(...others)
     
     mixedOrder.forEach((student) => {
-      for (const seat of allSeats) {
-        if (!newAssignments.has(seat)) {
-          newAssignments.set(seat, student.id)
-          placedStudents.add(student.id)
-          break
+      let bestSeat: SeatInfo | null = null
+      let bestScore = -Infinity
+      
+      for (const seatInfo of allSeatsSorted) {
+        if (newAssignments.has(seatInfo.seatNumber)) continue
+        
+        const neighbors = countOccupiedNeighbors(seatInfo.seatNumber, newAssignments, seatMap)
+        let score = shouldSpace ? -neighbors * 3 : 0
+        score += getMixityScore(seatInfo.seatNumber, student.gender, newAssignments, seatMap) * 5
+        if (isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)) score -= 10
+        
+        if (score > bestScore) {
+          bestScore = score
+          bestSeat = seatInfo
         }
+      }
+      
+      if (bestSeat) {
+        newAssignments.set(bestSeat.seatNumber, student.id)
+        placedStudents.add(student.id)
       }
     })
     
     setAssignments(newAssignments)
+    toast({
+      title: "✅ Complétion intelligente terminée",
+      description: `${placedStudents.size} élèves ajoutés avec priorités EBP et mixité`,
+    })
+  }
     toast({
       title: "Complétion intelligente",
       description: `${placedStudents.size} élèves ajoutés avec priorités EBP`,
