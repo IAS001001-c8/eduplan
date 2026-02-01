@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter, usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -18,8 +17,8 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Bell,
 } from "lucide-react"
+import Image from "next/image"
 import type { UserRole } from "@/lib/types"
 
 interface SidebarProps {
@@ -99,20 +98,6 @@ const getRoleLabel = (role: UserRole): string => {
   }
 }
 
-const getRoleColor = (role: UserRole): string => {
-  switch (role) {
-    case "vie-scolaire":
-      return "bg-indigo-500"
-    case "professeur":
-      return "bg-emerald-500"
-    case "delegue":
-    case "eco-delegue":
-      return "bg-sky-500"
-    default:
-      return "bg-slate-500"
-  }
-}
-
 export function Sidebar({
   userRole,
   userName,
@@ -140,38 +125,50 @@ export function Sidebar({
     return item.label
   }
 
+  const handleCollapse = () => {
+    const newState = !isCollapsed
+    setIsCollapsed(newState)
+    localStorage.setItem("sidebar-collapsed", String(newState))
+  }
+
   return (
     <TooltipProvider delayDuration={0}>
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 h-screen border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 transition-all duration-300 ease-in-out",
+          "fixed left-0 top-0 z-40 h-screen border-r border-[#D9DADC] bg-white transition-all duration-300 ease-in-out",
           isCollapsed ? "w-[70px]" : "w-[260px]"
         )}
       >
         <div className="flex h-full flex-col">
-          {/* Header */}
+          {/* Header with Logo */}
           <div className={cn(
-            "flex h-16 items-center border-b border-slate-200 dark:border-slate-800 px-4",
+            "flex h-16 items-center border-b border-[#D9DADC] px-4",
             isCollapsed ? "justify-center" : "justify-between"
           )}>
             {!isCollapsed && (
               <div className="flex items-center gap-2">
-                <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold", getRoleColor(userRole))}>
-                  E
-                </div>
-                <span className="font-semibold text-lg text-slate-900 dark:text-white">EduPlan</span>
+                <Image
+                  src="/images/logo-edu-plan-remove.png"
+                  alt="EduPlan"
+                  width={120}
+                  height={40}
+                  className="h-8 w-auto"
+                />
               </div>
             )}
             {isCollapsed && (
-              <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold", getRoleColor(userRole))}>
+              <div className="w-8 h-8 rounded-lg bg-[#E7A541] flex items-center justify-center text-white font-bold text-sm">
                 E
               </div>
             )}
             <Button
               variant="ghost"
               size="icon"
-              className={cn("h-8 w-8 shrink-0", isCollapsed && "absolute -right-3 top-6 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-full shadow-sm")}
-              onClick={() => setIsCollapsed(!isCollapsed)}
+              className={cn(
+                "h-8 w-8 shrink-0 text-[#29282B]/60 hover:text-[#E7A541] hover:bg-[#FDF6E9]",
+                isCollapsed && "absolute -right-3 top-6 bg-white border border-[#D9DADC] rounded-full shadow-sm"
+              )}
+              onClick={handleCollapse}
             >
               {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
             </Button>
@@ -179,24 +176,24 @@ export function Sidebar({
 
           {/* User Info */}
           <div className={cn(
-            "border-b border-slate-200 dark:border-slate-800 p-4",
+            "border-b border-[#D9DADC] p-4",
             isCollapsed && "flex justify-center"
           )}>
             {!isCollapsed ? (
               <div className="space-y-1">
-                <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{userName}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{getRoleLabel(userRole)}</p>
+                <p className="text-sm font-medium text-[#29282B] truncate">{userName}</p>
+                <p className="text-xs text-[#29282B]/60">{getRoleLabel(userRole)}</p>
               </div>
             ) : (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className={cn("w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-medium", getRoleColor(userRole))}>
+                  <div className="w-9 h-9 rounded-full bg-[#E7A541] flex items-center justify-center text-white text-sm font-medium">
                     {userName.charAt(0).toUpperCase()}
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="right">
                   <p>{userName}</p>
-                  <p className="text-xs text-slate-400">{getRoleLabel(userRole)}</p>
+                  <p className="text-xs text-[#29282B]/60">{getRoleLabel(userRole)}</p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -214,25 +211,28 @@ export function Sidebar({
                 const button = (
                   <Button
                     key={item.id}
-                    variant={isActive ? "secondary" : "ghost"}
+                    variant="ghost"
                     className={cn(
                       "w-full justify-start gap-3 h-11 transition-all",
                       isCollapsed && "justify-center px-0",
-                      isActive && "bg-slate-100 dark:bg-slate-800 font-medium",
-                      !isActive && "hover:bg-slate-50 dark:hover:bg-slate-900"
+                      isActive && "bg-[#FDF6E9] text-[#E7A541] font-medium hover:bg-[#FDF6E9]",
+                      !isActive && "text-[#29282B]/70 hover:bg-[#F5F5F6] hover:text-[#29282B]"
                     )}
                     onClick={() => onNavigate(item.id)}
                   >
                     <div className="relative">
-                      <Icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-slate-500")} />
+                      <Icon className={cn(
+                        "h-5 w-5",
+                        isActive ? "text-[#E7A541]" : "text-[#29282B]/50"
+                      )} />
                       {showBadge && (
-                        <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-rose-500 text-[10px] font-medium text-white flex items-center justify-center">
+                        <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">
                           {notificationCount > 9 ? "9+" : notificationCount}
                         </span>
                       )}
                     </div>
                     {!isCollapsed && (
-                      <span className={cn("truncate", isActive ? "text-slate-900 dark:text-white" : "text-slate-600 dark:text-slate-400")}>
+                      <span className="truncate">
                         {label}
                       </span>
                     )}
@@ -246,7 +246,7 @@ export function Sidebar({
                       <TooltipContent side="right" className="flex items-center gap-2">
                         {label}
                         {showBadge && (
-                          <span className="h-5 w-5 rounded-full bg-rose-500 text-[10px] font-medium text-white flex items-center justify-center">
+                          <span className="h-5 w-5 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">
                             {notificationCount}
                           </span>
                         )}
@@ -262,7 +262,7 @@ export function Sidebar({
 
           {/* Footer */}
           <div className={cn(
-            "border-t border-slate-200 dark:border-slate-800 p-3 space-y-1",
+            "border-t border-[#D9DADC] p-3 space-y-1",
             isCollapsed && "flex flex-col items-center"
           )}>
             <Tooltip>
@@ -270,7 +270,7 @@ export function Sidebar({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "w-full justify-start gap-3 h-10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white",
+                    "w-full justify-start gap-3 h-10 text-[#29282B]/70 hover:text-[#29282B] hover:bg-[#F5F5F6]",
                     isCollapsed && "justify-center px-0"
                   )}
                   onClick={() => onNavigate("settings")}
@@ -287,7 +287,7 @@ export function Sidebar({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "w-full justify-start gap-3 h-10 text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950",
+                    "w-full justify-start gap-3 h-10 text-red-600 hover:text-red-700 hover:bg-red-50",
                     isCollapsed && "justify-center px-0"
                   )}
                   onClick={onLogout}
