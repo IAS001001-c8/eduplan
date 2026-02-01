@@ -1291,10 +1291,13 @@ export function SeatingPlanEditor({
               Fermer
             </Button>
 
-            <Button onClick={handleSave} disabled={isSaving} className="bg-green-600 hover:bg-green-700">
-              <Save className="mr-2 h-4 w-4" />
-              {isSaving ? "Sauvegarde..." : "Sauvegarder"}
-            </Button>
+            {/* Save button - hidden for delegates outside sandbox mode */}
+            {(isSandbox || userRole === "vie-scolaire" || userRole === "professeur") && (
+              <Button onClick={handleSave} disabled={isSaving} className="bg-green-600 hover:bg-green-700">
+                <Save className="mr-2 h-4 w-4" />
+                {isSaving ? "Sauvegarde..." : "Sauvegarder"}
+              </Button>
+            )}
 
             {isSandbox && (userRole === "delegue" || userRole === "eco-delegue") && !subRoom.proposal_data?.is_submitted && (
               <Button onClick={handleSubmit} disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700">
