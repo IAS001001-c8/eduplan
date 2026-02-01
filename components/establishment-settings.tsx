@@ -415,6 +415,142 @@ export function EstablishmentSettings({ establishmentId, onBack }: Establishment
           </p>
         </CardContent>
       </Card>
+
+      {/* EBP Characteristics Management */}
+      <Card className="border-[#D9DADC]">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-violet-100">
+                <UserCog className="h-5 w-5 text-violet-600" />
+              </div>
+              <div>
+                <CardTitle className="text-lg text-[#29282B]">Élèves à Besoins Particuliers (EBP)</CardTitle>
+                <CardDescription className="text-[#29282B]/60">
+                  Gérer les caractéristiques disponibles pour votre établissement
+                </CardDescription>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => setShowAddEBP(true)}
+              className="bg-violet-600 hover:bg-violet-700 text-white"
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Ajouter
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {specialNeeds.length === 0 ? (
+              <p className="text-sm text-[#29282B]/50 text-center py-4">
+                Aucune caractéristique EBP configurée. Cliquez sur "Ajouter" pour en créer.
+              </p>
+            ) : (
+              <div className="grid gap-2">
+                {specialNeeds.map((ebp) => (
+                  <div
+                    key={ebp.id}
+                    className="flex items-center justify-between p-3 rounded-lg border border-[#D9DADC] bg-white hover:bg-[#F9F9FA] transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Badge 
+                        variant="outline" 
+                        className={ebp.is_default 
+                          ? "bg-violet-50 text-violet-700 border-violet-200 font-mono" 
+                          : "bg-blue-50 text-blue-700 border-blue-200 font-mono"
+                        }
+                      >
+                        {ebp.code}
+                      </Badge>
+                      <div>
+                        <p className="font-medium text-[#29282B]">{ebp.label}</p>
+                        {ebp.description && (
+                          <p className="text-xs text-[#29282B]/60">{ebp.description}</p>
+                        )}
+                      </div>
+                      {ebp.is_default && (
+                        <Badge variant="secondary" className="text-[10px]">Par défaut</Badge>
+                      )}
+                    </div>
+                    {!ebp.is_default && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteEBP(ebp)}
+                        className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-[#29282B]/50 mt-4">
+            Les caractéristiques par défaut sont communes à tous les établissements et ne peuvent pas être supprimées.
+            Vous pouvez ajouter des caractéristiques personnalisées pour votre établissement.
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Dialog Ajouter EBP */}
+      <Dialog open={showAddEBP} onOpenChange={setShowAddEBP}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Ajouter une caractéristique EBP</DialogTitle>
+            <DialogDescription>
+              Créez une nouvelle caractéristique personnalisée pour votre établissement
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="ebp-code">Code *</Label>
+              <Input
+                id="ebp-code"
+                placeholder="Ex: DYSLEXIE"
+                value={newEBP.code}
+                onChange={(e) => setNewEBP({ ...newEBP, code: e.target.value.toUpperCase() })}
+                className="font-mono"
+                maxLength={20}
+              />
+              <p className="text-xs text-[#29282B]/50">Code court unique (sera converti en majuscules)</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ebp-label">Libellé *</Label>
+              <Input
+                id="ebp-label"
+                placeholder="Ex: Dyslexie diagnostiquée"
+                value={newEBP.label}
+                onChange={(e) => setNewEBP({ ...newEBP, label: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ebp-description">Description (optionnel)</Label>
+              <Input
+                id="ebp-description"
+                placeholder="Ex: Élève avec diagnostic officiel de dyslexie"
+                value={newEBP.description}
+                onChange={(e) => setNewEBP({ ...newEBP, description: e.target.value })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddEBP(false)}>
+              Annuler
+            </Button>
+            <Button 
+              onClick={handleAddEBP} 
+              disabled={isSavingEBP || !newEBP.code.trim() || !newEBP.label.trim()}
+              className="bg-violet-600 hover:bg-violet-700"
+            >
+              {isSavingEBP ? "Ajout..." : "Ajouter"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
