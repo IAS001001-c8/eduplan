@@ -702,7 +702,8 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
           />
         )}
 
-        {selectedSubRoomIds.length > 0 && (
+        {/* Delete action bar - only for users who can modify */}
+        {(isVieScolaire || isTeacher) && selectedSubRoomIds.length > 0 && (
           <div className="fixed bottom-6 right-6 z-50">
             <Button
               variant="destructive"
