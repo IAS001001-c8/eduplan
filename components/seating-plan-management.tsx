@@ -566,8 +566,8 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
                             className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
                             onClick={(e) => {
                               e.stopPropagation()
-                              setSubRoomToRename(subRoom)
-                              setIsRenameDialogOpen(true)
+                              setSubRoomToEdit(subRoom)
+                              setIsEditDialogOpen(true)
                             }}
                           >
                             <Pencil className="h-3 w-3" />
