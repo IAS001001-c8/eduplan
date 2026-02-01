@@ -557,6 +557,7 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
         onOpenChange={setIsCreateDialogOpen}
         establishmentId={establishmentId}
         userId={userId}
+        userRole={userRole}
         onSuccess={() => {
           setIsCreateDialogOpen(false)
           fetchProposals()
