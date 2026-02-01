@@ -506,6 +506,7 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
           {filteredSubRooms.map((subRoom) => {
             const room = rooms.find(r => r.id === subRoom.room_id)
             const columns = room?.config?.columns || []
+            const canRename = isVieScolaire || isTeacher
             
             return (
             <Card 
@@ -526,7 +527,23 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
                     className="w-5 h-5 mt-1 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer shrink-0"
                   />
                   <div className="flex-1">
-                    <CardTitle className="text-lg">{subRoom.name}</CardTitle>
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-lg">{subRoom.name}</CardTitle>
+                      {canRename && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSubRoomToRename(subRoom)
+                            setIsRenameDialogOpen(true)
+                          }}
+                        >
+                          <Pencil className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
                     <CardDescription className="text-sm">
                       {subRoom.teachers.first_name} {subRoom.teachers.last_name}
                     </CardDescription>
