@@ -159,6 +159,9 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
   // View mode state - Table by default
   const [viewMode, setViewMode] = useState<"grid" | "table">("table")
 
+  // Special needs options from establishment
+  const [specialNeedsOptions, setSpecialNeedsOptions] = useState<{ code: string; label: string }[]>([])
+
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   // Renamed editFormData to editData to avoid naming conflict with formData for add dialog
   const [editData, setEditData] = useState({
