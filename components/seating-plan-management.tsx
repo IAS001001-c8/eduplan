@@ -402,7 +402,7 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
   const filterClasses = isDelegate ? availableClasses : classes
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black">
+    <div className="min-h-screen bg-white">
       <div className="p-6 w-full">
         <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -410,15 +410,15 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
               variant="ghost"
               size="icon"
               onClick={() => onBack?.()}
-              className="hover:bg-white/50 dark:hover:bg-slate-800/50"
+              className="hover:bg-[#F5F5F6]"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5 text-[#29282B]" />
             </Button>
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Plan de Classe
+              <h1 className="text-2xl font-bold text-[#29282B]">
+                Plans de classe
               </h1>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-[#29282B]/60 mt-1">
                 {subRooms.length} sous-salle{subRooms.length > 1 ? "s" : ""}
               </p>
             </div>
@@ -427,7 +427,7 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
             <Button
               onClick={() => setIsCreateDialogOpen(true)}
               size="lg"
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all"
+              className="bg-[#E7A541] hover:bg-[#D4933A] text-white shadow-lg hover:shadow-xl transition-all"
             >
               <Plus className="h-5 w-5 mr-2" />
               Créer une sous-salle
@@ -437,7 +437,7 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
 
         <div className="mb-6 space-y-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#29282B]/50" />
             <Input
               placeholder="Rechercher une sous-salle..."
               value={searchQuery}
