@@ -10,6 +10,11 @@ interface CredentialData {
   class_name?: string
 }
 
+// EduPlan brand colors
+const EDUPLAN_PRIMARY = { r: 231, g: 165, b: 65 } // #E7A541
+const EDUPLAN_TEXT = { r: 41, g: 40, b: 43 } // #29282B
+const EDUPLAN_SECONDARY = { r: 217, g: 218, b: 220 } // #D9DADC
+
 // Generate a single credential PDF
 function generateSingleCredentialPDF(data: CredentialData): jsPDF {
   const doc = new jsPDF()
@@ -17,8 +22,8 @@ function generateSingleCredentialPDF(data: CredentialData): jsPDF {
   const margin = 20
   let y = 30
 
-  // Header
-  doc.setFillColor(16, 185, 129) // emerald-500
+  // Header with EduPlan primary color
+  doc.setFillColor(EDUPLAN_PRIMARY.r, EDUPLAN_PRIMARY.g, EDUPLAN_PRIMARY.b)
   doc.rect(0, 0, pageWidth, 50, "F")
   
   doc.setTextColor(255, 255, 255)
@@ -33,7 +38,7 @@ function generateSingleCredentialPDF(data: CredentialData): jsPDF {
   y = 70
 
   // User info
-  doc.setTextColor(0, 0, 0)
+  doc.setTextColor(EDUPLAN_TEXT.r, EDUPLAN_TEXT.g, EDUPLAN_TEXT.b)
   doc.setFontSize(18)
   doc.setFont("helvetica", "bold")
   doc.text(`${data.first_name} ${data.last_name}`, margin, y)
@@ -57,21 +62,21 @@ function generateSingleCredentialPDF(data: CredentialData): jsPDF {
     doc.text(`Classe: ${data.class_name}`, margin, y)
   }
 
-  // Credentials box
+  // Credentials box with EduPlan styling
   y += 25
-  doc.setFillColor(249, 250, 251) // gray-50
-  doc.setDrawColor(16, 185, 129)
+  doc.setFillColor(253, 246, 233) // Light orange background (#FDF6E9)
+  doc.setDrawColor(EDUPLAN_PRIMARY.r, EDUPLAN_PRIMARY.g, EDUPLAN_PRIMARY.b)
   doc.setLineWidth(0.5)
   doc.roundedRect(margin, y, pageWidth - margin * 2, 60, 5, 5, "FD")
 
   y += 15
-  doc.setTextColor(16, 185, 129)
+  doc.setTextColor(EDUPLAN_PRIMARY.r, EDUPLAN_PRIMARY.g, EDUPLAN_PRIMARY.b)
   doc.setFontSize(14)
   doc.setFont("helvetica", "bold")
   doc.text("Vos identifiants", margin + 10, y)
 
   y += 15
-  doc.setTextColor(0, 0, 0)
+  doc.setTextColor(EDUPLAN_TEXT.r, EDUPLAN_TEXT.g, EDUPLAN_TEXT.b)
   doc.setFontSize(12)
   doc.setFont("helvetica", "normal")
   doc.text("Identifiant:", margin + 10, y)
@@ -84,14 +89,15 @@ function generateSingleCredentialPDF(data: CredentialData): jsPDF {
   doc.setFont("helvetica", "bold")
   doc.text(data.password, margin + 70, y)
 
-  // Instructions
+  // Instructions box with secondary color
   y += 35
-  doc.setFillColor(254, 243, 199) // amber-100
-  doc.setDrawColor(245, 158, 11) // amber-500
+  doc.setFillColor(EDUPLAN_SECONDARY.r, EDUPLAN_SECONDARY.g, EDUPLAN_SECONDARY.b)
+  doc.setDrawColor(EDUPLAN_TEXT.r, EDUPLAN_TEXT.g, EDUPLAN_TEXT.b)
+  doc.setLineWidth(0.3)
   doc.roundedRect(margin, y, pageWidth - margin * 2, 30, 3, 3, "FD")
   
   y += 12
-  doc.setTextColor(146, 64, 14) // amber-800
+  doc.setTextColor(EDUPLAN_TEXT.r, EDUPLAN_TEXT.g, EDUPLAN_TEXT.b)
   doc.setFontSize(10)
   doc.setFont("helvetica", "bold")
   doc.text("Important:", margin + 10, y)
