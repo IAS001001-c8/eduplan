@@ -111,6 +111,18 @@ export function EstablishmentSettings({ establishmentId, onBack }: Establishment
           school_year_start_month: settingsData.school_year_start_month || 8,
         })
       }
+      
+      // Fetch EBP characteristics
+      const { data: ebpData, error: ebpError } = await supabase
+        .from("establishment_special_needs")
+        .select("*")
+        .eq("establishment_id", establishmentId)
+        .order("is_default", { ascending: false })
+        .order("label")
+      
+      if (!ebpError && ebpData) {
+        setSpecialNeeds(ebpData)
+      }
     } catch (error) {
       console.error("Error fetching data:", error)
       toast({
