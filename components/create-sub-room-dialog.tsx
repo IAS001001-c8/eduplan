@@ -272,6 +272,29 @@ export function CreateSubRoomDialog({
 
       console.log("[v0] Sub-room created successfully:", subRoom)
 
+      // Sauvegarder les créneaux horaires
+      if (formData.schedules.length > 0) {
+        const schedulesToInsert = formData.schedules.map((schedule) => ({
+          sub_room_id: subRoom.id,
+          day_of_week: schedule.day_of_week,
+          start_time: schedule.start_time,
+          end_time: schedule.end_time,
+          week_type: schedule.week_type,
+        }))
+
+        const { error: schedulesError } = await supabase
+          .from("sub_room_schedules")
+          .insert(schedulesToInsert)
+
+        if (schedulesError) {
+          console.error("[v0] Error adding schedules:", schedulesError)
+          // Ne pas bloquer si la table n'existe pas encore
+          console.warn("Les créneaux n'ont pas pu être sauvegardés - la table n'existe peut-être pas encore")
+        } else {
+          console.log("[v0] Schedules saved successfully")
+        }
+      }
+
       // Notify other users about the new sub-room
       await notifyEstablishmentUsers({
         establishmentId,
@@ -304,6 +327,7 @@ export function CreateSubRoomDialog({
         selectedClasses: [],
         isCollaborative: false,
         isMultiClass: false,
+        schedules: [],
       })
 
       onOpenChange(false)
