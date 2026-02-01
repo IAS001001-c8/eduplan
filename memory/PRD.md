@@ -11,27 +11,26 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 
 ## Fonctionnalité EBP (Élèves à Besoins Particuliers) - Feb 1, 2026
 
-### État d'implémentation
-- ✅ **Frontend** : Composants UI modifiés et créés
-- ⏳ **Base de données** : Script SQL prêt (`/app/scripts/add_ebp_feature.sql`) À EXÉCUTER
+### État d'implémentation - TERMINÉ ✅
+- ✅ **Base de données** : Scripts exécutés (`add_ebp_feature.sql` + `fix_rls_policies.sql`)
+- ✅ **Frontend** : Tous les composants UI implémentés et testés
 
-### Script SQL EBP à exécuter
-**Fichier** : `/app/scripts/add_ebp_feature.sql`
+### Modifications Frontend - Feb 1, 2026 (Session 14)
+| Composant | Modification | Status |
+|-----------|--------------|--------|
+| `students-management.tsx` | Ajout EBP à élèves existants (handleSaveEdit) | ✅ |
+| `students-management.tsx` | Badge EBP violet dans vue Tableau | ✅ |
+| `students-management.tsx` | Badge EBP violet dans vue Cartes | ✅ |
+| `students-management.tsx` | Dialog édition avec checkboxes EBP (VS uniquement) | ✅ |
+| `import-excel-dialog.tsx` | Disclaimer sexe compact (corrigé débordement) | ✅ |
+| `seating-plan-editor.tsx` | Élèves EBP colorés en bleu (prof/VS) | ✅ |
+| `seating-plan-editor.tsx` | Légende couleurs (Élève, EBP, Délégué, Éco-délégué) | ✅ |
 
-Modifications :
-1. Colonne `gender` ajoutée à la table `students` (1=Homme, 2=Femme, 3=Non identifié)
-2. Colonne `special_needs` ajoutée à la table `students` (array de codes)
-3. Nouvelle table `establishment_special_needs` (liste configurable par établissement)
-4. Trigger pour ajouter les besoins par défaut aux nouveaux établissements
-
-### Modifications Frontend Effectuées
-| Composant | Modification |
-|-----------|--------------|
-| `import-excel-dialog.tsx` | Mapping sexe + disclaimer 3s avec animation |
-| `students-management.tsx` | Champs sexe et EBP dans ajout/édition/vue |
-| Liste élèves | Badge "EBP X" violet (profs/VS uniquement) |
-| Profil élève | Affichage des besoins particuliers détaillés |
-| Dialog édition | Section EBP (VS uniquement) avec historique |
+### Couleurs Plan de Classe (Prof/VS)
+- 🟢 **Vert émeraude** : Élève standard
+- 🔵 **Bleu** : Élève EBP (besoins particuliers)
+- 🟠 **Orange** : Délégué
+- 🟢 **Vert** : Éco-délégué
 
 ### Caractéristiques EBP par défaut
 PAP, PAI, TDAH, Problèmes de vue, Problèmes d'audition, Troubles moteurs, DYS, Anxiété/Panique, TSA, HPI, PTSD, Allophone, ULIS, SEGPA
