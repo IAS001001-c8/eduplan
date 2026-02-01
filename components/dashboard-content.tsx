@@ -351,7 +351,7 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-white">
       {/* Sidebar */}
       <Sidebar
         userRole={profile.role}
@@ -376,7 +376,7 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
       {/* Main Content */}
       <main
         className={cn(
-          "pt-16 min-h-screen transition-all duration-300",
+          "pt-16 min-h-screen transition-all duration-300 bg-[#F9F9FA]",
           isCollapsed ? "pl-[70px]" : "pl-[260px]"
         )}
       >
