@@ -651,173 +651,370 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
           />
         )}
 
-        {/* Grid View */}
-        {viewMode === "grid" && (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredSubRooms.map((subRoom) => {
-              const room = rooms.find(r => r.id === subRoom.room_id)
-              const columns = room?.config?.columns || []
-              const canModify = isVieScolaire || isTeacher
-              
-              return (
-              <Card 
-                key={subRoom.id} 
-                className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group border-[#D9DADC]"
-                onClick={() => {
-                  setSelectedSubRoom(subRoom)
-                  setIsEditorOpen(true)
-                }}
-              >
-                <CardHeader className="pb-2">
-                  <div className="flex items-start gap-3">
-                    {canModify && (
-                      <input
-                        type="checkbox"
-                        checked={selectedSubRoomIds.includes(subRoom.id)}
-                        onChange={() => toggleSubRoomSelection(subRoom.id)}
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-5 h-5 mt-1 rounded border-[#D9DADC] text-[#E7A541] focus:ring-[#E7A541] cursor-pointer shrink-0"
-                      />
-                    )}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <CardTitle className="text-lg text-[#29282B]">{subRoom.name}</CardTitle>
-                        {canModify && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setSubRoomToEdit(subRoom)
-                              setIsEditDialogOpen(true)
-                            }}
-                          >
-                            <Pencil className="h-3 w-3" />
-                          </Button>
+        {/* Files/Folders View */}
+        {viewMode === "files" && (
+          <div className="space-y-2">
+            {/* VIE SCOLAIRE: Folders by Class > Sub-folders by Teacher > Sub-rooms */}
+            {folderStructure.type === "vie-scolaire" && (
+              <>
+                {Array.from((folderStructure.data as Map<string, Map<string, SubRoom[]>>).entries())
+                  .filter(([classId, teacherMap]) => {
+                    // Filter by class if selected
+                    if (filterClass !== "all" && classId !== filterClass) return false
+                    // Filter by teacher if selected
+                    if (filterTeacher !== "all") {
+                      return teacherMap.has(filterTeacher)
+                    }
+                    return teacherMap.size > 0
+                  })
+                  .map(([classId, teacherMap]) => {
+                    const cls = classes.find(c => c.id === classId)
+                    if (!cls) return null
+                    const isExpanded = expandedFolders.has(classId)
+                    const totalSubRooms = Array.from(teacherMap.values()).reduce((acc, arr) => acc + arr.length, 0)
+                    
+                    return (
+                      <div key={classId} className="bg-white rounded-lg border border-[#D9DADC] overflow-hidden">
+                        {/* Class Folder Header */}
+                        <div 
+                          className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-[#F5F5F6] transition-colors"
+                          onClick={() => toggleFolder(classId)}
+                        >
+                          <ChevronDown className={`h-4 w-4 text-[#29282B]/50 transition-transform ${isExpanded ? '' : '-rotate-90'}`} />
+                          {isExpanded ? (
+                            <FolderOpen className="h-5 w-5 text-[#E7A541]" />
+                          ) : (
+                            <Folder className="h-5 w-5 text-[#E7A541]" />
+                          )}
+                          <span className="font-semibold text-[#29282B]">{cls.name}</span>
+                          <Badge variant="secondary" className="ml-auto bg-[#F5F5F6] text-[#29282B]/60">
+                            {totalSubRooms} plan(s)
+                          </Badge>
+                        </div>
+                        
+                        {/* Teacher Sub-folders */}
+                        {isExpanded && (
+                          <div className="border-t border-[#D9DADC] bg-[#FAFAFA]">
+                            {Array.from(teacherMap.entries())
+                              .filter(([teacherId]) => filterTeacher === "all" || teacherId === filterTeacher)
+                              .map(([teacherId, teacherSubRooms]) => {
+                                const teacher = teachers.find(t => t.id === teacherId)
+                                if (!teacher) return null
+                                const subFolderId = `${classId}-${teacherId}`
+                                const isSubExpanded = expandedSubFolders.has(subFolderId)
+                                
+                                return (
+                                  <div key={teacherId}>
+                                    {/* Teacher Sub-folder Header */}
+                                    <div 
+                                      className="flex items-center gap-3 px-4 py-2 pl-10 cursor-pointer hover:bg-[#F0F0F1] transition-colors"
+                                      onClick={() => toggleSubFolder(subFolderId)}
+                                    >
+                                      <ChevronDown className={`h-3 w-3 text-[#29282B]/50 transition-transform ${isSubExpanded ? '' : '-rotate-90'}`} />
+                                      {isSubExpanded ? (
+                                        <FolderOpen className="h-4 w-4 text-blue-500" />
+                                      ) : (
+                                        <Folder className="h-4 w-4 text-blue-500" />
+                                      )}
+                                      <span className="text-sm text-[#29282B]">
+                                        {teacher.first_name} {teacher.last_name}
+                                      </span>
+                                      <span className="text-xs text-[#29282B]/50 ml-1">({teacher.subject})</span>
+                                      <Badge variant="outline" className="ml-auto text-xs">
+                                        {teacherSubRooms.length}
+                                      </Badge>
+                                    </div>
+                                    
+                                    {/* Sub-rooms Table */}
+                                    {isSubExpanded && teacherSubRooms.length > 0 && (
+                                      <div className="pl-16 pr-4 pb-3">
+                                        <table className="w-full text-sm">
+                                          <thead className="bg-[#F5F5F6]">
+                                            <tr>
+                                              <th className="w-8 px-2 py-1.5"></th>
+                                              <th className="px-2 py-1.5 text-left font-medium text-[#29282B]/70 text-xs">Nom</th>
+                                              <th className="px-2 py-1.5 text-left font-medium text-[#29282B]/70 text-xs hidden sm:table-cell">Salle</th>
+                                              <th className="px-2 py-1.5 text-center font-medium text-[#29282B]/70 text-xs">Classes</th>
+                                              <th className="px-2 py-1.5 text-right font-medium text-[#29282B]/70 text-xs">Actions</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody className="divide-y divide-[#E5E5E5]">
+                                            {teacherSubRooms
+                                              .filter(sr => filterRoom === "all" || sr.room_id === filterRoom)
+                                              .filter(sr => !searchQuery || sr.name.toLowerCase().includes(searchQuery.toLowerCase()) || sr.custom_name.toLowerCase().includes(searchQuery.toLowerCase()))
+                                              .map(subRoom => (
+                                                <tr 
+                                                  key={subRoom.id}
+                                                  className="hover:bg-white cursor-pointer transition-colors"
+                                                  onClick={() => { setSelectedSubRoom(subRoom); setIsEditorOpen(true) }}
+                                                >
+                                                  <td className="px-2 py-1.5" onClick={(e) => e.stopPropagation()}>
+                                                    <input
+                                                      type="checkbox"
+                                                      checked={selectedSubRoomIds.includes(subRoom.id)}
+                                                      onChange={() => toggleSubRoomSelection(subRoom.id)}
+                                                      className="w-3.5 h-3.5 rounded border-[#D9DADC]"
+                                                    />
+                                                  </td>
+                                                  <td className="px-2 py-1.5">
+                                                    <div className="flex items-center gap-2">
+                                                      <FileText className="h-3.5 w-3.5 text-[#29282B]/40" />
+                                                      <span className="font-medium text-[#29282B] text-xs">{subRoom.name}</span>
+                                                      {subRoom.is_multi_class && (
+                                                        <Badge className="text-[9px] px-1 py-0 bg-violet-100 text-violet-700 border-violet-200">Multi</Badge>
+                                                      )}
+                                                    </div>
+                                                  </td>
+                                                  <td className="px-2 py-1.5 text-[#29282B]/60 text-xs hidden sm:table-cell">{subRoom.rooms?.name}</td>
+                                                  <td className="px-2 py-1.5 text-center">
+                                                    <span className="text-xs text-[#E7A541] font-medium">{subRoom.class_ids?.length || 1}</span>
+                                                  </td>
+                                                  <td className="px-2 py-1.5 text-right" onClick={(e) => e.stopPropagation()}>
+                                                    <div className="flex justify-end gap-1">
+                                                      <Button 
+                                                        variant="ghost" 
+                                                        size="sm" 
+                                                        className="h-6 w-6 p-0 hover:bg-[#FDF6E9]"
+                                                        onClick={() => { setSubRoomToEdit(subRoom); setIsEditDialogOpen(true) }}
+                                                      >
+                                                        <Pencil className="h-3 w-3" />
+                                                      </Button>
+                                                      <Button 
+                                                        variant="ghost" 
+                                                        size="sm" 
+                                                        className="h-6 w-6 p-0 hover:bg-[#FDF6E9]"
+                                                        onClick={() => { setSelectedSubRoom(subRoom); setIsEditorOpen(true) }}
+                                                      >
+                                                        <Eye className="h-3 w-3" />
+                                                      </Button>
+                                                    </div>
+                                                  </td>
+                                                </tr>
+                                              ))}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    )}
+                                  </div>
+                                )
+                              })}
+                          </div>
                         )}
                       </div>
-                      <CardDescription className="text-sm text-[#29282B]/60">
-                        {subRoom.teachers?.first_name} {subRoom.teachers?.last_name}
-                      </CardDescription>
-                    </div>
+                    )
+                  })}
+              </>
+            )}
+            
+            {/* PROFESSEUR: Folders by Class > Sub-rooms directly */}
+            {folderStructure.type === "professeur" && (
+              <>
+                {Array.from((folderStructure.data as Map<string, SubRoom[]>).entries())
+                  .filter(([classId]) => filterClass === "all" || classId === filterClass)
+                  .map(([classId, classSubRooms]) => {
+                    const cls = classes.find(c => c.id === classId)
+                    if (!cls) return null
+                    const isExpanded = expandedFolders.has(classId)
+                    const filteredRooms = classSubRooms
+                      .filter(sr => filterRoom === "all" || sr.room_id === filterRoom)
+                      .filter(sr => !searchQuery || sr.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                    
+                    return (
+                      <div key={classId} className="bg-white rounded-lg border border-[#D9DADC] overflow-hidden">
+                        {/* Class Folder Header */}
+                        <div 
+                          className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-[#F5F5F6] transition-colors"
+                          onClick={() => toggleFolder(classId)}
+                        >
+                          <ChevronDown className={`h-4 w-4 text-[#29282B]/50 transition-transform ${isExpanded ? '' : '-rotate-90'}`} />
+                          {isExpanded ? (
+                            <FolderOpen className="h-5 w-5 text-[#E7A541]" />
+                          ) : (
+                            <Folder className="h-5 w-5 text-[#E7A541]" />
+                          )}
+                          <span className="font-semibold text-[#29282B]">{cls.name}</span>
+                          <Badge variant="secondary" className="ml-auto bg-[#F5F5F6] text-[#29282B]/60">
+                            {filteredRooms.length} plan(s)
+                          </Badge>
+                        </div>
+                        
+                        {/* Sub-rooms Table */}
+                        {isExpanded && filteredRooms.length > 0 && (
+                          <div className="border-t border-[#D9DADC] bg-[#FAFAFA] px-4 py-3">
+                            <table className="w-full text-sm">
+                              <thead className="bg-[#F5F5F6]">
+                                <tr>
+                                  <th className="w-8 px-2 py-1.5"></th>
+                                  <th className="px-2 py-1.5 text-left font-medium text-[#29282B]/70 text-xs">Nom</th>
+                                  <th className="px-2 py-1.5 text-left font-medium text-[#29282B]/70 text-xs hidden sm:table-cell">Salle</th>
+                                  <th className="px-2 py-1.5 text-center font-medium text-[#29282B]/70 text-xs">Classes</th>
+                                  <th className="px-2 py-1.5 text-right font-medium text-[#29282B]/70 text-xs">Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-[#E5E5E5]">
+                                {filteredRooms.map(subRoom => (
+                                  <tr 
+                                    key={subRoom.id}
+                                    className="hover:bg-white cursor-pointer transition-colors"
+                                    onClick={() => { setSelectedSubRoom(subRoom); setIsEditorOpen(true) }}
+                                  >
+                                    <td className="px-2 py-1.5" onClick={(e) => e.stopPropagation()}>
+                                      <input
+                                        type="checkbox"
+                                        checked={selectedSubRoomIds.includes(subRoom.id)}
+                                        onChange={() => toggleSubRoomSelection(subRoom.id)}
+                                        className="w-3.5 h-3.5 rounded border-[#D9DADC]"
+                                      />
+                                    </td>
+                                    <td className="px-2 py-1.5">
+                                      <div className="flex items-center gap-2">
+                                        <FileText className="h-3.5 w-3.5 text-[#29282B]/40" />
+                                        <span className="font-medium text-[#29282B] text-xs">{subRoom.name}</span>
+                                        {subRoom.is_multi_class && (
+                                          <Badge className="text-[9px] px-1 py-0 bg-violet-100 text-violet-700 border-violet-200">Multi</Badge>
+                                        )}
+                                      </div>
+                                    </td>
+                                    <td className="px-2 py-1.5 text-[#29282B]/60 text-xs hidden sm:table-cell">{subRoom.rooms?.name}</td>
+                                    <td className="px-2 py-1.5 text-center">
+                                      <span className="text-xs text-[#E7A541] font-medium">{subRoom.class_ids?.length || 1}</span>
+                                    </td>
+                                    <td className="px-2 py-1.5 text-right" onClick={(e) => e.stopPropagation()}>
+                                      <div className="flex justify-end gap-1">
+                                        <Button 
+                                          variant="ghost" 
+                                          size="sm" 
+                                          className="h-6 w-6 p-0 hover:bg-[#FDF6E9]"
+                                          onClick={() => { setSubRoomToEdit(subRoom); setIsEditDialogOpen(true) }}
+                                        >
+                                          <Pencil className="h-3 w-3" />
+                                        </Button>
+                                        <Button 
+                                          variant="ghost" 
+                                          size="sm" 
+                                          className="h-6 w-6 p-0 hover:bg-[#FDF6E9]"
+                                          onClick={() => { setSelectedSubRoom(subRoom); setIsEditorOpen(true) }}
+                                        >
+                                          <Eye className="h-3 w-3" />
+                                        </Button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+              </>
+            )}
+            
+            {/* DELEGUE/ECO-DELEGUE: Folders by Teacher > Sub-rooms */}
+            {folderStructure.type === "delegue" && (
+              <>
+                {Array.from((folderStructure.data as Map<string, SubRoom[]>).entries())
+                  .filter(([teacherId]) => filterTeacher === "all" || teacherId === filterTeacher)
+                  .map(([teacherId, teacherSubRooms]) => {
+                    const teacher = teachers.find(t => t.id === teacherId)
+                    if (!teacher) return null
+                    const isExpanded = expandedFolders.has(teacherId)
+                    const filteredRooms = teacherSubRooms
+                      .filter(sr => filterRoom === "all" || sr.room_id === filterRoom)
+                      .filter(sr => !searchQuery || sr.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                    
+                    return (
+                      <div key={teacherId} className="bg-white rounded-lg border border-[#D9DADC] overflow-hidden">
+                        {/* Teacher Folder Header */}
+                        <div 
+                          className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-[#F5F5F6] transition-colors"
+                          onClick={() => toggleFolder(teacherId)}
+                        >
+                          <ChevronDown className={`h-4 w-4 text-[#29282B]/50 transition-transform ${isExpanded ? '' : '-rotate-90'}`} />
+                          {isExpanded ? (
+                            <FolderOpen className="h-5 w-5 text-[#E7A541]" />
+                          ) : (
+                            <Folder className="h-5 w-5 text-[#E7A541]" />
+                          )}
+                          <span className="font-semibold text-[#29282B]">
+                            {teacher.first_name} {teacher.last_name}
+                          </span>
+                          <span className="text-sm text-[#29282B]/50">({teacher.subject})</span>
+                          <Badge variant="secondary" className="ml-auto bg-[#F5F5F6] text-[#29282B]/60">
+                            {filteredRooms.length} plan(s)
+                          </Badge>
+                        </div>
+                        
+                        {/* Sub-rooms Table */}
+                        {isExpanded && filteredRooms.length > 0 && (
+                          <div className="border-t border-[#D9DADC] bg-[#FAFAFA] px-4 py-3">
+                            <table className="w-full text-sm">
+                              <thead className="bg-[#F5F5F6]">
+                                <tr>
+                                  <th className="px-2 py-1.5 text-left font-medium text-[#29282B]/70 text-xs">Nom</th>
+                                  <th className="px-2 py-1.5 text-left font-medium text-[#29282B]/70 text-xs hidden sm:table-cell">Salle</th>
+                                  <th className="px-2 py-1.5 text-right font-medium text-[#29282B]/70 text-xs">Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-[#E5E5E5]">
+                                {filteredRooms.map(subRoom => (
+                                  <tr 
+                                    key={subRoom.id}
+                                    className="hover:bg-white cursor-pointer transition-colors"
+                                    onClick={() => { setSelectedSubRoom(subRoom); setIsEditorOpen(true) }}
+                                  >
+                                    <td className="px-2 py-1.5">
+                                      <div className="flex items-center gap-2">
+                                        <FileText className="h-3.5 w-3.5 text-[#29282B]/40" />
+                                        <span className="font-medium text-[#29282B] text-xs">{subRoom.name}</span>
+                                      </div>
+                                    </td>
+                                    <td className="px-2 py-1.5 text-[#29282B]/60 text-xs hidden sm:table-cell">{subRoom.rooms?.name}</td>
+                                    <td className="px-2 py-1.5 text-right" onClick={(e) => e.stopPropagation()}>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="h-6 w-6 p-0 hover:bg-[#FDF6E9]"
+                                        onClick={() => { setSelectedSubRoom(subRoom); setIsEditorOpen(true) }}
+                                      >
+                                        <Eye className="h-3 w-3" />
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+              </>
+            )}
+            
+            {/* Empty State */}
+            {((folderStructure.type === "vie-scolaire" && Array.from((folderStructure.data as Map<string, Map<string, SubRoom[]>>).values()).every(m => m.size === 0)) ||
+              (folderStructure.type === "professeur" && (folderStructure.data as Map<string, SubRoom[]>).size === 0) ||
+              (folderStructure.type === "delegue" && (folderStructure.data as Map<string, SubRoom[]>).size === 0)) && (
+              <Card className="bg-white border-[#D9DADC]">
+                <CardContent className="py-16 text-center">
+                  <div className="w-20 h-20 rounded-full bg-[#FDF6E9] flex items-center justify-center mx-auto mb-4">
+                    <Folder className="w-10 h-10 text-[#E7A541]" />
                   </div>
-                </CardHeader>
-
-                <CardContent className="pt-2 pb-4">
-                  <div className="flex justify-center mb-4">
-                    <RoomSeatPreview 
-                      columns={columns}
-                      boardPosition={room?.board_position}
-                      maxWidth={180}
-                      maxHeight={100}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between text-sm text-[#29282B]/60">
-                    <div className="flex items-center gap-1">
-                      <BookOpen className="h-4 w-4" />
-                      <span>{subRoom.rooms?.name}</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-[#E7A541]">
-                      <Users className="h-4 w-4" />
-                      <span>{subRoom.class_ids?.length || 1} classe(s)</span>
-                    </div>
-                  </div>
+                  <h3 className="text-lg font-semibold text-[#29282B] mb-2">
+                    Aucun plan de classe
+                  </h3>
+                  <p className="text-[#29282B]/60">
+                    {isVieScolaire || isTeacher 
+                      ? "Commencez par créer votre premier plan de classe"
+                      : "Aucun plan de classe disponible pour l'instant"}
+                  </p>
                 </CardContent>
               </Card>
-              )
-            })}
+            )}
           </div>
         )}
-
-        {/* List/Table View */}
-        {viewMode === "list" && (
-          <div className="bg-white rounded-lg border border-[#D9DADC] overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-[#F5F5F6] border-b border-[#D9DADC]">
-                <tr>
-                  {(isVieScolaire || isTeacher) && (
-                    <th className="w-10 px-3 py-2">
-                      <input type="checkbox" className="w-4 h-4 rounded border-[#D9DADC]" />
-                    </th>
-                  )}
-                  <th className="px-3 py-2 text-left font-medium text-[#29282B]/70">Nom</th>
-                  <th className="px-3 py-2 text-left font-medium text-[#29282B]/70 hidden sm:table-cell">Professeur</th>
-                  <th className="px-3 py-2 text-left font-medium text-[#29282B]/70 hidden md:table-cell">Salle</th>
-                  <th className="px-3 py-2 text-center font-medium text-[#29282B]/70">Classes</th>
-                  <th className="px-3 py-2 text-right font-medium text-[#29282B]/70">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#D9DADC]">
-                {filteredSubRooms.map((subRoom) => (
-                  <tr 
-                    key={subRoom.id} 
-                    className={`hover:bg-[#F5F5F6] cursor-pointer transition-colors ${
-                      selectedSubRoomIds.includes(subRoom.id) ? "bg-[#FDF6E9]" : ""
-                    }`}
-                    onClick={() => { setSelectedSubRoom(subRoom); setIsEditorOpen(true) }}
-                  >
-                    {(isVieScolaire || isTeacher) && (
-                      <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
-                        <input
-                          type="checkbox"
-                          checked={selectedSubRoomIds.includes(subRoom.id)}
-                          onChange={() => toggleSubRoomSelection(subRoom.id)}
-                          className="w-4 h-4 rounded border-[#D9DADC]"
-                        />
-                      </td>
-                    )}
-                    <td className="px-3 py-2 font-medium text-[#29282B]">{subRoom.name}</td>
-                    <td className="px-3 py-2 text-[#29282B]/60 hidden sm:table-cell">
-                      {subRoom.teachers?.first_name} {subRoom.teachers?.last_name}
-                    </td>
-                    <td className="px-3 py-2 text-[#29282B]/60 hidden md:table-cell">{subRoom.rooms?.name}</td>
-                    <td className="px-3 py-2 text-center">
-                      <span className="inline-flex items-center gap-1 text-[#E7A541] font-medium">
-                        <Users className="h-3 w-3" />
-                        {subRoom.class_ids?.length || 1}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex justify-end gap-1">
-                        {(isVieScolaire || isTeacher) && (
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => { 
-                              setSubRoomToEdit(subRoom)
-                              setIsEditDialogOpen(true) 
-                            }}
-                            title="Modifier"
-                            className="hover:bg-[#FDF6E9]"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        )}
-                        <Button variant="ghost" size="sm" onClick={() => { setSelectedSubRoom(subRoom); setIsEditorOpen(true) }} className="hover:bg-[#FDF6E9]">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {filteredSubRooms.length === 0 && viewMode !== "timeline" && (
-          <Card className="bg-white border-[#D9DADC]">
-            <CardContent className="py-16 text-center">
-              <div className="w-20 h-20 rounded-full bg-[#FDF6E9] flex items-center justify-center mx-auto mb-4">
-                <Search className="w-10 h-10 text-[#E7A541]" />
-              </div>
-              <h3 className="text-lg font-semibold text-[#29282B] mb-2">
-                {searchQuery ? "Aucune sous-salle trouvée" : "Aucune sous-salle créée"}
-              </h3>
-              <p className="text-[#29282B]/60">
-                {searchQuery
                   ? "Essayez avec un autre terme de recherche"
                   : "Commencez par créer votre première sous-salle"}
               </p>
