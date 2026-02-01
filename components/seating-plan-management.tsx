@@ -103,8 +103,8 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
 
   const [currentUserRecord, setCurrentUserRecord] = useState<any>(null)
   const [viewMode, setViewMode] = useState<"grid" | "list" | "timeline">("list")
-  const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
-  const [subRoomToRename, setSubRoomToRename] = useState<SubRoom | null>(null)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [subRoomToEdit, setSubRoomToEdit] = useState<SubRoom | null>(null)
 
   useEffect(() => {
     fetchData()
