@@ -1629,10 +1629,10 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
 
       {/* Add Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Ajouter un élève</DialogTitle>
-            <DialogDescription>Remplissez les informations de l'élève</DialogDescription>
+            <DialogTitle className="text-[#29282B]">Ajouter un élève</DialogTitle>
+            <DialogDescription className="text-[#29282B]/60">Remplissez les informations de l'élève</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -1643,6 +1643,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
                   value={formData.first_name}
                   onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                   placeholder="Jean"
+                  className="border-[#D9DADC]"
                 />
               </div>
               <div>
@@ -1652,6 +1653,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
                   value={formData.last_name}
                   onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
                   placeholder="Dupont"
+                  className="border-[#D9DADC]"
                 />
               </div>
             </div>
@@ -1664,6 +1666,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="jean.dupont@exemple.fr"
+                  className="border-[#D9DADC]"
                 />
               </div>
               <div>
@@ -1674,17 +1677,18 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   placeholder="06 12 34 56 78"
+                  className="border-[#D9DADC]"
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="class_id">Classe *</Label>
                 <Select
                   value={formData.class_id}
                   onValueChange={(value) => setFormData({ ...formData, class_id: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="border-[#D9DADC]">
                     <SelectValue placeholder="Sélectionnez une classe" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1704,23 +1708,74 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
                     setFormData({ ...formData, role: value })
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="border-[#D9DADC]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="eleve">Élève</SelectItem>
                     <SelectItem value="delegue">Délégué</SelectItem>
                     <SelectItem value="eco-delegue">Éco-délégué</SelectItem>
-                    <SelectItem value="eleve">Élève</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="gender">Sexe</Label>
+                <Select
+                  value={formData.gender}
+                  onValueChange={(value: "" | "1" | "2" | "3") =>
+                    setFormData({ ...formData, gender: value })
+                  }
+                >
+                  <SelectTrigger className="border-[#D9DADC]">
+                    <SelectValue placeholder="Non renseigné" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Non renseigné</SelectItem>
+                    <SelectItem value="1">Homme</SelectItem>
+                    <SelectItem value="2">Femme</SelectItem>
+                    <SelectItem value="3">Non identifié</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            <div className="flex items-center justify-between rounded-lg border p-4">
+
+            {/* Caractéristiques EBP - Visible seulement pour vie-scolaire */}
+            {userRole === "vie-scolaire" && specialNeedsOptions.length > 0 && (
+              <div className="space-y-2">
+                <Label>Besoins particuliers (EBP)</Label>
+                <div className="border border-[#D9DADC] rounded-lg p-4 max-h-48 overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-2">
+                    {specialNeedsOptions.map((option) => (
+                      <div key={option.code} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id={`add-ebp-${option.code}`}
+                          checked={formData.special_needs.includes(option.code)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setFormData({ ...formData, special_needs: [...formData.special_needs, option.code] })
+                            } else {
+                              setFormData({ ...formData, special_needs: formData.special_needs.filter(c => c !== option.code) })
+                            }
+                          }}
+                          className="w-4 h-4 rounded border-[#D9DADC] text-[#E7A541] focus:ring-[#E7A541]"
+                        />
+                        <Label htmlFor={`add-ebp-${option.code}`} className="text-sm font-normal cursor-pointer">
+                          {option.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between rounded-lg border border-[#D9DADC] p-4">
               <div className="space-y-0.5">
                 <Label htmlFor="can_create_subrooms" className="text-base">
                   Peut créer des sous-salles
                 </Label>
-                <p className="text-sm text-muted-foreground">Autoriser cet élève à créer des sous-salles</p>
+                <p className="text-sm text-[#29282B]/60">Autoriser cet élève à créer des sous-salles</p>
               </div>
               <Switch
                 id="can_create_subrooms"
@@ -1730,10 +1785,10 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="border-[#D9DADC]">
               Annuler
             </Button>
-            <Button onClick={handleAdd}>Ajouter</Button>
+            <Button onClick={handleAdd} className="bg-[#E7A541] hover:bg-[#D4933A] text-white">Ajouter</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
