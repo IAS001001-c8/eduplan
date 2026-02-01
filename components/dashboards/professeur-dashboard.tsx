@@ -57,6 +57,7 @@ const itemVariants = {
 export function ProfesseurDashboard({ establishmentId, userId, userName, onNavigate }: ProfesseurDashboardProps) {
   const [classes, setClasses] = useState<ClassInfo[]>([])
   const [pendingProposals, setPendingProposals] = useState<Proposal[]>([])
+  const [teacherId, setTeacherId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -77,6 +78,8 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
         setIsLoading(false)
         return
       }
+
+      setTeacherId(teacherData.id)
 
       const { data: teacherClasses } = await supabase
         .from("teacher_classes")
