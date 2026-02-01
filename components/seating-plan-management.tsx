@@ -521,8 +521,8 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
             onEditSubRoom={(subRoomId) => {
               const subRoom = subRooms.find(s => s.id === subRoomId)
               if (subRoom) {
-                setSelectedSubRoom(subRoom)
-                setIsEditorOpen(true)
+                setSubRoomToEdit(subRoom)
+                setIsEditDialogOpen(true)
               }
             }}
           />
