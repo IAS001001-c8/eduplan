@@ -184,6 +184,16 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
         </div>
       </motion.div>
 
+      {/* Current Class Plan - Shows if there's an active session */}
+      {teacherId && (
+        <motion.div variants={itemVariants}>
+          <CurrentClassPlan
+            teacherId={teacherId}
+            establishmentId={establishmentId}
+          />
+        </motion.div>
+      )}
+
       {/* Classes Grid */}
       <motion.div variants={itemVariants}>
         <div className="flex items-center justify-between mb-4">
