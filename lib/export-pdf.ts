@@ -27,6 +27,11 @@ interface ExportPDFOptions {
   establishmentName?: string
 }
 
+// EduPlan brand colors
+const EDUPLAN_PRIMARY = { r: 231, g: 165, b: 65 } // #E7A541
+const EDUPLAN_TEXT = { r: 41, g: 40, b: 43 } // #29282B
+const EDUPLAN_SECONDARY = { r: 217, g: 218, b: 220 } // #D9DADC
+
 export function exportSeatingPlanToPDF(options: ExportPDFOptions) {
   const {
     subRoomName,
@@ -51,21 +56,25 @@ export function exportSeatingPlanToPDF(options: ExportPDFOptions) {
   const pageHeight = doc.internal.pageSize.getHeight()
   const margin = 15
 
-  // En-tête
-  doc.setFillColor(16, 185, 129) // emerald-500
+  // En-tête avec la couleur EduPlan
+  doc.setFillColor(EDUPLAN_PRIMARY.r, EDUPLAN_PRIMARY.g, EDUPLAN_PRIMARY.b)
   doc.rect(0, 0, pageWidth, 25, "F")
   
   doc.setTextColor(255, 255, 255)
   doc.setFontSize(18)
   doc.setFont("helvetica", "bold")
-  doc.text(establishmentName, margin, 12)
+  doc.text("EduPlan", margin, 12)
   
   doc.setFontSize(10)
   doc.setFont("helvetica", "normal")
   doc.text(`Plan de classe - ${subRoomName}`, margin, 20)
 
+  // Nom de l'établissement à droite
+  doc.setFontSize(10)
+  doc.text(establishmentName, pageWidth - margin, 12, { align: "right" })
+
   // Informations
-  doc.setTextColor(0, 0, 0)
+  doc.setTextColor(EDUPLAN_TEXT.r, EDUPLAN_TEXT.g, EDUPLAN_TEXT.b)
   doc.setFontSize(11)
   let yPos = 35
   
@@ -99,16 +108,17 @@ export function exportSeatingPlanToPDF(options: ExportPDFOptions) {
   const planWidth = pageWidth - 2 * margin
   const planHeight = pageHeight - yPos - margin - 30
 
-  // Dessiner le tableau (position du professeur)
+  // Dessiner le tableau (position du professeur) avec couleur EduPlan
   const boardHeight = 8
   const boardWidth = planWidth * 0.6
   const boardX = margin + (planWidth - boardWidth) / 2
   
-  doc.setFillColor(251, 191, 36) // amber-400
+  doc.setFillColor(EDUPLAN_PRIMARY.r, EDUPLAN_PRIMARY.g, EDUPLAN_PRIMARY.b)
   if (boardPosition === "top") {
     doc.rect(boardX, yPos, boardWidth, boardHeight, "F")
-    doc.setTextColor(0, 0, 0)
+    doc.setTextColor(255, 255, 255)
     doc.setFontSize(8)
+    doc.setFont("helvetica", "bold")
     doc.text("TABLEAU", boardX + boardWidth / 2, yPos + 5, { align: "center" })
     yPos += boardHeight + 10
   }
@@ -137,21 +147,21 @@ export function exportSeatingPlanToPDF(options: ExportPDFOptions) {
         const x = xOffset + seatIdx * seatWidth
         const y = currentY
 
-        // Couleur de fond
+        // Couleur de fond avec palette EduPlan
         if (student) {
           if (student.role === "delegue") {
-            doc.setFillColor(59, 130, 246) // blue
+            doc.setFillColor(EDUPLAN_PRIMARY.r, EDUPLAN_PRIMARY.g, EDUPLAN_PRIMARY.b) // Orange for delegates
           } else if (student.role === "eco-delegue") {
-            doc.setFillColor(34, 197, 94) // green
+            doc.setFillColor(34, 197, 94) // green for eco-delegates
           } else {
-            doc.setFillColor(226, 232, 240) // slate-200
+            doc.setFillColor(EDUPLAN_SECONDARY.r, EDUPLAN_SECONDARY.g, EDUPLAN_SECONDARY.b) // Light gray for regular students
           }
         } else {
-          doc.setFillColor(248, 250, 252) // slate-50
+          doc.setFillColor(248, 250, 252) // slate-50 for empty seats
         }
         
         doc.rect(x, y, seatWidth - 2, seatHeight - 2, "F")
-        doc.setDrawColor(148, 163, 184) // slate-400
+        doc.setDrawColor(EDUPLAN_SECONDARY.r, EDUPLAN_SECONDARY.g, EDUPLAN_SECONDARY.b)
         doc.rect(x, y, seatWidth - 2, seatHeight - 2, "S")
 
         // Numéro de place
@@ -162,7 +172,7 @@ export function exportSeatingPlanToPDF(options: ExportPDFOptions) {
         // Nom de l'élève
         if (student) {
           doc.setFontSize(7)
-          doc.setTextColor(0, 0, 0)
+          doc.setTextColor(EDUPLAN_TEXT.r, EDUPLAN_TEXT.g, EDUPLAN_TEXT.b)
           doc.setFont("helvetica", "bold")
           
           const lastName = student.last_name.substring(0, 10)
@@ -183,25 +193,26 @@ export function exportSeatingPlanToPDF(options: ExportPDFOptions) {
   // Tableau si en bas
   if (boardPosition === "bottom") {
     const bottomY = pageHeight - margin - boardHeight - 15
-    doc.setFillColor(251, 191, 36)
+    doc.setFillColor(EDUPLAN_PRIMARY.r, EDUPLAN_PRIMARY.g, EDUPLAN_PRIMARY.b)
     doc.rect(boardX, bottomY, boardWidth, boardHeight, "F")
-    doc.setTextColor(0, 0, 0)
+    doc.setTextColor(255, 255, 255)
     doc.setFontSize(8)
+    doc.setFont("helvetica", "bold")
     doc.text("TABLEAU", boardX + boardWidth / 2, bottomY + 5, { align: "center" })
   }
 
-  // Légende
+  // Légende avec couleurs EduPlan
   const legendY = pageHeight - margin - 10
   doc.setFontSize(8)
-  doc.setTextColor(0, 0, 0)
+  doc.setTextColor(EDUPLAN_TEXT.r, EDUPLAN_TEXT.g, EDUPLAN_TEXT.b)
   
   // Place normale
-  doc.setFillColor(226, 232, 240)
+  doc.setFillColor(EDUPLAN_SECONDARY.r, EDUPLAN_SECONDARY.g, EDUPLAN_SECONDARY.b)
   doc.rect(margin, legendY, 8, 6, "F")
   doc.text("Élève", margin + 10, legendY + 4)
   
   // Délégué
-  doc.setFillColor(59, 130, 246)
+  doc.setFillColor(EDUPLAN_PRIMARY.r, EDUPLAN_PRIMARY.g, EDUPLAN_PRIMARY.b)
   doc.rect(margin + 40, legendY, 8, 6, "F")
   doc.text("Délégué", margin + 50, legendY + 4)
   
