@@ -447,7 +447,7 @@ export function CreateSubRoomDialog({
 
           {/* Option Multi-classes - visible pour profs et vie scolaire quand un prof est sélectionné */}
           {(isProfessor || (isVieScolaire && formData.selectedTeachers.length > 0)) && (
-            <div className="flex items-center gap-2 border rounded-md p-3">
+            <div className="flex items-center gap-2 border border-[#D9DADC] rounded-md p-3">
               <Checkbox
                 id="multiclass"
                 checked={formData.isMultiClass}
@@ -471,26 +471,26 @@ export function CreateSubRoomDialog({
             </Label>
             {/* Pour vie scolaire, besoin de sélectionner un prof d'abord */}
             {isVieScolaire && formData.selectedTeachers.length === 0 ? (
-              <div className="border border-orange-300 bg-orange-50 dark:bg-orange-950 rounded-md p-4">
-                <p className="text-sm text-orange-800 dark:text-orange-200 flex items-center gap-2">
+              <div className="border border-orange-300 bg-orange-50 rounded-md p-4">
+                <p className="text-sm text-orange-800 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4" />
                   Veuillez d'abord sélectionner un professeur
                 </p>
               </div>
             ) : /* Pour prof sans ID trouvé */
             isProfessor && !currentTeacherId ? (
-              <div className="border border-orange-300 bg-orange-50 dark:bg-orange-950 rounded-md p-4">
-                <p className="text-sm text-orange-800 dark:text-orange-200 flex items-center gap-2">
+              <div className="border border-orange-300 bg-orange-50 rounded-md p-4">
+                <p className="text-sm text-orange-800 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4" />
                   Impossible de charger vos classes
                 </p>
               </div>
             ) : filteredClasses.length === 0 ? (
-              <div className="text-sm text-muted-foreground border rounded-md p-4">
+              <div className="text-sm text-[#29282B]/60 border border-[#D9DADC] rounded-md p-4">
                 Aucune classe disponible pour ce professeur
               </div>
             ) : formData.isMultiClass ? (
-              <div className="border rounded-md p-4 space-y-2 max-h-48 overflow-y-auto">
+              <div className="border border-[#D9DADC] rounded-md p-4 space-y-2 max-h-48 overflow-y-auto">
                 {filteredClasses.map((cls) => (
                   <div key={cls.id} className="flex items-center gap-2">
                     <Checkbox
@@ -509,7 +509,7 @@ export function CreateSubRoomDialog({
                 value={formData.selectedClasses[0] || ""} 
                 onValueChange={(value) => setFormData({ ...formData, selectedClasses: [value] })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="border-[#D9DADC]">
                   <SelectValue placeholder="Sélectionner une classe" />
                 </SelectTrigger>
                 <SelectContent>
@@ -521,6 +521,14 @@ export function CreateSubRoomDialog({
                 </SelectContent>
               </Select>
             )}
+          </div>
+
+          {/* Créneaux horaires - Section pour définir quand la sous-salle est utilisée */}
+          <div className="border-t border-[#D9DADC] pt-4 mt-4">
+            <SubRoomScheduleForm
+              schedules={formData.schedules}
+              onChange={(schedules) => setFormData({ ...formData, schedules })}
+            />
           </div>
         </div>
 
