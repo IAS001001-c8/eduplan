@@ -205,7 +205,9 @@ export function CreateProposalDialog({
       if (useExistingSubRoom && selectedSubRoomId) {
         const subRoom = subRooms.find((sr) => sr.id === selectedSubRoomId)
         if (subRoom) {
-          seatAssignments = subRoom.seat_assignments || {}
+          // Copy seat_assignments from the existing sub-room as initial configuration
+          seatAssignments = subRoom.seat_assignments || []
+          console.log("[CreateProposal] Importing seat_assignments from sub-room:", subRoom.id, "count:", Array.isArray(seatAssignments) ? seatAssignments.length : 'object')
 
           // Get room_id from the sub_room
           roomId = subRoom.room_id
@@ -219,7 +221,8 @@ export function CreateProposalDialog({
         teacher_id: selectedTeacherId,
         proposed_by: userId,
         establishment_id: establishmentId,
-        status: "pending",
+        status: "draft",
+        is_submitted: false,
         seat_assignments: seatAssignments,
         sub_room_id: useExistingSubRoom ? selectedSubRoomId : null,
       })
