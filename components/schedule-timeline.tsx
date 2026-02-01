@@ -236,19 +236,19 @@ export function ScheduleTimeline({ teacherId, establishmentId, onEditSubRoom }: 
           </div>
         ) : (
           <div className="relative overflow-x-auto">
-            <div className="flex" style={{ minWidth: "900px" }}>
+            <div className="flex" style={{ minWidth: "1100px" }}>
               {/* Colonne des heures */}
-              <div className="w-16 flex-shrink-0 border-r border-[#D9DADC]">
-                <div className="h-10" /> {/* Header spacer */}
+              <div className="w-20 flex-shrink-0 border-r border-[#D9DADC]">
+                <div className="h-12" /> {/* Header spacer */}
                 <div className="relative" style={{ height: `${(HOURS_END - HOURS_START) * HOUR_HEIGHT}px` }}>
                   {hourLines.map(({ hour, label, isFullHour }) => (
                     <div
                       key={hour}
-                      className="absolute right-2 -translate-y-1/2"
+                      className="absolute right-3 -translate-y-1/2"
                       style={{ top: `${(hour - HOURS_START) * HOUR_HEIGHT}px` }}
                     >
                       {isFullHour && (
-                        <span className="text-xs text-[#29282B]/50">{label}</span>
+                        <span className="text-sm text-[#29282B]/60 font-medium">{label}</span>
                       )}
                     </div>
                   ))}
@@ -266,17 +266,17 @@ export function ScheduleTimeline({ teacherId, establishmentId, onEditSubRoom }: 
                   <div
                     key={dayIndex}
                     className={cn(
-                      "flex-1 min-w-[120px] border-r border-[#D9DADC] last:border-r-0",
+                      "flex-1 min-w-[140px] border-r border-[#D9DADC] last:border-r-0",
                       isToday && "bg-[#FDF6E9]/30"
                     )}
                   >
                     {/* Header */}
                     <div className={cn(
-                      "h-10 flex flex-col items-center justify-center border-b border-[#D9DADC]",
+                      "h-12 flex flex-col items-center justify-center border-b border-[#D9DADC]",
                       isToday && "bg-[#E7A541] text-white"
                     )}>
-                      <span className="text-xs font-medium">{day}</span>
-                      <span className="text-[10px]">{dayDate.getDate()}</span>
+                      <span className="text-sm font-semibold">{day}</span>
+                      <span className="text-xs">{dayDate.getDate()}</span>
                     </div>
 
                     {/* Grille horaire */}
