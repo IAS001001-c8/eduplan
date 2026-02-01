@@ -125,8 +125,10 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
     email: "",
     phone: "",
     class_id: "",
-    role: "eleve" as "delegue" | "eco-delegue" | "eleve", // Default to "eleve"
+    role: "eleve" as "delegue" | "eco-delegue" | "eleve",
     can_create_subrooms: false,
+    gender: "" as "" | "1" | "2" | "3",
+    special_needs: [] as string[],
   })
   const [accessData, setAccessData] = useState({
     username: "",
