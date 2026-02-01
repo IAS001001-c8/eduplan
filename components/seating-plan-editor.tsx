@@ -1559,6 +1559,14 @@ export function SeatingPlanEditor({
                                   const student = assignment ? students.find((s) => s.id === assignment) : null
                                   const isOccupied = !!student
                                   const isDragTarget = draggedStudent && !isOccupied
+                                  
+                                  // Determine if student has EBP (special needs) - only visible for prof/VS
+                                  const hasEBP = student?.special_needs && student.special_needs.length > 0
+                                  const showEBPStyle = hasEBP && (userRole === "vie-scolaire" || userRole === "professeur")
+                                  
+                                  // Determine student role colors (delegue = orange, eco-delegue = green)
+                                  const isDelegate = student?.role === "delegue"
+                                  const isEcoDelegate = student?.role === "eco-delegue"
 
                                   return (
                                     <div
@@ -1588,7 +1596,13 @@ export function SeatingPlanEditor({
                                         "w-14 h-14 border-2 rounded-lg flex items-center justify-center text-sm font-medium cursor-pointer shadow-sm",
                                         "transition-all duration-150 ease-in-out",
                                         student
-                                          ? "bg-emerald-600 text-white border-emerald-700 hover:scale-105 hover:shadow-md"
+                                          ? showEBPStyle
+                                            ? "bg-blue-600 text-white border-blue-700 hover:scale-105 hover:shadow-md" // EBP = Bleu
+                                            : isDelegate
+                                              ? "bg-orange-500 text-white border-orange-600 hover:scale-105 hover:shadow-md" // Délégué = Orange
+                                              : isEcoDelegate
+                                                ? "bg-green-500 text-white border-green-600 hover:scale-105 hover:shadow-md" // Éco-délégué = Vert
+                                                : "bg-emerald-600 text-white border-emerald-700 hover:scale-105 hover:shadow-md" // Élève normal = Emeraude
                                           : isDragTarget
                                             ? "bg-emerald-100 text-emerald-600 border-emerald-400 border-dashed"
                                             : "bg-white text-gray-400 border-gray-200 hover:border-emerald-400 hover:bg-emerald-50",
