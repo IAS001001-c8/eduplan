@@ -1373,7 +1373,19 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
                           />
                         </TableCell>
                       )}
-                      <TableCell className="font-medium">{student.last_name}</TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          {student.last_name}
+                          {/* Badge EBP visible pour profs et VS, pas les délégués */}
+                          {(userRole === "vie-scolaire" || userRole === "professeur") && 
+                           student.special_needs && 
+                           student.special_needs.length > 0 && (
+                            <Badge className="bg-violet-100 text-violet-700 border border-violet-200 text-[10px] px-1.5">
+                              EBP {student.special_needs.length}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>{student.first_name}</TableCell>
                       <TableCell>
                         <Badge variant="secondary" className="text-xs">
