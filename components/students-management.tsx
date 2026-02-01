@@ -306,6 +306,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       last_name: s.last_name,
       email: s.email || null,
       phone: s.phone || null,
+      gender: s.gender || null,
       class_id: excelImportClassId,
       class_name: selectedClass.name,
       role: "eleve",
@@ -313,6 +314,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       establishment_id: establishmentId,
       profile_id: null,
       is_deleted: false,
+      special_needs: [],
     }))
 
     const { error } = await supabase.from("students").insert(studentsToInsert)
