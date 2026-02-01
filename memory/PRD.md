@@ -269,8 +269,11 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 ## À faire (fonctionnalités avancées)
 - [ ] Drag & Drop mobile optimisé (@dnd-kit/core)
 - [ ] Système invitations salles collaboratives avec notifications
-- [ ] Modification de salle en popup (au lieu de page séparée)
 - [ ] Fix warnings React 19 ref (mise à jour Radix UI)
+- [ ] Statistiques vie scolaire dashboard (non dynamiques actuellement)
+- [ ] Historique visuel timeline des propositions dans l'éditeur sandbox
+- [ ] Import Excel complet (`import-excel-dialog.tsx`)
+- [ ] Vue tableau élèves - vérifier fonctionnement complet
 
 ## Base de données
 - URL: https://bdvdrzohbieqeisxwmwh.supabase.co
