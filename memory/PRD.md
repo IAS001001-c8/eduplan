@@ -37,9 +37,12 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - ✅ Calendrier A/B : Vue tableau claire (N°, Période, Type, Mois)
 - ✅ Edit Sub-Room Dialog : Avec onglets (Informations + Créneaux)
 - ✅ Dashboard Professeur : Remplacé "Mes classes" par "Emploi du temps - [Jour]"
-- ✅ CurrentClassPlan : Corrigé affichage élèves et classes
-- ✅ ScheduleTimeline : "Timeline" → "Emploi du temps", taille agrandie
-- ✅ Mode plein écran : Agrandi (max-w-6xl, w-95vw, h-90vh)
+- ✅ CurrentClassPlan : 
+  - Corrigé lecture des élèves depuis table `seating_assignments` (utilise `seat_position`)
+  - Corrigé affichage des classes (utilise `class_ids` + fallback `class_id`)
+  - Mode plein écran **adaptatif** : taille calculée dynamiquement selon l'espace disponible
+  - Affiche le compteur "X/Y élèves placés"
+- ✅ ScheduleTimeline : "Timeline" → "Emploi du temps", taille agrandie (60px/heure, 140px/colonne)
 
 ## Charte Graphique EduPlan - Feb 1, 2026
 
