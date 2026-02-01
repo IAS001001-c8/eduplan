@@ -1388,95 +1388,109 @@ export function SeatingPlanEditor({
               <CardContent className="p-4 space-y-3">
                 <h3 className="font-semibold text-sm mb-4 text-black dark:text-white">Options</h3>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 bg-transparent"
-                  onClick={handleRandomPlacementAll}
-                >
-                  <Shuffle className="mr-2 h-4 w-4" />
-                  Aléatoire
-                </Button>
+                {/* Modification tools - hidden for read-only users */}
+                {!isReadOnly && (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 bg-transparent"
+                      onClick={handleRandomPlacementAll}
+                    >
+                      <Shuffle className="mr-2 h-4 w-4" />
+                      Aléatoire
+                    </Button>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 bg-transparent"
-                  onClick={() => handleAlphabeticalPlacement("asc")}
-                >
-                  <ArrowDownAZ className="mr-2 h-4 w-4" />A → Z
-                </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 bg-transparent"
+                      onClick={() => handleAlphabeticalPlacement("asc")}
+                    >
+                      <ArrowDownAZ className="mr-2 h-4 w-4" />A → Z
+                    </Button>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 bg-transparent"
-                  onClick={() => handleAlphabeticalPlacement("desc")}
-                >
-                  <ArrowUpAZ className="mr-2 h-4 w-4" />Z → A
-                </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 bg-transparent"
+                      onClick={() => handleAlphabeticalPlacement("desc")}
+                    >
+                      <ArrowUpAZ className="mr-2 h-4 w-4" />Z → A
+                    </Button>
 
-                <div className="pt-2 border-t border-gray-200 dark:border-gray-800">
-                  <Label className="text-xs text-gray-600 dark:text-gray-400 mb-2 block">Compléter le plan</Label>
-                  <div key="complete-method-select">
-                    <Select value={completeMethod} onValueChange={(value: any) => setCompleteMethod(value)}>
-                      <SelectTrigger className="w-full border-gray-300 dark:border-gray-700 bg-transparent">
-                        <SelectValue placeholder="Méthode" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem key="complete-random" value="random">
-                          Aléatoire
-                        </SelectItem>
-                        <SelectItem key="complete-asc" value="asc">
-                          A → Z
-                        </SelectItem>
-                        <SelectItem key="complete-desc" value="desc">
-                          Z → A
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="pt-2 border-t border-gray-200 dark:border-gray-800">
+                      <Label className="text-xs text-gray-600 dark:text-gray-400 mb-2 block">Compléter le plan</Label>
+                      <div key="complete-method-select">
+                        <Select value={completeMethod} onValueChange={(value: any) => setCompleteMethod(value)}>
+                          <SelectTrigger className="w-full border-gray-300 dark:border-gray-700 bg-transparent">
+                            <SelectValue placeholder="Méthode" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem key="complete-random" value="random">
+                              Aléatoire
+                            </SelectItem>
+                            <SelectItem key="complete-asc" value="asc">
+                              A → Z
+                            </SelectItem>
+                            <SelectItem key="complete-desc" value="desc">
+                              Z → A
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full mt-2 justify-start border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 bg-transparent"
+                        onClick={handleCompletePlan}
+                      >
+                        <CheckCircle2 className="mr-2 h-4 w-4" />
+                        Compléter
+                      </Button>
+                    </div>
+
+                    <div className="pt-2 border-t border-gray-200 dark:border-gray-800 space-y-2">
+                      <Button
+                        size="sm"
+                        className="w-full justify-start bg-green-400 hover:bg-green-500 text-white"
+                        onClick={handleSave}
+                        disabled={isSaving}
+                      >
+                        <Save className="mr-2 h-4 w-4" />
+                        {isSaving ? "Sauvegarde..." : "Sauvegarder"}
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        className="w-full justify-start bg-red-400 hover:bg-red-500 text-white"
+                        onClick={handleRemoveAll}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Tout retirer
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 bg-transparent"
+                        onClick={handleReset}
+                      >
+                        <RotateCcw className="mr-2 h-4 w-4" />
+                        Réinitialiser
+                      </Button>
+                    </div>
+                  </>
+                )}
+
+                {/* Read-only message for delegates */}
+                {isReadOnly && (
+                  <div className="text-center py-4 text-sm text-muted-foreground">
+                    <Eye className="w-8 h-8 mx-auto mb-2 text-blue-500" />
+                    <p>Mode consultation</p>
+                    <p className="text-xs mt-1">Utilisez le Bac à sable pour proposer des modifications</p>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full mt-2 justify-start border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 bg-transparent"
-                    onClick={handleCompletePlan}
-                  >
-                    <CheckCircle2 className="mr-2 h-4 w-4" />
-                    Compléter
-                  </Button>
-                </div>
-
-                <div className="pt-2 border-t border-gray-200 dark:border-gray-800 space-y-2">
-                  <Button
-                    size="sm"
-                    className="w-full justify-start bg-green-400 hover:bg-green-500 text-white"
-                    onClick={handleSave}
-                    disabled={isSaving}
-                  >
-                    <Save className="mr-2 h-4 w-4" />
-                    {isSaving ? "Sauvegarde..." : "Sauvegarder"}
-                  </Button>
-
-                  <Button
-                    size="sm"
-                    className="w-full justify-start bg-red-400 hover:bg-red-500 text-white"
-                    onClick={handleRemoveAll}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Tout retirer
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 bg-transparent"
-                    onClick={handleReset}
-                  >
-                    <RotateCcw className="mr-2 h-4 w-4" />
-                    Réinitialiser
-                  </Button>
-                </div>
+                )}
 
                 <div className="pt-2 border-t border-gray-200 dark:border-gray-800">
                   <Button
