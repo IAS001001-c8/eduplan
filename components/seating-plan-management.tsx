@@ -716,6 +716,16 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
           itemCount={subRoomsToDelete.length}
           itemType="sous-salle"
         />
+
+        <RenameSubRoomDialog
+          open={isRenameDialogOpen}
+          onOpenChange={setIsRenameDialogOpen}
+          subRoom={subRoomToRename}
+          onSuccess={() => {
+            fetchSubRooms()
+            setSubRoomToRename(null)
+          }}
+        />
       </div>
 
       <Toaster />
