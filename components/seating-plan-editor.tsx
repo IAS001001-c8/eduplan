@@ -1783,7 +1783,7 @@ export function SeatingPlanEditor({
     }
     const currentColumn = room.config.columns[colIndex]
     seatCounter += tableIndex * currentColumn.seatsPerTable
-    seatCounter += seatIndex + 1
+    seatCounter += seatIndex // Removed +1, seatCounter already starts at 1
     return seatCounter
   }
 
