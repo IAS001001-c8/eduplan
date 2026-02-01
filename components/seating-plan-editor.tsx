@@ -1296,7 +1296,7 @@ export function SeatingPlanEditor({
               {isSaving ? "Sauvegarde..." : "Sauvegarder"}
             </Button>
 
-            {isSandbox && userRole === "delegue" && !subRoom.proposal_data?.is_submitted && (
+            {isSandbox && (userRole === "delegue" || userRole === "eco-delegue") && !subRoom.proposal_data?.is_submitted && (
               <Button onClick={handleSubmit} disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700">
                 <Send className="mr-2 h-4 w-4" />
                 {isSubmitting ? "Soumission..." : "Soumettre au professeur"}
