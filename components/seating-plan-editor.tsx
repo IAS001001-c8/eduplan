@@ -1741,6 +1741,35 @@ export function SeatingPlanEditor({
                       </Button>
                     </div>
 
+                    {/* Placement Intelligent EBP - Visible uniquement pour profs/VS */}
+                    {(userRole === "vie-scolaire" || userRole === "professeur") && (
+                      <div className="pt-2 border-t border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-900/20 -mx-3 px-3 py-3 rounded-b-lg">
+                        <Label className="text-xs text-violet-700 dark:text-violet-300 mb-2 block font-medium">
+                          🧠 Placement Intelligent EBP
+                        </Label>
+                        <p className="text-[10px] text-violet-600 dark:text-violet-400 mb-2">
+                          Place automatiquement selon les besoins : vue/audition → 1er rang, TSA → périphérie, mixité garçon/fille
+                        </p>
+                        <Button
+                          size="sm"
+                          className="w-full justify-start bg-violet-600 hover:bg-violet-700 text-white mb-2"
+                          onClick={handleIntelligentPlacement}
+                        >
+                          <Brain className="mr-2 h-4 w-4" />
+                          Placement Intelligent
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full justify-start border-violet-300 dark:border-violet-700 text-violet-700 dark:text-violet-300 hover:bg-violet-100 dark:hover:bg-violet-900/50 bg-transparent"
+                          onClick={handleIntelligentComplete}
+                        >
+                          <Sparkles className="mr-2 h-4 w-4" />
+                          Complétion Intelligente
+                        </Button>
+                      </div>
+                    )}
+
                     <div className="pt-2 border-t border-gray-200 dark:border-gray-800 space-y-2">
                       <Button
                         size="sm"
