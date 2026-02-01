@@ -9,6 +9,35 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - **Email**: Resend (noreply@eduplan-lnc.com) - Désactivé dans l'UI
 - **Auth**: Custom auth avec profils Supabase
 
+## Corrections Feb 1, 2026 (Session 13)
+
+### Renommage des sous-salles ✅
+- Nouveau composant `RenameSubRoomDialog` créé
+- Bouton crayon (icône Pencil) visible au survol des cartes
+- Accessible via vue grille ET vue liste
+- Permissions : vie-scolaire et professeurs uniquement
+- Fichiers modifiés : `seating-plan-management.tsx`, `rename-sub-room-dialog.tsx`
+
+### Restrictions Sandbox pour Délégués ✅
+- Les délégués ne peuvent créer de propositions qu'à partir de sous-salles existantes
+- Message d'information affiché dans le dialogue de création
+- Checkbox "Créer à partir d'une salle physique" masquée pour les délégués
+- `isDelegateOrEco` force `useExistingSubRoom = true`
+- Fichier modifié : `create-proposal-dialog.tsx`
+
+### Plans Retournés Modifiables ✅
+- Badge "À revoir" (orange avec icône RotateCcw) pour les propositions retournées
+- Affichage des commentaires du professeur dans la carte de proposition
+- Section orange avec icône MessageSquare pour les commentaires
+- `handleReturn` met maintenant `is_submitted = false`
+- Bouton "Modifier et resoumettre" stylé en orange
+- Fichiers modifiés : `sandbox-management.tsx`, `review-proposal-dialog.tsx`
+
+### Notifications Délégués ✅
+- Notifications envoyées lors de : validation, refus, renvoi
+- Utilisation de `notifyProposalStatusChange` avec tous les statuts
+- Fichier : `lib/notifications.ts`
+
 ## Corrections Jan 30, 2026 (Session 12)
 
 ### Permissions corrigées ✅
