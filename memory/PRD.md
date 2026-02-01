@@ -9,45 +9,57 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - **Email**: Resend (noreply@eduplan-lnc.com) - Désactivé dans l'UI
 - **Auth**: Custom auth avec profils Supabase (auto-détection du rôle)
 
-## Refonte UX Complète - Feb 1, 2026 (Session 14)
+## Charte Graphique EduPlan - Feb 1, 2026
+
+### Couleurs
+- **Couleur principale** : #E7A541 (orange doré)
+- **Couleur secondaire** : #D9DADC (gris clair)
+- **Couleur texte** : #29282B (noir)
+- **Fond** : #FFFFFF (blanc)
+- **Fond contenu** : #F9F9FA (gris très clair)
+- **Accent** : #FDF6E9 (orange très clair)
+
+### Logo
+- **Fichier** : `/app/public/images/logo-eduplan.png` (sans slogan)
+- **Police** : Insigna (à intégrer)
+
+### PDF & Exports
+- **Identifiants** : `/app/lib/generate-credentials-pdf.ts` - Header orange, boîte credentials orange clair
+- **Plans de classe** : `/app/lib/export-pdf.ts` - Header orange, tableau orange, délégués en orange
+
+## Refonte UX Complète - Feb 1, 2026
+
+### Interface Simplifiée
+- **Dark mode** : Désactivé (toggle supprimé de la top bar)
+- **Vue par défaut** : Tableau (au lieu de cartes) sur toutes les sections
+- **Statistiques élèves** : Supprimées de la section Élèves
+- **Filtres** : Conservés (par rôle et par classe)
 
 ### Nouvelle Page de Connexion ✅
 - **Simplification** : 3 champs seulement (code établissement, identifiant, mot de passe)
 - **Auto-détection du rôle** : Plus besoin de sélectionner le rôle manuellement
-- **Design moderne** : Logo gradient, icônes dans les champs, bouton gradient violet/indigo
-- **Effets visuels** : Fond avec blur coloré subtil, animations d'entrée
+- **Logo** : Nouveau logo EduPlan (sans slogan)
 - **Fichier** : `/app/app/auth/login/page.tsx`
-- **Fonction auth** : `authenticateUserSimple()` dans `/app/lib/custom-auth.ts`
 
-### Nouvelle Architecture Layout ✅
-- **Sidebar persistante** : Navigation fixe à gauche avec menu collapsible
-- **Top bar** : Barre supérieure avec recherche (⌘K), thème, notifications, profil
-- **Composants créés** :
-  - `/app/components/layout/sidebar.tsx` - Sidebar avec navigation par rôle
-  - `/app/components/layout/top-bar.tsx` - Barre supérieure avec actions
-  - `/app/components/layout/dashboard-layout.tsx` - Container principal
+### Sidebar & Top Bar ✅
+- **Logo** : Nouveau logo dans la sidebar
+- **Pas de dark mode** dans la top bar
+- **Notifications** : Badge visible
+- **Profil** : Menu déroulant avec déconnexion
 
-### Tableaux de Bord par Rôle ✅
-**Vie Scolaire** (`/app/components/dashboards/vie-scolaire-dashboard.tsx`) :
-- KPIs animés : Élèves, Professeurs, Salles, Plans de classe
-- Actions rapides : Boutons pour créer rapidement des entrées
-- Section propositions en attente
-- Résumé statistique
+### Fichiers Modifiés
+- `/app/app/globals.css` - Variables CSS avec palette EduPlan
+- `/app/app/auth/login/page.tsx` - Page login avec nouveau logo
+- `/app/components/layout/sidebar.tsx` - Sidebar avec nouveau logo
+- `/app/components/layout/top-bar.tsx` - Sans dark mode toggle
+- `/app/components/students-management.tsx` - Vue tableau par défaut, sans stats
+- `/app/components/rooms-management.tsx` - Vue liste par défaut
+- `/app/components/sandbox-management.tsx` - Vue liste par défaut
+- `/app/components/seating-plan-management.tsx` - Vue liste par défaut
+- `/app/lib/generate-credentials-pdf.ts` - Charte graphique EduPlan
+- `/app/lib/export-pdf.ts` - Charte graphique EduPlan
 
-**Professeur** (`/app/components/dashboards/professeur-dashboard.tsx`) :
-- Vue "Mes classes" avec nombre d'élèves et statut du plan
-- Propositions à valider des délégués
-- Actions contextuelles directes
-
-**Délégué** (`/app/components/dashboards/delegue-dashboard.tsx`) :
-- Carte classe avec gradient (nom, effectif, PP)
-- Compteurs : Validées, En attente, À revoir
-- Liste des propositions avec statuts et commentaires
-- Bouton "Nouvelle proposition" proéminent
-
-### Charte Graphique ✅
-| Rôle | Couleur |
-|------|---------|
+## Corrections Feb 1, 2026 (Session 13)
 | Vie Scolaire | Indigo (#4F46E5) |
 | Professeur | Emerald (#10B981) |
 | Délégué | Sky (#0EA5E9) |
