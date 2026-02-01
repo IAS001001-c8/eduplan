@@ -79,6 +79,7 @@ export function CreateSubRoomDialog({
     selectedClasses: [] as string[],
     isCollaborative: false,
     isMultiClass: false,
+    schedules: [] as ScheduleSlot[],
   })
 
   const supabase = createClient()
