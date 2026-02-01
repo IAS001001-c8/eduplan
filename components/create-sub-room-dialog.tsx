@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import { AlertTriangle } from "lucide-react"
 import { notifyEstablishmentUsers } from "@/lib/notifications"
+import { SubRoomScheduleForm, type ScheduleSlot } from "@/components/sub-room-schedule-form"
 
 interface Teacher {
   id: string
