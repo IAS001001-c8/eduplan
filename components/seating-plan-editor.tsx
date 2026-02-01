@@ -1450,13 +1450,23 @@ export function SeatingPlanEditor({
     const remainingSeats = totalSeats - newAssignments.size
     const shouldSpace = remainingSeats > unassigned.length
     
-    // Toutes les places triées
+    // Toutes les places triées par distance au tableau, puis par numéro
     const allSeatsSorted = Array.from(seatMap.values())
-      .sort((a, b) => a.distanceFromBoard - b.distanceFromBoard)
+      .sort((a, b) => {
+        if (a.distanceFromBoard !== b.distanceFromBoard) {
+          return a.distanceFromBoard - b.distanceFromBoard
+        }
+        return a.seatNumber - b.seatNumber
+      })
     
     const edgeSeats = allSeatsSorted
       .filter(s => s.isEdge)
-      .sort((a, b) => b.distanceFromCenter - a.distanceFromCenter)
+      .sort((a, b) => {
+        if (b.distanceFromCenter !== a.distanceFromCenter) {
+          return b.distanceFromCenter - a.distanceFromCenter
+        }
+        return a.seatNumber - b.seatNumber
+      })
     
     // Catégoriser les non-placés
     const unassignedEBPVision = unassigned.filter(s => hasNeed(s, FRONT_ROW_NEEDS))
