@@ -1204,9 +1204,16 @@ export function SeatingPlanEditor({
     )
     const regularStudents = students.filter(s => !s.special_needs || s.special_needs.length === 0)
     
-    // Toutes les places triées par distance au tableau
+    // Toutes les places triées par distance au tableau, puis par numéro de place
     const allSeatsSorted = Array.from(seatMap.values())
-      .sort((a, b) => a.distanceFromBoard - b.distanceFromBoard)
+      .sort((a, b) => {
+        // D'abord par distance au tableau
+        if (a.distanceFromBoard !== b.distanceFromBoard) {
+          return a.distanceFromBoard - b.distanceFromBoard
+        }
+        // Puis par numéro de place croissant
+        return a.seatNumber - b.seatNumber
+      })
     
     // Places sur les bords, triées par distance du centre (plus loin = mieux pour TSA)
     const edgeSeats = allSeatsSorted
