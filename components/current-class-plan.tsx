@@ -91,31 +91,46 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
       const weekType = weekData?.week_type || "A"
       setCurrentWeekType(weekType)
 
-      // 2. Chercher les sous-salles actives pour ce professeur
-      const { data: schedules, error: scheduleError } = await supabase
-        .from("sub_room_schedules")
+      // 2. Chercher les sous-salles du professeur
+      const { data: subRooms, error: subRoomError } = await supabase
+        .from("sub_rooms")
         .select(`
           id,
-          day_of_week,
-          start_time,
-          end_time,
-          week_type,
-          sub_room_id,
-          sub_rooms!inner (
-            id,
-            name,
-            seat_assignments,
-            teacher_id,
-            is_deleted,
-            room_id,
-            class_id,
-            rooms (name, config),
-            classes (id, name)
-          )
+          name,
+          seat_assignments,
+          teacher_id,
+          is_deleted,
+          room_id,
+          class_id,
+          class_ids,
+          rooms (name, config),
+          classes (id, name)
         `)
+        .eq("teacher_id", teacherId)
+        .eq("is_deleted", false)
+
+      if (subRoomError) {
+        console.error("Error fetching sub_rooms:", subRoomError)
+        setIsLoading(false)
+        return
+      }
+
+      if (!subRooms || subRooms.length === 0) {
+        setActiveSubRoom(null)
+        setIsLoading(false)
+        return
+      }
+
+      // 3. Chercher les créneaux actifs pour ces sous-salles
+      const subRoomIds = subRooms.map(sr => sr.id)
+      
+      const { data: schedules, error: scheduleError } = await supabase
+        .from("sub_room_schedules")
+        .select("*")
+        .in("sub_room_id", subRoomIds)
         .eq("day_of_week", currentDay)
-        .lte("start_time", currentTime)
-        .gte("end_time", currentTime)
+        .lte("start_time", currentTime + ":00")
+        .gte("end_time", currentTime + ":00")
 
       if (scheduleError) {
         console.error("Error fetching schedules:", scheduleError)
@@ -123,13 +138,9 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
         return
       }
 
-      // Filtrer par professeur et type de semaine
+      // Filtrer par type de semaine
       const matchingSchedule = schedules?.find((s: any) => {
-        const subRoom = s.sub_rooms
-        if (!subRoom || subRoom.is_deleted) return false
-        if (subRoom.teacher_id !== teacherId) return false
-        if (s.week_type !== "both" && s.week_type !== weekType) return false
-        return true
+        return s.week_type === "both" || s.week_type === weekType
       })
 
       if (!matchingSchedule) {
@@ -138,31 +149,63 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
         return
       }
 
-      const subRoom = matchingSchedule.sub_rooms as any
+      // Trouver la sous-salle correspondante
+      const subRoom = subRooms.find(sr => sr.id === matchingSchedule.sub_room_id) as any
 
-      // 3. Charger les élèves de la classe
-      if (subRoom.class_id) {
+      if (!subRoom) {
+        setActiveSubRoom(null)
+        setIsLoading(false)
+        return
+      }
+
+      // 4. Charger les élèves de la/des classe(s)
+      // Utiliser class_ids si disponible, sinon class_id
+      const classIds = subRoom.class_ids && subRoom.class_ids.length > 0 
+        ? subRoom.class_ids 
+        : (subRoom.class_id ? [subRoom.class_id] : [])
+
+      if (classIds.length > 0) {
         const { data: classStudents } = await supabase
           .from("students")
           .select("id, first_name, last_name, role")
-          .eq("class_id", subRoom.class_id)
+          .in("class_id", classIds)
           .eq("is_deleted", false)
           .order("last_name")
 
         setStudents(classStudents || [])
-      }
 
-      setActiveSubRoom({
-        id: subRoom.id,
-        name: subRoom.name,
-        roomName: subRoom.rooms?.name || "Salle inconnue",
-        className: subRoom.classes?.name || "Classe inconnue",
-        startTime: matchingSchedule.start_time,
-        endTime: matchingSchedule.end_time,
-        weekType: matchingSchedule.week_type,
-        seatAssignments: subRoom.seat_assignments || {},
-        roomConfig: subRoom.rooms?.config || { columns: [] },
-      })
+        // Obtenir le nom de la classe
+        const { data: classData } = await supabase
+          .from("classes")
+          .select("name")
+          .in("id", classIds)
+        
+        const classNames = classData?.map(c => c.name).join(", ") || "Classe"
+
+        setActiveSubRoom({
+          id: subRoom.id,
+          name: subRoom.name,
+          roomName: subRoom.rooms?.name || "Salle",
+          className: classNames,
+          startTime: matchingSchedule.start_time?.slice(0, 5) || "",
+          endTime: matchingSchedule.end_time?.slice(0, 5) || "",
+          weekType: matchingSchedule.week_type,
+          seatAssignments: subRoom.seat_assignments || {},
+          roomConfig: subRoom.rooms?.config || { columns: [] },
+        })
+      } else {
+        setActiveSubRoom({
+          id: subRoom.id,
+          name: subRoom.name,
+          roomName: subRoom.rooms?.name || "Salle",
+          className: subRoom.classes?.name || "Classe",
+          startTime: matchingSchedule.start_time?.slice(0, 5) || "",
+          endTime: matchingSchedule.end_time?.slice(0, 5) || "",
+          weekType: matchingSchedule.week_type,
+          seatAssignments: subRoom.seat_assignments || {},
+          roomConfig: subRoom.rooms?.config || { columns: [] },
+        })
+      }
     } catch (error) {
       console.error("Error:", error)
     } finally {
@@ -193,18 +236,18 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
                     <div
                       key={seatIndex}
                       className={cn(
-                        "w-6 h-6 rounded text-[6px] flex items-center justify-center truncate",
+                        "w-8 h-8 rounded text-[8px] flex items-center justify-center truncate font-medium",
                         student
                           ? student.role === "delegue"
                             ? "bg-[#E7A541] text-white"
                             : student.role === "eco-delegue"
                             ? "bg-green-500 text-white"
-                            : "bg-[#D9DADC] text-[#29282B]"
-                          : "bg-[#F5F5F6] border border-[#D9DADC]"
+                            : "bg-[#29282B] text-white"
+                          : "bg-[#F5F5F6] border border-[#D9DADC] text-[#29282B]/30"
                       )}
-                      title={student ? `${student.first_name} ${student.last_name}` : "Vide"}
+                      title={student ? `${student.first_name} ${student.last_name}` : `Place ${currentSeat}`}
                     >
-                      {student ? student.last_name.slice(0, 3) : ""}
+                      {student ? student.last_name.slice(0, 4) : currentSeat}
                     </div>
                   )
                 })}
@@ -225,18 +268,18 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
     let seatNumber = 1
 
     return (
-      <div className="p-8">
+      <div className="p-6">
         {/* Tableau */}
-        <div className="w-full max-w-2xl mx-auto h-10 bg-[#E7A541] rounded-lg flex items-center justify-center mb-8">
-          <span className="text-white font-medium">TABLEAU</span>
+        <div className="w-full max-w-4xl mx-auto h-14 bg-[#E7A541] rounded-xl flex items-center justify-center mb-10 shadow-lg">
+          <span className="text-white font-bold text-lg tracking-wide">TABLEAU</span>
         </div>
 
         {/* Places */}
-        <div className="flex gap-6 justify-center">
+        <div className="flex gap-8 justify-center">
           {columns.map((column: any, colIndex: number) => (
-            <div key={colIndex} className="flex flex-col gap-2">
+            <div key={colIndex} className="flex flex-col gap-3">
               {Array.from({ length: column.tables || 0 }).map((_, tableIndex) => (
-                <div key={tableIndex} className="flex gap-1">
+                <div key={tableIndex} className="flex gap-2">
                   {Array.from({ length: column.seatsPerTable || 2 }).map((_, seatIndex) => {
                     const currentSeat = seatNumber++
                     const studentId = activeSubRoom.seatAssignments[currentSeat.toString()]
@@ -246,27 +289,35 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
                       <div
                         key={seatIndex}
                         className={cn(
-                          "w-24 h-16 rounded-lg flex flex-col items-center justify-center p-1",
+                          "w-32 h-20 rounded-xl flex flex-col items-center justify-center p-2 shadow-md transition-all",
                           student
                             ? student.role === "delegue"
                               ? "bg-[#E7A541] text-white"
                               : student.role === "eco-delegue"
                               ? "bg-green-500 text-white"
-                              : "bg-[#D9DADC] text-[#29282B]"
-                            : "bg-[#F5F5F6] border border-[#D9DADC]"
+                              : "bg-[#29282B] text-white"
+                            : "bg-[#F5F5F6] border-2 border-dashed border-[#D9DADC]"
                         )}
                       >
                         {student ? (
                           <>
-                            <span className="text-xs font-semibold truncate w-full text-center">
+                            <span className="text-sm font-bold truncate w-full text-center">
                               {student.last_name}
                             </span>
-                            <span className="text-[10px] truncate w-full text-center opacity-80">
+                            <span className="text-xs truncate w-full text-center opacity-80">
                               {student.first_name}
                             </span>
+                            {student.role && (
+                              <Badge className={cn(
+                                "mt-1 text-[10px] px-2",
+                                student.role === "delegue" ? "bg-white/20" : "bg-white/20"
+                              )}>
+                                {student.role === "delegue" ? "Délégué" : "Éco-délégué"}
+                              </Badge>
+                            )}
                           </>
                         ) : (
-                          <span className="text-xs text-[#29282B]/40">{currentSeat}</span>
+                          <span className="text-sm text-[#29282B]/30 font-medium">{currentSeat}</span>
                         )}
                       </div>
                     )
@@ -275,6 +326,26 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
               ))}
             </div>
           ))}
+        </div>
+
+        {/* Légende */}
+        <div className="flex items-center justify-center gap-6 mt-10 pt-6 border-t border-[#D9DADC]">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded bg-[#29282B]" />
+            <span className="text-sm text-[#29282B]">Élève</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded bg-[#E7A541]" />
+            <span className="text-sm text-[#29282B]">Délégué</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded bg-green-500" />
+            <span className="text-sm text-[#29282B]">Éco-délégué</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded bg-[#F5F5F6] border-2 border-dashed border-[#D9DADC]" />
+            <span className="text-sm text-[#29282B]">Place vide</span>
+          </div>
         </div>
       </div>
     )
@@ -290,15 +361,15 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
 
   return (
     <>
-      <Card className="border-[#D9DADC] bg-gradient-to-r from-[#FDF6E9] to-white">
+      <Card className="border-[#E7A541] bg-gradient-to-r from-[#FDF6E9] to-white shadow-lg">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-[#E7A541]">
-                <Clock className="h-5 w-5 text-white" />
+              <div className="p-3 rounded-xl bg-[#E7A541] shadow-md">
+                <Clock className="h-6 w-6 text-white" />
               </div>
               <div>
-                <CardTitle className="text-lg text-[#29282B]">Cours en cours</CardTitle>
+                <CardTitle className="text-xl text-[#29282B]">Cours en cours</CardTitle>
                 <p className="text-sm text-[#29282B]/60">
                   {activeSubRoom.startTime} - {activeSubRoom.endTime}
                   {activeSubRoom.weekType !== "both" && (
@@ -313,12 +384,10 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
               </div>
             </div>
             <Button
-              variant="outline"
-              size="sm"
               onClick={() => setIsFullscreen(true)}
-              className="border-[#E7A541] text-[#E7A541] hover:bg-[#FDF6E9]"
+              className="bg-[#E7A541] hover:bg-[#D4933A] text-white shadow-md"
             >
-              <Maximize2 className="h-4 w-4 mr-1" />
+              <Maximize2 className="h-4 w-4 mr-2" />
               Plein écran
             </Button>
           </div>
@@ -326,16 +395,17 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
         <CardContent>
           <div className="flex items-start gap-6">
             {/* Infos */}
-            <div className="space-y-2">
+            <div className="space-y-3 min-w-[200px]">
               <div className="flex items-center gap-2 text-sm">
-                <MapPin className="h-4 w-4 text-[#29282B]/50" />
-                <span className="text-[#29282B]">{activeSubRoom.roomName}</span>
+                <MapPin className="h-4 w-4 text-[#E7A541]" />
+                <span className="text-[#29282B] font-medium">{activeSubRoom.roomName}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <Users className="h-4 w-4 text-[#29282B]/50" />
-                <span className="text-[#29282B]">{activeSubRoom.className}</span>
+                <Users className="h-4 w-4 text-[#E7A541]" />
+                <span className="text-[#29282B] font-medium">{activeSubRoom.className}</span>
               </div>
-              <p className="text-lg font-semibold text-[#29282B]">{activeSubRoom.name}</p>
+              <p className="text-lg font-bold text-[#29282B] mt-2">{activeSubRoom.name}</p>
+              <p className="text-sm text-[#29282B]/60">{students.length} élèves</p>
             </div>
 
             {/* Mini plan */}
@@ -346,19 +416,19 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
         </CardContent>
       </Card>
 
-      {/* Dialog plein écran */}
+      {/* Dialog plein écran - AGRANDI */}
       <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
-        <DialogContent className="max-w-4xl h-[90vh] overflow-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-6xl w-[95vw] h-[90vh] overflow-auto">
+          <DialogHeader className="border-b border-[#D9DADC] pb-4">
             <DialogTitle className="flex items-center gap-4 text-[#29282B]">
-              <span className="text-xl">{activeSubRoom.name}</span>
-              <Badge className="bg-[#FDF6E9] text-[#E7A541] border border-[#E7A541]/20">
+              <span className="text-2xl font-bold">{activeSubRoom.name}</span>
+              <Badge className="bg-[#FDF6E9] text-[#E7A541] border border-[#E7A541]/20 text-sm px-3 py-1">
                 {activeSubRoom.roomName}
               </Badge>
-              <Badge className="bg-[#F5F5F6] text-[#29282B]">
+              <Badge className="bg-[#F5F5F6] text-[#29282B] text-sm px-3 py-1">
                 {activeSubRoom.className}
               </Badge>
-              <span className="text-sm text-[#29282B]/60 ml-auto">
+              <span className="text-base text-[#29282B]/60 ml-auto">
                 {activeSubRoom.startTime} - {activeSubRoom.endTime}
               </span>
             </DialogTitle>
