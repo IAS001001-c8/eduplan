@@ -13,30 +13,30 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 
 ### État d'implémentation
 - ✅ **Frontend** : Composants UI créés et intégrés
-- ⏳ **Base de données** : Script SQL prêt, en attente d'exécution par l'utilisateur
+- ✅ **Tables DB** : Script exécuté par l'utilisateur
+- ⚠️ **RLS Policies** : Script de correction à exécuter (`/app/scripts/fix_rls_policies.sql`)
 
-### Script SQL à exécuter
-**Fichier** : `/app/scripts/add_schedules_tables.sql`
+### Scripts SQL
+1. **Tables créées** : `/app/scripts/add_schedules_tables.sql` ✅
+2. **Correction RLS** : `/app/scripts/fix_rls_policies.sql` ⏳ À EXÉCUTER
 
-Tables créées :
-1. `establishment_settings` - Paramètres établissement (timezone, etc.)
-2. `week_ab_calendar` - Calendrier des semaines A/B (52 semaines par année scolaire)
-3. `sub_room_schedules` - Créneaux horaires des sous-salles
+### Composants Frontend Implémentés
+| Composant | Fichier | Description | Status |
+|-----------|---------|-------------|--------|
+| Réglages Établissement | `establishment-settings.tsx` | Gestion timezone + Semaines A/B | ✅ |
+| Calendrier A/B | `week-ab-calendar.tsx` | Vue tableau 52 semaines (refait) | ✅ |
+| Formulaire Créneaux | `sub-room-schedule-form.tsx` | Ajout de créneaux | ✅ |
+| Edit Sub-Room | `edit-sub-room-dialog.tsx` | Modifier nom + créneaux (NEW) | ✅ |
+| Plan de Classe Actuel | `current-class-plan.tsx` | Dashboard professeur | ✅ |
+| Vue Timeline | `schedule-timeline.tsx` | Emploi du temps hebdomadaire | ✅ |
+| Composant Tabs UI | `components/ui/tabs.tsx` | Onglets pour dialogues (NEW) | ✅ |
 
-### Composants Frontend Créés
-| Composant | Fichier | Description |
-|-----------|---------|-------------|
-| Paramètres Établissement | `establishment-settings.tsx` | Gestion timezone + Semaines A/B |
-| Calendrier A/B | `week-ab-calendar.tsx` | Grille 52 semaines avec couleurs |
-| Formulaire Créneaux | `sub-room-schedule-form.tsx` | Ajout de créneaux dans sous-salles |
-| Plan de Classe Actuel | `current-class-plan.tsx` | Dashboard professeur (placeholder) |
-| Vue Timeline | `schedule-timeline.tsx` | Emploi du temps hebdomadaire (placeholder) |
-
-### Intégrations Effectuées
-- ✅ Section "Paramètres" dans sidebar vie-scolaire
-- ✅ Formulaire de création de sous-salle avec créneaux horaires
-- ✅ Vue calendrier A/B accessible depuis paramètres
-- ✅ Correction logique conditionnelle dans `seating-plan-management.tsx`
+### Modifications Effectuées (Session Actuelle)
+- ✅ Sidebar : "Paramètres" renommé en "Réglages A/B" pour éviter confusion avec "Paramètres" du footer
+- ✅ Calendrier A/B : Refait avec vue tableau claire (N°, Période, Type, Mois)
+- ✅ Edit Sub-Room Dialog : Nouveau composant avec onglets (Informations + Créneaux)
+- ✅ Correction logique de rendu grid/list/timeline dans `seating-plan-management.tsx`
+- ✅ Intégration du formulaire de créneaux dans création et édition de sous-salles
 
 ## Charte Graphique EduPlan - Feb 1, 2026
 
