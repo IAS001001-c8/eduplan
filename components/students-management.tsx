@@ -1511,8 +1511,16 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
                           />
                         )}
                         <div className="space-y-1">
-                          <CardTitle className="text-lg">
+                          <CardTitle className="text-lg flex items-center gap-2">
                             {student.first_name} {student.last_name}
+                            {/* Badge EBP visible pour profs et VS, pas les délégués */}
+                            {(userRole === "vie-scolaire" || userRole === "professeur") && 
+                             student.special_needs && 
+                             student.special_needs.length > 0 && (
+                              <Badge className="bg-violet-100 text-violet-700 border border-violet-200 text-[10px] px-1.5">
+                                EBP {student.special_needs.length}
+                              </Badge>
+                            )}
                           </CardTitle>
                           <CardDescription className="flex items-center gap-2">
                             {student.classes?.name && (
