@@ -297,7 +297,8 @@ export function CreateProposalDialog({
             </div>
           )}
 
-          {useExistingSubRoom ? (
+          {/* Sub-room selection - always shown for delegates, optional for others */}
+          {(isDelegateOrEco || useExistingSubRoom) && (
             <div className="space-y-2">
               <Label htmlFor="subroom">Sous-salle de référence</Label>
               <Select
@@ -316,7 +317,7 @@ export function CreateProposalDialog({
                 <SelectContent>
                   {subRooms.length === 0 ? (
                     <div className="p-2 text-sm text-muted-foreground">
-                      {selectedTeacherId ? "Aucune sous-salle disponible" : "Sélectionnez un professeur"}
+                      {selectedTeacherId ? "Aucune sous-salle disponible pour ce professeur" : "Sélectionnez un professeur"}
                     </div>
                   ) : (
                     subRooms.map((subRoom) => (
@@ -331,7 +332,10 @@ export function CreateProposalDialog({
                 Le plan actuel de cette sous-salle sera repris. Une fois validé, il remplacera la sous-salle d'origine.
               </p>
             </div>
-          ) : (
+          )}
+          
+          {/* Physical room selection - ONLY for non-delegates when not using existing sub-room */}
+          {!isDelegateOrEco && !useExistingSubRoom && (
             <div className="space-y-2">
               <Label htmlFor="room">Salle physique</Label>
               <Select value={selectedRoomId} onValueChange={setSelectedRoomId} required>
