@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
-import { ArrowLeft, Plus, Search, Users, BookOpen, Trash2, LayoutGrid, ChevronRight, MoreVertical, Eye, Edit, Pencil } from "lucide-react"
+import { ArrowLeft, Plus, Search, Users, BookOpen, Trash2, LayoutGrid, ChevronRight, MoreVertical, Eye, Edit, Pencil, Calendar } from "lucide-react"
 import type { UserRole } from "@/lib/types"
 import { SeatingPlanEditor } from "@/components/seating-plan-editor"
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
@@ -16,6 +16,7 @@ import { CreateSubRoomDialog } from "./create-sub-room-dialog"
 import { ViewToggle } from "@/components/view-toggle"
 import { RoomSeatPreview } from "@/components/room-seat-preview"
 import { RenameSubRoomDialog } from "@/components/rename-sub-room-dialog"
+import { ScheduleTimeline } from "@/components/schedule-timeline"
 
 interface Room {
   id: string
