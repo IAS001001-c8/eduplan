@@ -1175,9 +1175,9 @@ export function SeatingPlanEditor({
     
     // 4. PRIORITÉ 4: Élèves réguliers avec mixité garçon/fille
     const unplacedRegular = regularStudents.filter(s => !placedStudents.has(s.id))
-    const boys = unplacedRegular.filter(s => (s as any).gender === 1)
-    const girls = unplacedRegular.filter(s => (s as any).gender === 2)
-    const others = unplacedRegular.filter(s => !(s as any).gender || (s as any).gender === 3)
+    const boys = unplacedRegular.filter(s => s.gender === 1)
+    const girls = unplacedRegular.filter(s => s.gender === 2)
+    const others = unplacedRegular.filter(s => !s.gender || s.gender === 3)
     
     // Alterner garçon/fille autant que possible
     const mixedOrder: Student[] = []
