@@ -622,9 +622,24 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
                     </span>
                   </td>
                   <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
-                    <Button variant="ghost" size="sm" onClick={() => { setSelectedSubRoom(subRoom); setIsEditorOpen(true) }}>
-                      <Eye className="h-4 w-4" />
-                    </Button>
+                    <div className="flex justify-end gap-1">
+                      {(isVieScolaire || isTeacher) && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => { 
+                            setSubRoomToRename(subRoom)
+                            setIsRenameDialogOpen(true) 
+                          }}
+                          title="Renommer"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
+                      <Button variant="ghost" size="sm" onClick={() => { setSelectedSubRoom(subRoom); setIsEditorOpen(true) }}>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
