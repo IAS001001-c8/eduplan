@@ -129,25 +129,40 @@ export function CreateProposalDialog({
 
   async function fetchSubRooms() {
     try {
+      // Get teacher's profile_id to find sub-rooms they created or are assigned to
       const { data: teacherData } = await supabase
         .from("teachers")
         .select("profile_id")
         .eq("id", selectedTeacherId)
         .single()
 
-      if (!teacherData) return
+      if (!teacherData) {
+        console.log("[CreateProposal] Teacher not found for id:", selectedTeacherId)
+        setSubRooms([])
+        return
+      }
 
-      const { data: subRoomsData } = await supabase
+      // Fetch sub-rooms that:
+      // 1. Belong to the selected teacher (teacher_id matches)
+      // 2. Contain the delegate's class (class_ids contains classId)
+      const { data: subRoomsData, error } = await supabase
         .from("sub_rooms")
         .select("id, name, seat_assignments, room_id")
+        .eq("teacher_id", selectedTeacherId)
         .contains("class_ids", [classId])
-        .or(`created_by.eq.${teacherData.profile_id},teacher_id.eq.${selectedTeacherId}`)
         .order("name")
 
-      if (subRoomsData) {
-        setSubRooms(subRoomsData)
+      if (error) {
+        console.error("[CreateProposal] Error fetching sub-rooms:", error)
+        setSubRooms([])
+        return
       }
+
+      console.log("[CreateProposal] Found", subRoomsData?.length || 0, "sub-rooms for teacher", selectedTeacherId)
+      setSubRooms(subRoomsData || [])
     } catch (error) {
+      console.error("[CreateProposal] Exception:", error)
+      setSubRooms([])
     }
   }
 
