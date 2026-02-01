@@ -1229,9 +1229,20 @@ export function SeatingPlanEditor({
         }
       }
       
-      // Fallback: n'importe quelle place au premier rang
+      // Fallback 1: n'importe quelle place au premier rang
       if (!placedStudents.has(student.id)) {
         for (const seatInfo of frontRowSeats) {
+          if (!newAssignments.has(seatInfo.seatNumber)) {
+            newAssignments.set(seatInfo.seatNumber, student.id)
+            placedStudents.add(student.id)
+            break
+          }
+        }
+      }
+      
+      // Fallback 2: n'importe quelle place libre (comme élève normal)
+      if (!placedStudents.has(student.id)) {
+        for (const seatInfo of allSeatsSorted) {
           if (!newAssignments.has(seatInfo.seatNumber)) {
             newAssignments.set(seatInfo.seatNumber, student.id)
             placedStudents.add(student.id)
