@@ -35,6 +35,8 @@ interface Proposal {
   seat_assignments?: any[]
   comments?: string
   teacher_comments?: string
+  proposed_by: string
+  establishment_id?: string
   rooms: { name: string; code: string }
   classes: { name: string }
   teachers: { first_name: string; last_name: string }
