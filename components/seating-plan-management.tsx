@@ -101,7 +101,7 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
   const [subRoomsToDelete, setSubRoomsToDelete] = useState<string[]>([])
 
   const [currentUserRecord, setCurrentUserRecord] = useState<any>(null)
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list")
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
   const [subRoomToRename, setSubRoomToRename] = useState<SubRoom | null>(null)
 
