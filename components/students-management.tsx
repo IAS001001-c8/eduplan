@@ -166,7 +166,9 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
     last_name: "",
     email: "",
     phone: "",
-    can_create_subrooms: false, // Added can_create_subrooms to editData
+    can_create_subrooms: false,
+    gender: "" as "" | "1" | "2" | "3",
+    special_needs: [] as string[],
   })
 
   useEffect(() => {
