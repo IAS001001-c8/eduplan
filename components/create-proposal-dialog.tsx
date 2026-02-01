@@ -46,13 +46,16 @@ export function CreateProposalDialog({
   onOpenChange,
   establishmentId,
   userId,
+  userRole,
   onSuccess,
 }: CreateProposalDialogProps) {
   const [name, setName] = useState("")
   const [selectedRoomId, setSelectedRoomId] = useState("")
   const [selectedSubRoomId, setSelectedSubRoomId] = useState("")
   const [selectedTeacherId, setSelectedTeacherId] = useState("")
-  const [useExistingSubRoom, setUseExistingSubRoom] = useState(false)
+  // Delegates must use existing sub-rooms, not physical rooms
+  const isDelegateOrEco = userRole === "delegue" || userRole === "eco-delegue"
+  const [useExistingSubRoom, setUseExistingSubRoom] = useState(isDelegateOrEco)
   const [rooms, setRooms] = useState<Room[]>([])
   const [subRooms, setSubRooms] = useState<SubRoom[]>([])
   const [teachers, setTeachers] = useState<Teacher[]>([])
