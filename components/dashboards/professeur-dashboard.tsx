@@ -8,12 +8,10 @@ import { createClient } from "@/lib/supabase/client"
 import {
   Users,
   LayoutGrid,
-  Lightbulb,
   ArrowRight,
   Clock,
   CheckCircle2,
   Eye,
-  RotateCcw,
   BookOpen,
 } from "lucide-react"
 import { motion } from "framer-motion"
@@ -68,7 +66,6 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
     const supabase = createClient()
 
     try {
-      // Get teacher record
       const { data: teacherData } = await supabase
         .from("teachers")
         .select("id")
@@ -80,7 +77,6 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
         return
       }
 
-      // Get teacher's classes
       const { data: teacherClasses } = await supabase
         .from("teacher_classes")
         .select("class_id, classes(id, name)")
@@ -113,7 +109,6 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
         setClasses(classInfos)
       }
 
-      // Get pending proposals
       const { data: proposals } = await supabase
         .from("sub_room_proposals")
         .select(`
@@ -150,12 +145,12 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-20 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+        <div className="h-20 bg-[#F5F5F6] rounded animate-pulse" />
         <div className="grid gap-4 md:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <Card key={i} className="animate-pulse">
+            <Card key={i} className="animate-pulse border-[#D9DADC]">
               <CardContent className="p-6">
-                <div className="h-24 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-24 bg-[#F5F5F6] rounded" />
               </CardContent>
             </Card>
           ))}
@@ -175,10 +170,10 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
       <motion.div variants={itemVariants}>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-bold text-[#29282B]">
               Bonjour, {userName}
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-[#29282B]/60 mt-1">
               {classes.length} classe{classes.length > 1 ? "s" : ""} • {pendingProposals.length} proposition{pendingProposals.length > 1 ? "s" : ""} en attente
             </p>
           </div>
@@ -188,8 +183,8 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
       {/* Classes Grid */}
       <motion.div variants={itemVariants}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Mes classes</h2>
-          <Button variant="ghost" size="sm" onClick={() => onNavigate("students")}>
+          <h2 className="text-lg font-semibold text-[#29282B]">Mes classes</h2>
+          <Button variant="ghost" size="sm" onClick={() => onNavigate("students")} className="text-[#E7A541] hover:text-[#D4933A] hover:bg-[#FDF6E9]">
             Voir tous les élèves
             <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
@@ -198,40 +193,40 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
           {classes.map((cls) => (
             <Card
               key={cls.id}
-              className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:-translate-y-1 border-0 shadow-sm"
+              className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:-translate-y-1 border-[#D9DADC] bg-white"
               onClick={() => onNavigate("seating-plan")}
             >
               <CardContent className="p-5">
                 <div className="flex items-start justify-between mb-3">
-                  <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900">
-                    <BookOpen className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                  <div className="p-2 rounded-lg bg-[#FDF6E9]">
+                    <BookOpen className="h-5 w-5 text-[#E7A541]" />
                   </div>
                   {cls.hasSubRoom ? (
-                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+                    <Badge className="bg-green-50 text-green-700 border border-green-200 hover:bg-green-50">
                       <CheckCircle2 className="w-3 h-3 mr-1" />
                       Plan créé
                     </Badge>
                   ) : (
-                    <Badge variant="secondary" className="bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                    <Badge className="bg-[#F5F5F6] text-[#29282B]/60 border border-[#D9DADC] hover:bg-[#F5F5F6]">
                       Pas de plan
                     </Badge>
                   )}
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{cls.name}</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                <h3 className="text-lg font-semibold text-[#29282B]">{cls.name}</h3>
+                <p className="text-sm text-[#29282B]/60 mt-1">
                   {cls.studentCount} élève{cls.studentCount > 1 ? "s" : ""}
                 </p>
-                <Button variant="outline" size="sm" className="mt-3 w-full">
+                <Button variant="outline" size="sm" className="mt-3 w-full border-[#D9DADC] hover:border-[#E7A541] hover:bg-[#FDF6E9] text-[#29282B]">
                   {cls.hasSubRoom ? "Voir le plan" : "Créer un plan"}
                 </Button>
               </CardContent>
             </Card>
           ))}
           {classes.length === 0 && (
-            <Card className="md:col-span-3">
+            <Card className="md:col-span-3 border-[#D9DADC]">
               <CardContent className="py-12 text-center">
-                <BookOpen className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-500">Aucune classe assignée</p>
+                <BookOpen className="h-12 w-12 text-[#D9DADC] mx-auto mb-3" />
+                <p className="text-[#29282B]/60">Aucune classe assignée</p>
               </CardContent>
             </Card>
           )}
@@ -240,14 +235,14 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
 
       {/* Pending Proposals */}
       <motion.div variants={itemVariants}>
-        <Card className="border-0 shadow-sm">
+        <Card className="border-[#D9DADC] bg-white">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-lg font-semibold">Propositions à valider</CardTitle>
-                <CardDescription>Propositions soumises par les délégués</CardDescription>
+                <CardTitle className="text-lg font-semibold text-[#29282B]">Propositions à valider</CardTitle>
+                <CardDescription className="text-[#29282B]/60">Propositions soumises par les délégués</CardDescription>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => onNavigate("sandbox")}>
+              <Button variant="ghost" size="sm" onClick={() => onNavigate("sandbox")} className="text-[#E7A541] hover:text-[#D4933A] hover:bg-[#FDF6E9]">
                 Voir tout
                 <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
@@ -259,22 +254,22 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
                 {pendingProposals.map((proposal) => (
                   <div
                     key={proposal.id}
-                    className="flex items-center gap-4 p-4 rounded-lg bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 cursor-pointer hover:bg-orange-100 dark:hover:bg-orange-950/50 transition-colors"
+                    className="flex items-center gap-4 p-4 rounded-lg bg-[#FDF6E9] border border-[#E7A541]/20 cursor-pointer hover:bg-[#FCF0DD] transition-colors"
                     onClick={() => onNavigate("sandbox")}
                   >
-                    <div className="p-2 rounded-full bg-orange-100 dark:bg-orange-900">
-                      <Clock className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                    <div className="p-2 rounded-full bg-[#E7A541]/20">
+                      <Clock className="h-4 w-4 text-[#E7A541]" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
+                      <p className="text-sm font-medium text-[#29282B] truncate">
                         {proposal.name}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                      <p className="text-xs text-[#29282B]/60">
                         {proposal.className} • Par {proposal.proposedBy}
                       </p>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="h-8">
+                      <Button size="sm" variant="outline" className="h-8 border-[#D9DADC] hover:border-[#E7A541] hover:bg-[#FDF6E9]">
                         <Eye className="h-3 w-3 mr-1" />
                         Voir
                       </Button>
@@ -284,9 +279,9 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
               </div>
             ) : (
               <div className="text-center py-8">
-                <CheckCircle2 className="h-12 w-12 text-emerald-500 mx-auto mb-3" />
-                <p className="text-sm font-medium text-slate-900 dark:text-white">Tout est à jour !</p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-3" />
+                <p className="text-sm font-medium text-[#29282B]">Tout est à jour !</p>
+                <p className="text-sm text-[#29282B]/60">
                   Aucune proposition en attente de validation
                 </p>
               </div>
