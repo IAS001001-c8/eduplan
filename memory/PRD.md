@@ -9,6 +9,35 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - **Email**: Resend (noreply@eduplan-lnc.com) - Désactivé dans l'UI
 - **Auth**: Custom auth avec profils Supabase (auto-détection du rôle)
 
+## Fonctionnalité Créneaux Horaires & Semaines A/B - Feb 1, 2026
+
+### État d'implémentation
+- ✅ **Frontend** : Composants UI créés et intégrés
+- ⏳ **Base de données** : Script SQL prêt, en attente d'exécution par l'utilisateur
+
+### Script SQL à exécuter
+**Fichier** : `/app/scripts/add_schedules_tables.sql`
+
+Tables créées :
+1. `establishment_settings` - Paramètres établissement (timezone, etc.)
+2. `week_ab_calendar` - Calendrier des semaines A/B (52 semaines par année scolaire)
+3. `sub_room_schedules` - Créneaux horaires des sous-salles
+
+### Composants Frontend Créés
+| Composant | Fichier | Description |
+|-----------|---------|-------------|
+| Paramètres Établissement | `establishment-settings.tsx` | Gestion timezone + Semaines A/B |
+| Calendrier A/B | `week-ab-calendar.tsx` | Grille 52 semaines avec couleurs |
+| Formulaire Créneaux | `sub-room-schedule-form.tsx` | Ajout de créneaux dans sous-salles |
+| Plan de Classe Actuel | `current-class-plan.tsx` | Dashboard professeur (placeholder) |
+| Vue Timeline | `schedule-timeline.tsx` | Emploi du temps hebdomadaire (placeholder) |
+
+### Intégrations Effectuées
+- ✅ Section "Paramètres" dans sidebar vie-scolaire
+- ✅ Formulaire de création de sous-salle avec créneaux horaires
+- ✅ Vue calendrier A/B accessible depuis paramètres
+- ✅ Correction logique conditionnelle dans `seating-plan-management.tsx`
+
 ## Charte Graphique EduPlan - Feb 1, 2026
 
 ### Couleurs
