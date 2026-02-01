@@ -130,6 +130,17 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
   }
 
   const getStatusBadge = (proposal: Proposal) => {
+    // "returned" status means the proposal was sent back for revision (is_submitted becomes false again)
+    // Check for teacher_comments to identify returned proposals
+    if (!proposal.is_submitted && proposal.teacher_comments) {
+      return (
+        <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-300">
+          <RotateCcw className="w-3 h-3 mr-1" />
+          À revoir
+        </Badge>
+      )
+    }
+    
     if (!proposal.is_submitted) {
       return (
         <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-300">
