@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { School, User, Lock, ArrowRight, Loader2 } from "lucide-react"
+import Image from "next/image"
 
 export default function LoginPage() {
   const [establishmentCode, setEstablishmentCode] = useState("")
@@ -67,13 +68,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-indigo-100 dark:bg-indigo-900/20 rounded-full blur-3xl opacity-50" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-100 dark:bg-emerald-900/20 rounded-full blur-3xl opacity-50" />
-      </div>
-
+    <div className="flex min-h-screen w-full items-center justify-center p-6 bg-white">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -87,17 +82,27 @@ export default function LoginPage() {
           transition={{ delay: 0.1, duration: 0.5 }}
           className="text-center mb-8"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg mb-4">
-            <span className="text-2xl font-bold text-white">E</span>
+          <div className="flex justify-center mb-4">
+            <Image
+              src="/images/logo-edu-plan-remove.png"
+              alt="EduPlan Logo"
+              width={180}
+              height={60}
+              priority
+              className="h-auto"
+            />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">EduPlan</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Une école. Un Plan.</p>
+          <p className="text-sm text-[#29282B]/60 mt-2" style={{ fontFamily: 'Insigna, sans-serif' }}>
+            Une école. Un Plan.
+          </p>
         </motion.div>
 
-        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
+        <Card className="border border-[#D9DADC] shadow-lg bg-white">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-xl font-semibold text-center">Connexion</CardTitle>
-            <CardDescription className="text-center">
+            <CardTitle className="text-xl font-semibold text-center text-[#29282B]">
+              Connexion
+            </CardTitle>
+            <CardDescription className="text-center text-[#29282B]/60">
               Connectez-vous à votre espace
             </CardDescription>
           </CardHeader>
@@ -112,15 +117,15 @@ export default function LoginPage() {
               >
                 <Label 
                   htmlFor="establishmentCode" 
-                  className={`text-sm font-medium transition-colors ${
-                    focusedField === "establishment" ? "text-indigo-600 dark:text-indigo-400" : ""
+                  className={`text-sm font-medium transition-colors text-[#29282B] ${
+                    focusedField === "establishment" ? "text-[#E7A541]" : ""
                   }`}
                 >
                   Code établissement
                 </Label>
                 <div className="relative">
                   <School className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors ${
-                    focusedField === "establishment" ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"
+                    focusedField === "establishment" ? "text-[#E7A541]" : "text-[#29282B]/40"
                   }`} />
                   <Input
                     id="establishmentCode"
@@ -130,7 +135,7 @@ export default function LoginPage() {
                     onChange={(e) => setEstablishmentCode(e.target.value)}
                     onFocus={() => setFocusedField("establishment")}
                     onBlur={() => setFocusedField(null)}
-                    className="pl-10 h-11 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-indigo-500"
+                    className="pl-10 h-11 bg-white border-[#D9DADC] text-[#29282B] placeholder:text-[#29282B]/40 focus:border-[#E7A541] focus:ring-[#E7A541]"
                     autoComplete="organization"
                     required
                   />
@@ -146,15 +151,15 @@ export default function LoginPage() {
               >
                 <Label 
                   htmlFor="username"
-                  className={`text-sm font-medium transition-colors ${
-                    focusedField === "username" ? "text-indigo-600 dark:text-indigo-400" : ""
+                  className={`text-sm font-medium transition-colors text-[#29282B] ${
+                    focusedField === "username" ? "text-[#E7A541]" : ""
                   }`}
                 >
                   Identifiant
                 </Label>
                 <div className="relative">
                   <User className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors ${
-                    focusedField === "username" ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"
+                    focusedField === "username" ? "text-[#E7A541]" : "text-[#29282B]/40"
                   }`} />
                   <Input
                     id="username"
@@ -164,7 +169,7 @@ export default function LoginPage() {
                     onChange={(e) => setUsername(e.target.value)}
                     onFocus={() => setFocusedField("username")}
                     onBlur={() => setFocusedField(null)}
-                    className="pl-10 h-11 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-indigo-500"
+                    className="pl-10 h-11 bg-white border-[#D9DADC] text-[#29282B] placeholder:text-[#29282B]/40 focus:border-[#E7A541] focus:ring-[#E7A541]"
                     autoComplete="username"
                     required
                   />
@@ -180,15 +185,15 @@ export default function LoginPage() {
               >
                 <Label 
                   htmlFor="password"
-                  className={`text-sm font-medium transition-colors ${
-                    focusedField === "password" ? "text-indigo-600 dark:text-indigo-400" : ""
+                  className={`text-sm font-medium transition-colors text-[#29282B] ${
+                    focusedField === "password" ? "text-[#E7A541]" : ""
                   }`}
                 >
                   Mot de passe
                 </Label>
                 <div className="relative">
                   <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors ${
-                    focusedField === "password" ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"
+                    focusedField === "password" ? "text-[#E7A541]" : "text-[#29282B]/40"
                   }`} />
                   <Input
                     id="password"
@@ -198,7 +203,7 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     onFocus={() => setFocusedField("password")}
                     onBlur={() => setFocusedField(null)}
-                    className="pl-10 h-11 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-indigo-500"
+                    className="pl-10 h-11 bg-white border-[#D9DADC] text-[#29282B] placeholder:text-[#29282B]/40 focus:border-[#E7A541] focus:ring-[#E7A541]"
                     autoComplete="current-password"
                     required
                   />
@@ -210,9 +215,9 @@ export default function LoginPage() {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-3 rounded-lg bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800"
+                  className="p-3 rounded-lg bg-red-50 border border-red-200"
                 >
-                  <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>
+                  <p className="text-sm text-red-600">{error}</p>
                 </motion.div>
               )}
 
@@ -224,7 +229,7 @@ export default function LoginPage() {
               >
                 <Button 
                   type="submit" 
-                  className="w-full h-11 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium shadow-lg shadow-indigo-500/25 transition-all hover:shadow-xl hover:shadow-indigo-500/30"
+                  className="w-full h-11 bg-[#E7A541] hover:bg-[#D4933A] text-white font-medium shadow-md transition-all hover:shadow-lg"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -249,7 +254,7 @@ export default function LoginPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="text-center text-sm text-slate-500 dark:text-slate-400 mt-6"
+          className="text-center text-sm text-[#29282B]/50 mt-6"
         >
           Besoin d'aide ? Contactez votre CPE
         </motion.p>
