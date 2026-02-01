@@ -50,7 +50,6 @@ export function TopBar({
   isCollapsed = false,
 }: TopBarProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [isDark, setIsDark] = useState(false)
 
   // Handle keyboard shortcut for search
   useEffect(() => {
