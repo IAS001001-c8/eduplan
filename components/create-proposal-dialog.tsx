@@ -17,6 +17,7 @@ interface CreateProposalDialogProps {
   onOpenChange: (open: boolean) => void
   establishmentId: string
   userId: string
+  userRole?: string
   onSuccess: () => void
 }
 
