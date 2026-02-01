@@ -1211,7 +1211,7 @@ export function TeachersManagement({ establishmentId, userRole, userId, onBack }
                         {userRole === "vie-scolaire" && (
                           <>
                             {/* Removed duplicate modification option */}
-                            <DropdownMenuItem onClick={() => openTeacherEditDialog(teacher)}>
+                            <DropdownMenuItem onClick={() => openEditDialog(teacher)}>
                               <Pencil className="mr-2 h-4 w-4" />
                               Modifier
                             </DropdownMenuItem>
