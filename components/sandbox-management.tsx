@@ -390,6 +390,19 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
                   </div>
                 )}
 
+                {/* Show teacher comments for returned proposals */}
+                {!proposal.is_submitted && proposal.teacher_comments && (
+                  <div className="bg-orange-50 border border-orange-200 rounded p-2">
+                    <div className="flex items-start gap-2">
+                      <MessageSquare className="w-4 h-4 text-orange-600 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs font-semibold text-orange-800 mb-1">Message du professeur :</p>
+                        <p className="text-xs text-orange-700">{proposal.teacher_comments}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {proposal.status === "approved" && proposal.reviewed_by_profile && (
                   <div className="bg-green-50 border border-green-200 rounded p-2">
                     <p className="text-xs text-green-700">
@@ -399,25 +412,28 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
                 )}
 
                 <div className="flex gap-2 pt-2">
+                  {/* Draft proposals (new or returned) for delegates */}
                   {isDelegateOrEco && !proposal.is_submitted && (
                     <>
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant={proposal.teacher_comments ? "default" : "outline"}
                         onClick={() => handleEditProposal(proposal)}
-                        className="flex-1"
+                        className={`flex-1 ${proposal.teacher_comments ? "bg-orange-600 hover:bg-orange-700" : ""}`}
                       >
                         <Edit className="w-3 h-3 mr-1" />
-                        Éditer
+                        {proposal.teacher_comments ? "Modifier et resoumettre" : "Éditer"}
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => openDeleteDialog([proposal.id])}
-                        className="px-2"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
+                      {!proposal.teacher_comments && (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => openDeleteDialog([proposal.id])}
+                          className="px-2"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      )}
                     </>
                   )}
 
