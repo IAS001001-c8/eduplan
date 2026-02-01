@@ -213,7 +213,7 @@ export function SeatingPlanEditor({
 
     const { data: studentsData, error: studentsError } = await supabase
       .from("students")
-      .select("id, first_name, last_name, class_name, role, profile_id, establishment_id, special_needs") // Added special_needs for EBP
+      .select("id, first_name, last_name, class_name, role, profile_id, establishment_id, special_needs, gender") // Added special_needs and gender for EBP
       .in("class_id", subRoom.class_ids)
       .order("last_name")
 
