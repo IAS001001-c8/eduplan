@@ -528,158 +528,160 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
           />
         )}
 
+        {/* Grid View */}
         {viewMode === "grid" && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredSubRooms.map((subRoom) => {
-            const room = rooms.find(r => r.id === subRoom.room_id)
-            const columns = room?.config?.columns || []
-            const canModify = isVieScolaire || isTeacher
-            
-            return (
-            <Card 
-              key={subRoom.id} 
-              className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group"
-              onClick={() => {
-                setSelectedSubRoom(subRoom)
-                setIsEditorOpen(true)
-              }}
-            >
-              <CardHeader className="pb-2">
-                <div className="flex items-start gap-3">
-                  {/* Checkbox only for users who can delete */}
-                  {canModify && (
-                    <input
-                      type="checkbox"
-                      checked={selectedSubRoomIds.includes(subRoom.id)}
-                      onChange={() => toggleSubRoomSelection(subRoom.id)}
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-5 h-5 mt-1 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer shrink-0"
-                    />
-                  )}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <CardTitle className="text-lg">{subRoom.name}</CardTitle>
-                      {canModify && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setSubRoomToRename(subRoom)
-                            setIsRenameDialogOpen(true)
-                          }}
-                        >
-                          <Pencil className="h-3 w-3" />
-                        </Button>
-                      )}
-                    </div>
-                    <CardDescription className="text-sm">
-                      {subRoom.teachers.first_name} {subRoom.teachers.last_name}
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-
-              <CardContent className="pt-2 pb-4">
-                {/* Seat Preview */}
-                <div className="flex justify-center mb-4">
-                  <RoomSeatPreview 
-                    columns={columns}
-                    boardPosition={room?.board_position}
-                    maxWidth={180}
-                    maxHeight={100}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <BookOpen className="h-4 w-4" />
-                    <span>{subRoom.rooms.name}</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
-                    <Users className="h-4 w-4" />
-                    <span>{subRoom.class_ids?.length || 1} classe(s)</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            )
-          })}
-        </div>
-        ) : (
-        /* TABLE VIEW - Compact */
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
-              <tr>
-                {(isVieScolaire || isTeacher) && (
-                  <th className="w-10 px-3 py-2">
-                    <input type="checkbox" className="w-4 h-4 rounded border-gray-300" />
-                  </th>
-                )}
-                <th className="px-3 py-2 text-left font-medium text-slate-600 dark:text-slate-300">Nom</th>
-                <th className="px-3 py-2 text-left font-medium text-slate-600 dark:text-slate-300 hidden sm:table-cell">Professeur</th>
-                <th className="px-3 py-2 text-left font-medium text-slate-600 dark:text-slate-300 hidden md:table-cell">Salle</th>
-                <th className="px-3 py-2 text-center font-medium text-slate-600 dark:text-slate-300">Classes</th>
-                <th className="px-3 py-2 text-right font-medium text-slate-600 dark:text-slate-300">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-              {filteredSubRooms.map((subRoom) => (
-                <tr 
-                  key={subRoom.id} 
-                  className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors ${
-                    selectedSubRoomIds.includes(subRoom.id) ? "bg-indigo-50 dark:bg-indigo-900/20" : ""
-                  }`}
-                  onClick={() => { setSelectedSubRoom(subRoom); setIsEditorOpen(true) }}
-                >
-                  {(isVieScolaire || isTeacher) && (
-                    <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {filteredSubRooms.map((subRoom) => {
+              const room = rooms.find(r => r.id === subRoom.room_id)
+              const columns = room?.config?.columns || []
+              const canModify = isVieScolaire || isTeacher
+              
+              return (
+              <Card 
+                key={subRoom.id} 
+                className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group border-[#D9DADC]"
+                onClick={() => {
+                  setSelectedSubRoom(subRoom)
+                  setIsEditorOpen(true)
+                }}
+              >
+                <CardHeader className="pb-2">
+                  <div className="flex items-start gap-3">
+                    {canModify && (
                       <input
                         type="checkbox"
                         checked={selectedSubRoomIds.includes(subRoom.id)}
                         onChange={() => toggleSubRoomSelection(subRoom.id)}
-                        className="w-4 h-4 rounded border-gray-300"
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-5 h-5 mt-1 rounded border-[#D9DADC] text-[#E7A541] focus:ring-[#E7A541] cursor-pointer shrink-0"
                       />
-                    </td>
-                  )}
-                  <td className="px-3 py-2 font-medium text-slate-900 dark:text-white">{subRoom.name}</td>
-                  <td className="px-3 py-2 text-muted-foreground hidden sm:table-cell">
-                    {subRoom.teachers.first_name} {subRoom.teachers.last_name}
-                  </td>
-                  <td className="px-3 py-2 text-muted-foreground hidden md:table-cell">{subRoom.rooms.name}</td>
-                  <td className="px-3 py-2 text-center">
-                    <span className="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-medium">
-                      <Users className="h-3 w-3" />
-                      {subRoom.class_ids?.length || 1}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
-                    <div className="flex justify-end gap-1">
-                      {(isVieScolaire || isTeacher) && (
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => { 
-                            setSubRoomToRename(subRoom)
-                            setIsRenameDialogOpen(true) 
-                          }}
-                          title="Renommer"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      )}
-                      <Button variant="ghost" size="sm" onClick={() => { setSelectedSubRoom(subRoom); setIsEditorOpen(true) }}>
-                        <Eye className="h-4 w-4" />
-                      </Button>
+                    )}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-lg text-[#29282B]">{subRoom.name}</CardTitle>
+                        {canModify && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setSubRoomToRename(subRoom)
+                              setIsRenameDialogOpen(true)
+                            }}
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </div>
+                      <CardDescription className="text-sm text-[#29282B]/60">
+                        {subRoom.teachers?.first_name} {subRoom.teachers?.last_name}
+                      </CardDescription>
                     </div>
-                  </td>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="pt-2 pb-4">
+                  <div className="flex justify-center mb-4">
+                    <RoomSeatPreview 
+                      columns={columns}
+                      boardPosition={room?.board_position}
+                      maxWidth={180}
+                      maxHeight={100}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-sm text-[#29282B]/60">
+                    <div className="flex items-center gap-1">
+                      <BookOpen className="h-4 w-4" />
+                      <span>{subRoom.rooms?.name}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-[#E7A541]">
+                      <Users className="h-4 w-4" />
+                      <span>{subRoom.class_ids?.length || 1} classe(s)</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              )
+            })}
+          </div>
+        )}
+
+        {/* List/Table View */}
+        {viewMode === "list" && (
+          <div className="bg-white rounded-lg border border-[#D9DADC] overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-[#F5F5F6] border-b border-[#D9DADC]">
+                <tr>
+                  {(isVieScolaire || isTeacher) && (
+                    <th className="w-10 px-3 py-2">
+                      <input type="checkbox" className="w-4 h-4 rounded border-[#D9DADC]" />
+                    </th>
+                  )}
+                  <th className="px-3 py-2 text-left font-medium text-[#29282B]/70">Nom</th>
+                  <th className="px-3 py-2 text-left font-medium text-[#29282B]/70 hidden sm:table-cell">Professeur</th>
+                  <th className="px-3 py-2 text-left font-medium text-[#29282B]/70 hidden md:table-cell">Salle</th>
+                  <th className="px-3 py-2 text-center font-medium text-[#29282B]/70">Classes</th>
+                  <th className="px-3 py-2 text-right font-medium text-[#29282B]/70">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-[#D9DADC]">
+                {filteredSubRooms.map((subRoom) => (
+                  <tr 
+                    key={subRoom.id} 
+                    className={`hover:bg-[#F5F5F6] cursor-pointer transition-colors ${
+                      selectedSubRoomIds.includes(subRoom.id) ? "bg-[#FDF6E9]" : ""
+                    }`}
+                    onClick={() => { setSelectedSubRoom(subRoom); setIsEditorOpen(true) }}
+                  >
+                    {(isVieScolaire || isTeacher) && (
+                      <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selectedSubRoomIds.includes(subRoom.id)}
+                          onChange={() => toggleSubRoomSelection(subRoom.id)}
+                          className="w-4 h-4 rounded border-[#D9DADC]"
+                        />
+                      </td>
+                    )}
+                    <td className="px-3 py-2 font-medium text-[#29282B]">{subRoom.name}</td>
+                    <td className="px-3 py-2 text-[#29282B]/60 hidden sm:table-cell">
+                      {subRoom.teachers?.first_name} {subRoom.teachers?.last_name}
+                    </td>
+                    <td className="px-3 py-2 text-[#29282B]/60 hidden md:table-cell">{subRoom.rooms?.name}</td>
+                    <td className="px-3 py-2 text-center">
+                      <span className="inline-flex items-center gap-1 text-[#E7A541] font-medium">
+                        <Users className="h-3 w-3" />
+                        {subRoom.class_ids?.length || 1}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex justify-end gap-1">
+                        {(isVieScolaire || isTeacher) && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => { 
+                              setSubRoomToRename(subRoom)
+                              setIsRenameDialogOpen(true) 
+                            }}
+                            title="Renommer"
+                            className="hover:bg-[#FDF6E9]"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="sm" onClick={() => { setSelectedSubRoom(subRoom); setIsEditorOpen(true) }} className="hover:bg-[#FDF6E9]">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
 
         {filteredSubRooms.length === 0 && (
