@@ -19,6 +19,67 @@ export interface AuthUser {
   email?: string
 }
 
+// New simplified authentication - auto-detects role from username
+export async function authenticateUserSimple(
+  establishmentCode: string,
+  username: string,
+  password: string,
+): Promise<{ user: AuthUser | null; error: string | null }> {
+  const supabase = createClient()
+
+  try {
+    const { data: establishment, error: estError } = await supabase
+      .from("establishments")
+      .select("id, code, name")
+      .eq("code", establishmentCode)
+      .single()
+
+    if (estError || !establishment) {
+      return { user: null, error: "Code établissement invalide" }
+    }
+
+    // Find user by username only - role is auto-detected
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("username", username)
+      .eq("establishment_id", establishment.id)
+      .single()
+
+    if (profileError || !profile) {
+      return { user: null, error: "Identifiant ou mot de passe incorrect" }
+    }
+
+    const { data: isValid, error: verifyError } = await supabase.rpc("verify_password", {
+      password: password,
+      password_hash: profile.password_hash,
+    })
+
+    if (verifyError || !isValid) {
+      return { user: null, error: "Identifiant ou mot de passe incorrect" }
+    }
+
+    return {
+      user: {
+        id: profile.id,
+        username: profile.username,
+        role: profile.role as "vie-scolaire" | "professeur" | "delegue",
+        establishment_id: establishment.id,
+        establishment_code: establishment.code,
+        establishment_name: establishment.name,
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        email: profile.email,
+      },
+      error: null,
+    }
+  } catch (error) {
+    console.error("Authentication error:", error)
+    return { user: null, error: "Erreur de connexion - vérifiez votre configuration Supabase" }
+  }
+}
+
+// Legacy authentication with role parameter (for backwards compatibility)
 export async function authenticateUser(
   establishmentCode: string,
   role: string,
