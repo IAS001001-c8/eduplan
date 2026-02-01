@@ -2136,12 +2136,31 @@ export function SeatingPlanEditor({
                       onTouchStart={(e) => handleTouchStart(e as any, student.id)}
                       onTouchMove={handleTouchMove}
                       onTouchEnd={handleTouchEnd}
-                      className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 cursor-move hover:shadow-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                      className={cn(
+                        "p-3 rounded-lg border cursor-move hover:shadow-md transition-all",
+                        // Colorer en bleu si EBP (pour prof/VS)
+                        (userRole === "vie-scolaire" || userRole === "professeur") && student.special_needs && student.special_needs.length > 0
+                          ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                          : "bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      )}
                     >
-                      <div className="font-medium text-sm text-black dark:text-white">
-                        {student.last_name} {student.first_name}
+                      <div className="flex items-center justify-between">
+                        <div className="font-medium text-sm text-black dark:text-white">
+                          {student.last_name} {student.first_name}
+                        </div>
+                        {/* Indicateur sexe (petit) */}
+                        {(userRole === "vie-scolaire" || userRole === "professeur") && student.gender && (
+                          <span className={cn(
+                            "text-xs px-1.5 py-0.5 rounded",
+                            student.gender === 1 ? "bg-blue-100 text-blue-600" : 
+                            student.gender === 2 ? "bg-pink-100 text-pink-600" : 
+                            "bg-gray-100 text-gray-600"
+                          )}>
+                            {student.gender === 1 ? "G" : student.gender === 2 ? "F" : "?"}
+                          </span>
+                        )}
                       </div>
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
                         <Badge
                           variant="secondary"
                           className="text-xs bg-gray-200 dark:bg-gray-800 text-black dark:text-white"
@@ -2149,14 +2168,37 @@ export function SeatingPlanEditor({
                           {student.class_name}
                         </Badge>
                         {student.role === "delegue" && (
-                          <Badge className="text-xs bg-blue-500 hover:bg-blue-600 text-white border-0">Délégué</Badge>
+                          <Badge className="text-xs bg-orange-500 hover:bg-orange-600 text-white border-0">Délégué</Badge>
                         )}
                         {student.role === "eco-delegue" && (
                           <Badge className="text-xs bg-emerald-500 hover:bg-emerald-600 text-white border-0">
                             Éco-délégué
                           </Badge>
                         )}
+                        {/* Badge EBP avec nombre */}
+                        {(userRole === "vie-scolaire" || userRole === "professeur") && 
+                         student.special_needs && student.special_needs.length > 0 && (
+                          <Badge className="text-xs bg-violet-500 hover:bg-violet-600 text-white border-0">
+                            EBP {student.special_needs.length}
+                          </Badge>
+                        )}
                       </div>
+                      {/* Détail EBP au survol/clic (optionnel - affichage simplifié) */}
+                      {(userRole === "vie-scolaire" || userRole === "professeur") && 
+                       student.special_needs && student.special_needs.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-blue-200 dark:border-blue-700">
+                          <div className="flex flex-wrap gap-1">
+                            {student.special_needs.slice(0, 3).map((need, idx) => (
+                              <span key={idx} className="text-[10px] text-violet-600 dark:text-violet-400">
+                                {need}{idx < Math.min(student.special_needs!.length, 3) - 1 ? "," : ""}
+                              </span>
+                            ))}
+                            {student.special_needs.length > 3 && (
+                              <span className="text-[10px] text-violet-500">+{student.special_needs.length - 3}</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                   {getUnassignedStudents().length === 0 && (
