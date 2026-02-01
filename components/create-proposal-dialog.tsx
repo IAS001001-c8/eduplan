@@ -274,16 +274,28 @@ export function CreateProposalDialog({
             </Select>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="useExisting"
-              checked={useExistingSubRoom}
-              onCheckedChange={(checked) => setUseExistingSubRoom(checked === true)}
-            />
-            <Label htmlFor="useExisting" className="text-sm font-normal cursor-pointer">
-              Créer à partir d'une sous-salle existante
-            </Label>
-          </div>
+          {/* Only show choice for non-delegates */}
+          {!isDelegateOrEco && (
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="useExisting"
+                checked={useExistingSubRoom}
+                onCheckedChange={(checked) => setUseExistingSubRoom(checked === true)}
+              />
+              <Label htmlFor="useExisting" className="text-sm font-normal cursor-pointer">
+                Créer à partir d'une sous-salle existante
+              </Label>
+            </div>
+          )}
+
+          {/* Delegates must use existing sub-rooms - show info message */}
+          {isDelegateOrEco && (
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                En tant que délégué, vous devez créer votre proposition à partir d'une sous-salle existante de votre professeur.
+              </p>
+            </div>
+          )}
 
           {useExistingSubRoom ? (
             <div className="space-y-2">
