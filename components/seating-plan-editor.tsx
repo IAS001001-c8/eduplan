@@ -2678,8 +2678,8 @@ export function SeatingPlanEditor({
                   Place n°{clickedStudentInfo.seatNumber}
                 </p>
                 
-                {/* Sexe */}
-                {(userRole === "vie-scolaire" || userRole === "professeur") && clickedStudentInfo.student.gender && (
+                {/* Sexe - Affiché pour tous les élèves (prof/VS uniquement) */}
+                {(userRole === "vie-scolaire" || userRole === "professeur") && (
                   <div className="flex items-center gap-2 mt-2">
                     <span className="text-sm text-muted-foreground">Sexe:</span>
                     <Badge variant="outline" className={
@@ -2689,17 +2689,31 @@ export function SeatingPlanEditor({
                           ? "bg-pink-50 text-pink-700 border-pink-200"
                           : "bg-gray-50 text-gray-700 border-gray-200"
                     }>
-                      {clickedStudentInfo.student.gender === 1 ? "Garçon" : clickedStudentInfo.student.gender === 2 ? "Fille" : "Non identifié"}
+                      {clickedStudentInfo.student.gender === 1 ? "Garçon" : clickedStudentInfo.student.gender === 2 ? "Fille" : "Non renseigné"}
                     </Badge>
                   </div>
                 )}
                 
-                {/* Rôle */}
-                {clickedStudentInfo.student.role && clickedStudentInfo.student.role !== "eleve" && (
-                  <Badge className="mt-2" variant="secondary">
-                    {clickedStudentInfo.student.role === "delegue" ? "Délégué" : "Éco-délégué"}
+                {/* Rôle - Affiché pour tous les élèves */}
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-sm text-muted-foreground">Rôle:</span>
+                  <Badge 
+                    variant="secondary"
+                    className={
+                      clickedStudentInfo.student.role === "delegue"
+                        ? "bg-orange-100 text-orange-700 border-orange-200"
+                        : clickedStudentInfo.student.role === "eco-delegue"
+                          ? "bg-green-100 text-green-700 border-green-200"
+                          : "bg-gray-100 text-gray-700 border-gray-200"
+                    }
+                  >
+                    {clickedStudentInfo.student.role === "delegue" 
+                      ? "Délégué" 
+                      : clickedStudentInfo.student.role === "eco-delegue" 
+                        ? "Éco-délégué" 
+                        : "Élève"}
                   </Badge>
-                )}
+                </div>
                 
                 {/* EBP - Besoins particuliers */}
                 {(userRole === "vie-scolaire" || userRole === "professeur") && 
