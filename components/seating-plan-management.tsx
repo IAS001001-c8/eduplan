@@ -15,7 +15,7 @@ import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialo
 import { CreateSubRoomDialog } from "./create-sub-room-dialog"
 import { ViewToggle } from "@/components/view-toggle"
 import { RoomSeatPreview } from "@/components/room-seat-preview"
-import { RenameSubRoomDialog } from "@/components/rename-sub-room-dialog"
+import { EditSubRoomDialog } from "@/components/edit-sub-room-dialog"
 import { ScheduleTimeline } from "@/components/schedule-timeline"
 
 interface Room {
