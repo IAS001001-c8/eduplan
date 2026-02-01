@@ -9,7 +9,32 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - **Email**: Resend (noreply@eduplan-lnc.com) - Désactivé dans l'UI
 - **Auth**: Custom auth avec profils Supabase (auto-détection du rôle)
 
-## Fonctionnalité Créneaux Horaires & Semaines A/B - Feb 1, 2026
+## Fonctionnalité EBP (Élèves à Besoins Particuliers) - Feb 1, 2026
+
+### État d'implémentation
+- ✅ **Frontend** : Composants UI modifiés et créés
+- ⏳ **Base de données** : Script SQL prêt (`/app/scripts/add_ebp_feature.sql`) À EXÉCUTER
+
+### Script SQL EBP à exécuter
+**Fichier** : `/app/scripts/add_ebp_feature.sql`
+
+Modifications :
+1. Colonne `gender` ajoutée à la table `students` (1=Homme, 2=Femme, 3=Non identifié)
+2. Colonne `special_needs` ajoutée à la table `students` (array de codes)
+3. Nouvelle table `establishment_special_needs` (liste configurable par établissement)
+4. Trigger pour ajouter les besoins par défaut aux nouveaux établissements
+
+### Modifications Frontend Effectuées
+| Composant | Modification |
+|-----------|--------------|
+| `import-excel-dialog.tsx` | Mapping sexe + disclaimer 3s avec animation |
+| `students-management.tsx` | Champs sexe et EBP dans ajout/édition/vue |
+| Liste élèves | Badge "EBP X" violet (profs/VS uniquement) |
+| Profil élève | Affichage des besoins particuliers détaillés |
+| Dialog édition | Section EBP (VS uniquement) avec historique |
+
+### Caractéristiques EBP par défaut
+PAP, PAI, TDAH, Problèmes de vue, Problèmes d'audition, Troubles moteurs, DYS, Anxiété/Panique, TSA, HPI, PTSD, Allophone, ULIS, SEGPA
 
 ### État d'implémentation
 - ✅ **Frontend** : Composants UI créés et intégrés
