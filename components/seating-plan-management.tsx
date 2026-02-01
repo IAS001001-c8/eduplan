@@ -382,7 +382,8 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
       })
       
       subRooms.forEach(subRoom => {
-        subRoom.class_ids.forEach(classId => {
+        const classIds = subRoom.class_ids || []
+        classIds.forEach(classId => {
           if (!structure.has(classId)) {
             structure.set(classId, new Map())
           }
@@ -405,7 +406,8 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
       const structure: Map<string, SubRoom[]> = new Map()
       
       subRooms.forEach(subRoom => {
-        subRoom.class_ids.forEach(classId => {
+        const classIds = subRoom.class_ids || []
+        classIds.forEach(classId => {
           if (!structure.has(classId)) {
             structure.set(classId, [])
           }
