@@ -96,6 +96,8 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
           sub_room_id,
           seat_assignments,
           comments,
+          proposed_by,
+          establishment_id,
           rooms:room_id (name, code),
           classes:class_id (name),
           teachers:teacher_id (first_name, last_name),
