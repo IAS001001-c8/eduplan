@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
 import {
   Users,
-  LayoutGrid,
   Lightbulb,
   Plus,
   ArrowRight,
@@ -81,7 +80,6 @@ export function DelegueDashboard({ establishmentId, userId, userName, onNavigate
     const supabase = createClient()
 
     try {
-      // Get student record
       const { data: studentData } = await supabase
         .from("students")
         .select("class_id, classes(id, name)")
@@ -89,14 +87,12 @@ export function DelegueDashboard({ establishmentId, userId, userName, onNavigate
         .maybeSingle()
 
       if (studentData?.class_id) {
-        // Get class info
         const { count: studentCount } = await supabase
           .from("students")
           .select("id", { count: "exact", head: true })
           .eq("class_id", studentData.class_id)
           .eq("is_deleted", false)
 
-        // Get principal teacher
         const { data: principalTeacher } = await supabase
           .from("teachers")
           .select("first_name, last_name")
@@ -111,7 +107,6 @@ export function DelegueDashboard({ establishmentId, userId, userName, onNavigate
           principalTeacher: principalTeacher ? `${principalTeacher.first_name} ${principalTeacher.last_name}` : undefined,
         })
 
-        // Get teachers for this class
         const { data: classTeachers } = await supabase
           .from("teacher_classes")
           .select("teacher_id, teachers(id, first_name, last_name, subject)")
@@ -128,7 +123,6 @@ export function DelegueDashboard({ establishmentId, userId, userName, onNavigate
         }
       }
 
-      // Get my proposals
       const { data: myProposals } = await supabase
         .from("sub_room_proposals")
         .select(`
@@ -167,7 +161,7 @@ export function DelegueDashboard({ establishmentId, userId, userName, onNavigate
   const getStatusBadge = (proposal: Proposal) => {
     if (!proposal.isSubmitted && proposal.teacherComments) {
       return (
-        <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-300 dark:bg-orange-950 dark:text-orange-300 dark:border-orange-800">
+        <Badge className="bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-50">
           <RotateCcw className="w-3 h-3 mr-1" />
           À revoir
         </Badge>
@@ -175,7 +169,7 @@ export function DelegueDashboard({ establishmentId, userId, userName, onNavigate
     }
     if (!proposal.isSubmitted) {
       return (
-        <Badge variant="outline" className="bg-slate-50 text-slate-700 border-slate-300 dark:bg-slate-900 dark:text-slate-300">
+        <Badge className="bg-[#F5F5F6] text-[#29282B]/60 border border-[#D9DADC] hover:bg-[#F5F5F6]">
           Brouillon
         </Badge>
       )
@@ -183,21 +177,21 @@ export function DelegueDashboard({ establishmentId, userId, userName, onNavigate
     switch (proposal.status) {
       case "pending":
         return (
-          <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300 dark:bg-yellow-950 dark:text-yellow-300">
+          <Badge className="bg-[#FDF6E9] text-[#E7A541] border border-[#E7A541]/20 hover:bg-[#FDF6E9]">
             <Clock className="w-3 h-3 mr-1" />
             En attente
           </Badge>
         )
       case "approved":
         return (
-          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300">
+          <Badge className="bg-green-50 text-green-700 border border-green-200 hover:bg-green-50">
             <CheckCircle2 className="w-3 h-3 mr-1" />
             Validée
           </Badge>
         )
       case "rejected":
         return (
-          <Badge variant="outline" className="bg-rose-50 text-rose-700 border-rose-300 dark:bg-rose-950 dark:text-rose-300">
+          <Badge className="bg-red-50 text-red-700 border border-red-200 hover:bg-red-50">
             <XCircle className="w-3 h-3 mr-1" />
             Refusée
           </Badge>
@@ -210,12 +204,12 @@ export function DelegueDashboard({ establishmentId, userId, userName, onNavigate
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-20 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+        <div className="h-20 bg-[#F5F5F6] rounded animate-pulse" />
         <div className="grid gap-4 md:grid-cols-2">
           {[1, 2].map((i) => (
-            <Card key={i} className="animate-pulse">
+            <Card key={i} className="animate-pulse border-[#D9DADC]">
               <CardContent className="p-6">
-                <div className="h-32 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-32 bg-[#F5F5F6] rounded" />
               </CardContent>
             </Card>
           ))}
@@ -239,14 +233,14 @@ export function DelegueDashboard({ establishmentId, userId, userName, onNavigate
       <motion.div variants={itemVariants}>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-bold text-[#29282B]">
               Bonjour, {userName}
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-[#29282B]/60 mt-1">
               Délégué{classInfo ? ` - ${classInfo.name}` : ""}
             </p>
           </div>
-          <Button onClick={() => onNavigate("sandbox")} className="bg-sky-500 hover:bg-sky-600">
+          <Button onClick={() => onNavigate("sandbox")} className="bg-[#E7A541] hover:bg-[#D4933A] text-white">
             <Plus className="h-4 w-4 mr-2" />
             Nouvelle proposition
           </Button>
@@ -256,27 +250,27 @@ export function DelegueDashboard({ establishmentId, userId, userName, onNavigate
       {/* Class Info Card */}
       {classInfo && (
         <motion.div variants={itemVariants}>
-          <Card className="border-0 shadow-sm bg-gradient-to-r from-sky-500 to-blue-600 text-white">
+          <Card className="border-0 shadow-lg bg-gradient-to-r from-[#E7A541] to-[#D4933A] text-white">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sky-100 text-sm font-medium">Ma classe</p>
+                  <p className="text-white/70 text-sm font-medium">Ma classe</p>
                   <h2 className="text-2xl font-bold mt-1">{classInfo.name}</h2>
                   <div className="flex items-center gap-4 mt-3">
                     <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-sky-200" />
+                      <Users className="h-4 w-4 text-white/70" />
                       <span className="text-sm">{classInfo.studentCount} élèves</span>
                     </div>
                     {classInfo.principalTeacher && (
                       <div className="flex items-center gap-2">
-                        <GraduationCap className="h-4 w-4 text-sky-200" />
+                        <GraduationCap className="h-4 w-4 text-white/70" />
                         <span className="text-sm">PP: {classInfo.principalTeacher}</span>
                       </div>
                     )}
                   </div>
                 </div>
                 <div className="hidden md:block">
-                  <Button variant="secondary" onClick={() => onNavigate("students")}>
+                  <Button variant="secondary" onClick={() => onNavigate("students")} className="bg-white text-[#E7A541] hover:bg-white/90">
                     Voir ma classe
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -289,41 +283,41 @@ export function DelegueDashboard({ establishmentId, userId, userName, onNavigate
 
       {/* Stats Row */}
       <motion.div variants={itemVariants} className="grid gap-4 md:grid-cols-3">
-        <Card className="border-0 shadow-sm">
+        <Card className="border-[#D9DADC] bg-white">
           <CardContent className="p-5">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-emerald-100 dark:bg-emerald-900">
-                <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+              <div className="p-3 rounded-xl bg-green-50">
+                <CheckCircle2 className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">{approvedCount}</p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Validée{approvedCount > 1 ? "s" : ""}</p>
+                <p className="text-2xl font-bold text-[#29282B]">{approvedCount}</p>
+                <p className="text-sm text-[#29282B]/60">Validée{approvedCount > 1 ? "s" : ""}</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className="border-[#D9DADC] bg-white">
           <CardContent className="p-5">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-yellow-100 dark:bg-yellow-900">
-                <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+              <div className="p-3 rounded-xl bg-[#FDF6E9]">
+                <Clock className="h-6 w-6 text-[#E7A541]" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">{pendingCount}</p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">En attente</p>
+                <p className="text-2xl font-bold text-[#29282B]">{pendingCount}</p>
+                <p className="text-sm text-[#29282B]/60">En attente</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate("sandbox")}>
+        <Card className="border-[#D9DADC] bg-white cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate("sandbox")}>
           <CardContent className="p-5">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-orange-100 dark:bg-orange-900">
-                <RotateCcw className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+              <div className="p-3 rounded-xl bg-orange-50">
+                <RotateCcw className="h-6 w-6 text-orange-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">{toReviewCount}</p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">À revoir</p>
+                <p className="text-2xl font-bold text-[#29282B]">{toReviewCount}</p>
+                <p className="text-sm text-[#29282B]/60">À revoir</p>
               </div>
             </div>
           </CardContent>
@@ -332,14 +326,14 @@ export function DelegueDashboard({ establishmentId, userId, userName, onNavigate
 
       {/* Proposals List */}
       <motion.div variants={itemVariants}>
-        <Card className="border-0 shadow-sm">
+        <Card className="border-[#D9DADC] bg-white">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-lg font-semibold">Mes propositions</CardTitle>
-                <CardDescription>Historique de vos propositions de plans de classe</CardDescription>
+                <CardTitle className="text-lg font-semibold text-[#29282B]">Mes propositions</CardTitle>
+                <CardDescription className="text-[#29282B]/60">Historique de vos propositions de plans de classe</CardDescription>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => onNavigate("sandbox")}>
+              <Button variant="ghost" size="sm" onClick={() => onNavigate("sandbox")} className="text-[#E7A541] hover:text-[#D4933A] hover:bg-[#FDF6E9]">
                 Voir tout
                 <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
@@ -351,27 +345,27 @@ export function DelegueDashboard({ establishmentId, userId, userName, onNavigate
                 {proposals.slice(0, 5).map((proposal) => (
                   <div
                     key={proposal.id}
-                    className="flex items-center gap-4 p-4 rounded-lg bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
+                    className="flex items-center gap-4 p-4 rounded-lg bg-[#F5F5F6] hover:bg-[#EBEBED] cursor-pointer transition-colors"
                     onClick={() => onNavigate("sandbox")}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
+                        <p className="text-sm font-medium text-[#29282B] truncate">
                           {proposal.name}
                         </p>
                         {getStatusBadge(proposal)}
                       </div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                      <p className="text-xs text-[#29282B]/60">
                         Pour {proposal.teacherName} • {new Date(proposal.createdAt).toLocaleDateString("fr-FR")}
                       </p>
                       {proposal.teacherComments && !proposal.isSubmitted && (
-                        <div className="flex items-start gap-2 mt-2 p-2 rounded bg-orange-50 dark:bg-orange-950/50">
+                        <div className="flex items-start gap-2 mt-2 p-2 rounded bg-orange-50 border border-orange-200">
                           <MessageSquare className="h-3 w-3 text-orange-600 mt-0.5 shrink-0" />
-                          <p className="text-xs text-orange-700 dark:text-orange-300">{proposal.teacherComments}</p>
+                          <p className="text-xs text-orange-700">{proposal.teacherComments}</p>
                         </div>
                       )}
                     </div>
-                    <Button size="sm" variant="ghost">
+                    <Button size="sm" variant="ghost" className="text-[#29282B]/60 hover:text-[#E7A541]">
                       {!proposal.isSubmitted ? <Edit className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
@@ -379,14 +373,14 @@ export function DelegueDashboard({ establishmentId, userId, userName, onNavigate
               </div>
             ) : (
               <div className="text-center py-12">
-                <Lightbulb className="h-12 w-12 text-slate-300 dark:text-slate-700 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
+                <Lightbulb className="h-12 w-12 text-[#D9DADC] mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-[#29282B] mb-2">
                   Aucune proposition
                 </h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                <p className="text-sm text-[#29282B]/60 mb-4">
                   Créez votre première proposition de plan de classe
                 </p>
-                <Button onClick={() => onNavigate("sandbox")} className="bg-sky-500 hover:bg-sky-600">
+                <Button onClick={() => onNavigate("sandbox")} className="bg-[#E7A541] hover:bg-[#D4933A] text-white">
                   <Plus className="h-4 w-4 mr-2" />
                   Créer une proposition
                 </Button>
@@ -399,11 +393,11 @@ export function DelegueDashboard({ establishmentId, userId, userName, onNavigate
       {/* Teachers List */}
       {teachers.length > 0 && (
         <motion.div variants={itemVariants}>
-          <Card className="border-0 shadow-sm">
+          <Card className="border-[#D9DADC] bg-white">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-semibold">Mes professeurs</CardTitle>
-                <Button variant="ghost" size="sm" onClick={() => onNavigate("teachers")}>
+                <CardTitle className="text-lg font-semibold text-[#29282B]">Mes professeurs</CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => onNavigate("teachers")} className="text-[#E7A541] hover:text-[#D4933A] hover:bg-[#FDF6E9]">
                   Voir tout
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
@@ -414,16 +408,16 @@ export function DelegueDashboard({ establishmentId, userId, userName, onNavigate
                 {teachers.slice(0, 6).map((teacher) => (
                   <div
                     key={teacher.id}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-900"
+                    className="flex items-center gap-3 p-3 rounded-lg bg-[#F5F5F6]"
                   >
-                    <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center">
-                      <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+                    <div className="w-10 h-10 rounded-full bg-[#FDF6E9] flex items-center justify-center">
+                      <span className="text-sm font-medium text-[#E7A541]">
                         {teacher.name.charAt(0)}
                       </span>
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{teacher.name}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{teacher.subject}</p>
+                      <p className="text-sm font-medium text-[#29282B] truncate">{teacher.name}</p>
+                      <p className="text-xs text-[#29282B]/60">{teacher.subject}</p>
                     </div>
                   </div>
                 ))}
