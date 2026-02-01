@@ -102,9 +102,16 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
   const [subRoomsToDelete, setSubRoomsToDelete] = useState<string[]>([])
 
   const [currentUserRecord, setCurrentUserRecord] = useState<any>(null)
-  const [viewMode, setViewMode] = useState<"grid" | "list" | "timeline">("list")
+  const [viewMode, setViewMode] = useState<"files" | "timeline">("files")
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [subRoomToEdit, setSubRoomToEdit] = useState<SubRoom | null>(null)
+  
+  // États pour la navigation dans les dossiers
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
+  const [expandedSubFolders, setExpandedSubFolders] = useState<Set<string>>(new Set())
+  
+  // Teacher classes mapping (for folder structure)
+  const [teacherClasses, setTeacherClasses] = useState<Map<string, string[]>>(new Map())
 
   useEffect(() => {
     fetchData()
