@@ -2401,10 +2401,50 @@ export function SeatingPlanEditor({
                 <p className="text-sm text-muted-foreground">
                   Place n°{clickedStudentInfo.seatNumber}
                 </p>
+                
+                {/* Sexe */}
+                {(userRole === "vie-scolaire" || userRole === "professeur") && clickedStudentInfo.student.gender && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-sm text-muted-foreground">Sexe:</span>
+                    <Badge variant="outline" className={
+                      clickedStudentInfo.student.gender === 1 
+                        ? "bg-blue-50 text-blue-700 border-blue-200" 
+                        : clickedStudentInfo.student.gender === 2
+                          ? "bg-pink-50 text-pink-700 border-pink-200"
+                          : "bg-gray-50 text-gray-700 border-gray-200"
+                    }>
+                      {clickedStudentInfo.student.gender === 1 ? "Garçon" : clickedStudentInfo.student.gender === 2 ? "Fille" : "Non identifié"}
+                    </Badge>
+                  </div>
+                )}
+                
+                {/* Rôle */}
                 {clickedStudentInfo.student.role && clickedStudentInfo.student.role !== "eleve" && (
                   <Badge className="mt-2" variant="secondary">
                     {clickedStudentInfo.student.role === "delegue" ? "Délégué" : "Éco-délégué"}
                   </Badge>
+                )}
+                
+                {/* EBP - Besoins particuliers */}
+                {(userRole === "vie-scolaire" || userRole === "professeur") && 
+                 clickedStudentInfo.student.special_needs && 
+                 clickedStudentInfo.student.special_needs.length > 0 && (
+                  <div className="mt-3 p-3 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800">
+                    <p className="text-xs font-medium text-violet-700 dark:text-violet-300 mb-2">
+                      Besoins particuliers (EBP)
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {clickedStudentInfo.student.special_needs.map((need, idx) => (
+                        <Badge 
+                          key={idx} 
+                          variant="outline" 
+                          className="text-xs bg-violet-100 text-violet-700 border-violet-300"
+                        >
+                          {need}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
               <div className="flex gap-2">
