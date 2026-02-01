@@ -89,6 +89,7 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
           created_at,
           reviewed_at,
           rejection_reason,
+          teacher_comments,
           room_id,
           class_id,
           teacher_id,
