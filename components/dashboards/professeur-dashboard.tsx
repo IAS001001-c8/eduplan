@@ -15,6 +15,7 @@ import {
   BookOpen,
 } from "lucide-react"
 import { motion } from "framer-motion"
+import { CurrentClassPlan } from "@/components/current-class-plan"
 
 interface ProfesseurDashboardProps {
   establishmentId: string
