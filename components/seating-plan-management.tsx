@@ -442,14 +442,14 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
               placeholder="Rechercher une sous-salle..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-12 bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700"
+              className="pl-10 h-12 bg-white border-[#D9DADC]"
             />
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div>
               <Select value={filterClass} onValueChange={setFilterClass}>
-                <SelectTrigger className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700">
+                <SelectTrigger className="bg-white border-[#D9DADC]">
                   <SelectValue placeholder="Filtrer par classe" />
                 </SelectTrigger>
                 <SelectContent>
@@ -465,7 +465,7 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
 
             <div>
               <Select value={filterTeacher} onValueChange={setFilterTeacher}>
-                <SelectTrigger className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700">
+                <SelectTrigger className="bg-white border-[#D9DADC]">
                   <SelectValue placeholder="Filtrer par professeur" />
                 </SelectTrigger>
                 <SelectContent>
@@ -481,7 +481,7 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
 
             <div>
               <Select value={filterRoom} onValueChange={setFilterRoom}>
-                <SelectTrigger className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700">
+                <SelectTrigger className="bg-white border-[#D9DADC]">
                   <SelectValue placeholder="Filtrer par salle" />
                 </SelectTrigger>
                 <SelectContent>
@@ -504,7 +504,7 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
               variant={viewMode === "timeline" ? "default" : "outline"}
               size="sm"
               onClick={() => setViewMode("timeline")}
-              className={viewMode === "timeline" ? "bg-[#E7A541] hover:bg-[#D4933A]" : "border-[#D9DADC]"}
+              className={viewMode === "timeline" ? "bg-[#E7A541] hover:bg-[#D4933A] text-white" : "border-[#D9DADC] hover:border-[#E7A541] hover:bg-[#FDF6E9]"}
             >
               <Calendar className="h-4 w-4 mr-1" />
               Timeline
