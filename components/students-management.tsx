@@ -377,13 +377,15 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
               last_name: formData.last_name.trim(),
               email: formData.email.trim() || null,
               phone: formData.phone.trim() || null,
+              gender: formData.gender ? parseInt(formData.gender) : null,
+              special_needs: formData.special_needs,
               class_id: formData.class_id,
               class_name: selectedClass.name,
               role: "eleve",
               can_create_subrooms: formData.can_create_subrooms,
               establishment_id: establishmentId,
               profile_id: null,
-              is_deleted: false, // Add is_deleted
+              is_deleted: false,
             },
           ])
           .select()
