@@ -61,6 +61,7 @@ interface Student {
   profile_id?: string | null // Added for notifications
   establishment_id?: string | null // Added for notifications
   special_needs?: string[] // EBP - Élèves à Besoins Particuliers
+  gender?: number // 1=Homme, 2=Femme, 3=Autre
 }
 
 interface Room {
