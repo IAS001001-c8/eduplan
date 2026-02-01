@@ -82,6 +82,12 @@ const navItems: NavItem[] = [
     icon: Lightbulb,
     roles: ["vie-scolaire", "professeur", "delegue", "eco-delegue"],
   },
+  {
+    id: "establishment-settings",
+    label: "Paramètres",
+    icon: Sliders,
+    roles: ["vie-scolaire"],
+  },
 ]
 
 const getRoleLabel = (role: UserRole): string => {
