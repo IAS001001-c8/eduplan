@@ -507,7 +507,7 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
               className={viewMode === "timeline" ? "bg-[#E7A541] hover:bg-[#D4933A] text-white" : "border-[#D9DADC] hover:border-[#E7A541] hover:bg-[#FDF6E9]"}
             >
               <Calendar className="h-4 w-4 mr-1" />
-              Timeline
+              Emploi du temps
             </Button>
           )}
           <ViewToggle view={viewMode === "timeline" ? "list" : viewMode} onViewChange={(v) => setViewMode(v as "grid" | "list")} />
