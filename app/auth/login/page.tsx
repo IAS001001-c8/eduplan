@@ -82,19 +82,16 @@ export default function LoginPage() {
           transition={{ delay: 0.1, duration: 0.5 }}
           className="text-center mb-8"
         >
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-6">
             <Image
-              src="/images/logo-edu-plan-remove.png"
+              src="/images/logo-eduplan.png"
               alt="EduPlan Logo"
-              width={180}
-              height={60}
+              width={200}
+              height={70}
               priority
               className="h-auto"
             />
           </div>
-          <p className="text-sm text-[#29282B]/60 mt-2" style={{ fontFamily: 'Insigna, sans-serif' }}>
-            Une école. Un Plan.
-          </p>
         </motion.div>
 
         <Card className="border border-[#D9DADC] shadow-lg bg-white">
