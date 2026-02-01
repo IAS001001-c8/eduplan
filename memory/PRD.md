@@ -20,23 +20,26 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 1. **Tables créées** : `/app/scripts/add_schedules_tables.sql` ✅
 2. **Correction RLS** : `/app/scripts/fix_rls_policies.sql` ⏳ À EXÉCUTER
 
-### Composants Frontend Implémentés
+### Composants Frontend Implémentés (Session Feb 1, 2026)
 | Composant | Fichier | Description | Status |
 |-----------|---------|-------------|--------|
 | Réglages Établissement | `establishment-settings.tsx` | Gestion timezone + Semaines A/B | ✅ |
-| Calendrier A/B | `week-ab-calendar.tsx` | Vue tableau 52 semaines (refait) | ✅ |
+| Calendrier A/B | `week-ab-calendar.tsx` | Vue tableau 52 semaines (REFAIT) | ✅ |
 | Formulaire Créneaux | `sub-room-schedule-form.tsx` | Ajout de créneaux | ✅ |
 | Edit Sub-Room | `edit-sub-room-dialog.tsx` | Modifier nom + créneaux (NEW) | ✅ |
-| Plan de Classe Actuel | `current-class-plan.tsx` | Dashboard professeur | ✅ |
-| Vue Timeline | `schedule-timeline.tsx` | Emploi du temps hebdomadaire | ✅ |
+| Plan de Classe Actuel | `current-class-plan.tsx` | Dashboard prof (CORRIGÉ) | ✅ |
+| Vue Emploi du temps | `schedule-timeline.tsx` | Vue hebdomadaire (AGRANDI) | ✅ |
+| Dashboard Professeur | `professeur-dashboard.tsx` | Avec emploi du temps journée (REFAIT) | ✅ |
 | Composant Tabs UI | `components/ui/tabs.tsx` | Onglets pour dialogues (NEW) | ✅ |
 
-### Modifications Effectuées (Session Actuelle)
-- ✅ Sidebar : "Paramètres" renommé en "Réglages A/B" pour éviter confusion avec "Paramètres" du footer
-- ✅ Calendrier A/B : Refait avec vue tableau claire (N°, Période, Type, Mois)
-- ✅ Edit Sub-Room Dialog : Nouveau composant avec onglets (Informations + Créneaux)
-- ✅ Correction logique de rendu grid/list/timeline dans `seating-plan-management.tsx`
-- ✅ Intégration du formulaire de créneaux dans création et édition de sous-salles
+### Modifications Session Actuelle (Feb 1, 2026)
+- ✅ Sidebar : "Paramètres" → "Réglages A/B" (évite confusion)
+- ✅ Calendrier A/B : Vue tableau claire (N°, Période, Type, Mois)
+- ✅ Edit Sub-Room Dialog : Avec onglets (Informations + Créneaux)
+- ✅ Dashboard Professeur : Remplacé "Mes classes" par "Emploi du temps - [Jour]"
+- ✅ CurrentClassPlan : Corrigé affichage élèves et classes
+- ✅ ScheduleTimeline : "Timeline" → "Emploi du temps", taille agrandie
+- ✅ Mode plein écran : Agrandi (max-w-6xl, w-95vw, h-90vh)
 
 ## Charte Graphique EduPlan - Feb 1, 2026
 
