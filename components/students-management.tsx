@@ -2126,10 +2126,10 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       />
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Modifier l'élève</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-[#29282B]">Modifier l'élève</DialogTitle>
+            <DialogDescription className="text-[#29282B]/60">
               Modifier les informations de {selectedStudent?.first_name} {selectedStudent?.last_name}
             </DialogDescription>
           </DialogHeader>
@@ -2141,6 +2141,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
                   id="edit-first-name"
                   value={editData.first_name}
                   onChange={(e) => setEditData({ ...editData, first_name: e.target.value })}
+                  className="border-[#D9DADC]"
                 />
               </div>
               <div>
@@ -2149,28 +2150,87 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
                   id="edit-last-name"
                   value={editData.last_name}
                   onChange={(e) => setEditData({ ...editData, last_name: e.target.value })}
+                  className="border-[#D9DADC]"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-email">Email</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  value={editData.email}
+                  onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                  className="border-[#D9DADC]"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-phone">Téléphone</Label>
+                <Input
+                  id="edit-phone"
+                  value={editData.phone}
+                  onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
+                  className="border-[#D9DADC]"
                 />
               </div>
             </div>
             <div>
-              <Label htmlFor="edit-email">Email</Label>
-              <Input
-                id="edit-email"
-                type="email"
-                value={editData.email}
-                onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-              />
+              <Label htmlFor="edit-gender">Sexe</Label>
+              <Select
+                value={editData.gender}
+                onValueChange={(value: "" | "1" | "2" | "3") =>
+                  setEditData({ ...editData, gender: value })
+                }
+              >
+                <SelectTrigger className="border-[#D9DADC]">
+                  <SelectValue placeholder="Non renseigné" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Non renseigné</SelectItem>
+                  <SelectItem value="1">Homme</SelectItem>
+                  <SelectItem value="2">Femme</SelectItem>
+                  <SelectItem value="3">Non identifié</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div>
-              <Label htmlFor="edit-phone">Téléphone</Label>
-              <Input
-                id="edit-phone"
-                value={editData.phone}
-                onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
-              />
-            </div>
+
+            {/* Besoins particuliers - VS seulement */}
+            {userRole === "vie-scolaire" && specialNeedsOptions.length > 0 && (
+              <div className="space-y-2 border-t border-[#D9DADC] pt-4">
+                <Label>Besoins particuliers (EBP)</Label>
+                <div className="border border-[#D9DADC] rounded-lg p-4 max-h-48 overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-2">
+                    {specialNeedsOptions.map((option) => (
+                      <div key={option.code} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id={`edit-ebp-${option.code}`}
+                          checked={editData.special_needs.includes(option.code)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setEditData({ ...editData, special_needs: [...editData.special_needs, option.code] })
+                            } else {
+                              setEditData({ ...editData, special_needs: editData.special_needs.filter(c => c !== option.code) })
+                            }
+                          }}
+                          className="w-4 h-4 rounded border-[#D9DADC] text-[#E7A541] focus:ring-[#E7A541]"
+                        />
+                        <Label htmlFor={`edit-ebp-${option.code}`} className="text-sm font-normal cursor-pointer">
+                          {option.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <p className="text-xs text-[#29282B]/50">
+                  Les modifications des besoins particuliers sont enregistrées dans l'historique.
+                </p>
+              </div>
+            )}
+
             {(selectedStudent?.role === "delegue" || selectedStudent?.role === "eco-delegue") && (
-              <div className="flex items-center space-x-2 pt-2 border-t">
+              <div className="flex items-center space-x-2 pt-2 border-t border-[#D9DADC]">
                 <Checkbox
                   id="can-create-subrooms"
                   checked={editData.can_create_subrooms}
@@ -2183,10 +2243,10 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="border-[#D9DADC]">
               Annuler
             </Button>
-            <Button onClick={handleSaveEdit}>Enregistrer</Button>
+            <Button onClick={handleSaveEdit} className="bg-[#E7A541] hover:bg-[#D4933A] text-white">Enregistrer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
