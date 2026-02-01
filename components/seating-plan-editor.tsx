@@ -168,6 +168,10 @@ export function SeatingPlanEditor({
   // States for sandbox review actions (professors)
   const [showRejectDialog, setShowRejectDialog] = useState(false)
   const [showReturnDialog, setShowReturnDialog] = useState(false)
+  
+  // Read-only mode for delegates outside sandbox
+  const isDelegate = userRole === "delegue" || userRole === "eco-delegue"
+  const isReadOnly = isDelegate && !isSandbox
   const [rejectReason, setRejectReason] = useState("")
   const [returnComments, setReturnComments] = useState("")
 
