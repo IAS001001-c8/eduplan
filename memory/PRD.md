@@ -4,10 +4,65 @@
 Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 
 ## Stack technique
-- **Frontend**: Next.js 15, React 19, TailwindCSS, Radix UI, Shadcn
+- **Frontend**: Next.js 15, React 19, TailwindCSS, Radix UI, Shadcn, Framer Motion
 - **Backend**: Supabase (PostgreSQL + Realtime)
 - **Email**: Resend (noreply@eduplan-lnc.com) - Désactivé dans l'UI
-- **Auth**: Custom auth avec profils Supabase
+- **Auth**: Custom auth avec profils Supabase (auto-détection du rôle)
+
+## Refonte UX Complète - Feb 1, 2026 (Session 14)
+
+### Nouvelle Page de Connexion ✅
+- **Simplification** : 3 champs seulement (code établissement, identifiant, mot de passe)
+- **Auto-détection du rôle** : Plus besoin de sélectionner le rôle manuellement
+- **Design moderne** : Logo gradient, icônes dans les champs, bouton gradient violet/indigo
+- **Effets visuels** : Fond avec blur coloré subtil, animations d'entrée
+- **Fichier** : `/app/app/auth/login/page.tsx`
+- **Fonction auth** : `authenticateUserSimple()` dans `/app/lib/custom-auth.ts`
+
+### Nouvelle Architecture Layout ✅
+- **Sidebar persistante** : Navigation fixe à gauche avec menu collapsible
+- **Top bar** : Barre supérieure avec recherche (⌘K), thème, notifications, profil
+- **Composants créés** :
+  - `/app/components/layout/sidebar.tsx` - Sidebar avec navigation par rôle
+  - `/app/components/layout/top-bar.tsx` - Barre supérieure avec actions
+  - `/app/components/layout/dashboard-layout.tsx` - Container principal
+
+### Tableaux de Bord par Rôle ✅
+**Vie Scolaire** (`/app/components/dashboards/vie-scolaire-dashboard.tsx`) :
+- KPIs animés : Élèves, Professeurs, Salles, Plans de classe
+- Actions rapides : Boutons pour créer rapidement des entrées
+- Section propositions en attente
+- Résumé statistique
+
+**Professeur** (`/app/components/dashboards/professeur-dashboard.tsx`) :
+- Vue "Mes classes" avec nombre d'élèves et statut du plan
+- Propositions à valider des délégués
+- Actions contextuelles directes
+
+**Délégué** (`/app/components/dashboards/delegue-dashboard.tsx`) :
+- Carte classe avec gradient (nom, effectif, PP)
+- Compteurs : Validées, En attente, À revoir
+- Liste des propositions avec statuts et commentaires
+- Bouton "Nouvelle proposition" proéminent
+
+### Charte Graphique ✅
+| Rôle | Couleur |
+|------|---------|
+| Vie Scolaire | Indigo (#4F46E5) |
+| Professeur | Emerald (#10B981) |
+| Délégué | Sky (#0EA5E9) |
+
+### Composants UI Ajoutés ✅
+- `/app/components/ui/tooltip.tsx` - Tooltips pour la sidebar
+- Package `@radix-ui/react-tooltip` installé
+
+### Fonctionnalités UX ✅
+- ✅ Navigation sans rechargement de page
+- ✅ Sidebar collapsible avec état persistant (localStorage)
+- ✅ Menu contextuel utilisateur dans la top bar
+- ✅ Badges de notification sur les sections
+- ✅ Animations fluides (framer-motion)
+- ✅ Mode sombre (toggle dans top bar)
 
 ## Corrections Feb 1, 2026 (Session 13)
 
