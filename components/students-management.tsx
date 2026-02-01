@@ -46,9 +46,9 @@ interface Student {
   id: string
   first_name: string
   last_name: string
-  email?: string // Changed to optional
-  phone?: string // Changed to optional
-  class_id?: string // Changed to optional
+  email?: string
+  phone?: string
+  class_id?: string
   role: "eleve" | "delegue" | "eco-delegue"
   can_create_subrooms: boolean
   classes?: { name: string }
@@ -57,7 +57,9 @@ interface Student {
   profile_id?: string | null
   class_name?: string
   is_deleted?: boolean
-  birth_date?: string | null // Added birth_date
+  birth_date?: string | null
+  gender?: number | null // 1 = Homme, 2 = Femme, 3 = Non identifié
+  special_needs?: string[] // Codes des besoins particuliers (EBP)
 }
 
 interface StudentsManagementProps {
