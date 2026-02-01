@@ -199,7 +199,7 @@ export function CreateProposalDialog({
     setIsLoading(true)
 
     try {
-      let seatAssignments = {}
+      let seatAssignments: any[] = []
       let roomId = selectedRoomId
 
       if (useExistingSubRoom && selectedSubRoomId) {
