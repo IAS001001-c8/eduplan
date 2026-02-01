@@ -1630,6 +1630,31 @@ export function SeatingPlanEditor({
               </CardContent>
             </Card>
 
+            {/* Légende des couleurs - Visible pour prof/VS */}
+            {(userRole === "vie-scolaire" || userRole === "professeur") && (
+              <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Légende des couleurs</p>
+                <div className="flex flex-wrap gap-3 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 rounded bg-emerald-600 border border-emerald-700"></div>
+                    <span className="text-gray-600 dark:text-gray-300">Élève</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 rounded bg-blue-600 border border-blue-700"></div>
+                    <span className="text-gray-600 dark:text-gray-300">EBP (Besoins particuliers)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 rounded bg-orange-500 border border-orange-600"></div>
+                    <span className="text-gray-600 dark:text-gray-300">Délégué</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 rounded bg-green-500 border border-green-600"></div>
+                    <span className="text-gray-600 dark:text-gray-300">Éco-délégué</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Proposal History & Comments Section - Visible in sandbox mode */}
             {isSandbox && subRoom.proposal_data && (
               <Card className="mt-4 border-gray-200 dark:border-gray-800">
