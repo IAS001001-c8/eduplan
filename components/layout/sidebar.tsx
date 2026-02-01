@@ -17,6 +17,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Sliders,
 } from "lucide-react"
 import Image from "next/image"
 import type { UserRole } from "@/lib/types"
