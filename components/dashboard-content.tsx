@@ -311,6 +311,13 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
             onBack={() => setActiveSection("home")}
           />
         )
+      case "establishment-settings":
+        return (
+          <EstablishmentSettings
+            establishmentId={profile.establishment_id}
+            onBack={() => setActiveSection("home")}
+          />
+        )
       case "home":
       default:
         return renderDashboard()
