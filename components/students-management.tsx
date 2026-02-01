@@ -1795,60 +1795,96 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
 
       {/* View Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Profil de l'élève</DialogTitle>
+            <DialogTitle className="text-[#29282B] flex items-center gap-3">
+              Profil de l'élève
+              {/* Badge EBP si applicable (visible seulement pour profs/VS) */}
+              {(userRole === "vie-scolaire" || userRole === "professeur") && 
+               selectedStudent?.special_needs && 
+               selectedStudent.special_needs.length > 0 && (
+                <Badge className="bg-violet-100 text-violet-700 border border-violet-200">
+                  EBP {selectedStudent.special_needs.length}
+                </Badge>
+              )}
+            </DialogTitle>
           </DialogHeader>
           {selectedStudent && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-muted-foreground">Prénom</Label>
-                  <p className="font-medium">{selectedStudent.first_name}</p>
+                  <Label className="text-[#29282B]/60">Prénom</Label>
+                  <p className="font-medium text-[#29282B]">{selectedStudent.first_name}</p>
                 </div>
                 <div>
-                  <Label className="text-muted-foreground">Nom</Label>
-                  <p className="font-medium">{selectedStudent.last_name}</p>
+                  <Label className="text-[#29282B]/60">Nom</Label>
+                  <p className="font-medium text-[#29282B]">{selectedStudent.last_name}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-[#29282B]/60">Sexe</Label>
+                  <p className="font-medium text-[#29282B]">
+                    {selectedStudent.gender === 1 ? "Homme" : 
+                     selectedStudent.gender === 2 ? "Femme" : 
+                     selectedStudent.gender === 3 ? "Non identifié" : 
+                     "Non renseigné"}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-[#29282B]/60">Classe</Label>
+                  <p className="font-medium text-[#29282B]">{selectedStudent.classes?.name || "Non assigné"}</p>
                 </div>
               </div>
               {userRole === "vie-scolaire" && (
                 <>
-                  <div>
-                    <Label className="text-muted-foreground">Email</Label>
-                    <p className="font-medium">{selectedStudent.email || "Non renseigné"}</p>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">Téléphone</Label>
-                    <p className="font-medium">{selectedStudent.phone || "Non renseigné"}</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-[#29282B]/60">Email</Label>
+                      <p className="font-medium text-[#29282B]">{selectedStudent.email || "Non renseigné"}</p>
+                    </div>
+                    <div>
+                      <Label className="text-[#29282B]/60">Téléphone</Label>
+                      <p className="font-medium text-[#29282B]">{selectedStudent.phone || "Non renseigné"}</p>
+                    </div>
                   </div>
                 </>
               )}
-              <div>
-                <Label className="text-muted-foreground">Classe</Label>
-                <p className="font-medium">{selectedStudent.classes?.name || "Non assigné"}</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-[#29282B]/60">Rôle</Label>
+                  <p className="font-medium text-[#29282B]">
+                    {selectedStudent.role === "delegue"
+                      ? "Délégué"
+                      : selectedStudent.role === "eco-delegue"
+                        ? "Éco-délégué"
+                        : "Élève"}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-[#29282B]/60">Peut créer des sous-salles</Label>
+                  <p className="font-medium text-[#29282B]">{selectedStudent.can_create_subrooms ? "Oui" : "Non"}</p>
+                </div>
               </div>
-              <div>
-                <Label className="text-muted-foreground">Rôle</Label>
-                <p className="font-medium">
-                  {selectedStudent.role === "delegue"
-                    ? "Délégué"
-                    : selectedStudent.role === "eco-delegue"
-                      ? "Éco-délégué"
-                      : "Élève"}
-                </p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">Peut créer des sous-salles</Label>
-                <p className="font-medium">{selectedStudent.can_create_subrooms ? "Oui" : "Non"}</p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">Date de naissance</Label>
-                <p className="font-medium">
-                  {selectedStudent.birth_date
-                    ? new Date(selectedStudent.birth_date).toLocaleDateString()
-                    : "Non renseignée"}
-                </p>
-              </div>
+
+              {/* Besoins particuliers - visible seulement pour profs et VS */}
+              {(userRole === "vie-scolaire" || userRole === "professeur") && 
+               selectedStudent.special_needs && 
+               selectedStudent.special_needs.length > 0 && (
+                <div className="border-t border-[#D9DADC] pt-4">
+                  <Label className="text-[#29282B]/60">Besoins particuliers (EBP)</Label>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {selectedStudent.special_needs.map((code) => {
+                      const option = specialNeedsOptions.find(o => o.code === code)
+                      return (
+                        <Badge key={code} className="bg-violet-100 text-violet-700 border border-violet-200">
+                          {option?.label || code}
+                        </Badge>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
