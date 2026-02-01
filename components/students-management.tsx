@@ -892,31 +892,53 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
   function openEditDialog(student: Student) {
     setSelectedStudent(student)
     setEditData({
-      // Use setEditData
       first_name: student.first_name,
       last_name: student.last_name,
       email: student.email || "",
       phone: student.phone || "",
-      can_create_subrooms: student.can_create_subrooms, // Initialize can_create_subrooms
+      can_create_subrooms: student.can_create_subrooms,
+      gender: student.gender ? String(student.gender) as "1" | "2" | "3" : "",
+      special_needs: student.special_needs || [],
     })
     setIsEditDialogOpen(true)
   }
 
   async function handleSaveEdit() {
-    // Renamed from handleUpdateStudent
     if (!selectedStudent) return
 
     const supabase = createClient()
 
+    const updatePayload: any = {
+      first_name: editData.first_name,
+      last_name: editData.last_name,
+      email: editData.email || null,
+      phone: editData.phone || null,
+      can_create_subrooms: editData.can_create_subrooms,
+      gender: editData.gender ? parseInt(editData.gender) : null,
+    }
+
+    // Only vie-scolaire can edit special_needs
+    if (userRole === "vie-scolaire") {
+      updatePayload.special_needs = editData.special_needs
+
+      // Log the modification to history
+      if (JSON.stringify(selectedStudent.special_needs || []) !== JSON.stringify(editData.special_needs)) {
+        await supabase.from("modification_history").insert({
+          entity_type: "student",
+          entity_id: selectedStudent.id,
+          action: "update_special_needs",
+          old_value: { special_needs: selectedStudent.special_needs || [] },
+          new_value: { special_needs: editData.special_needs },
+          user_id: userId,
+          user_name: userName,
+          establishment_id: establishmentId,
+        })
+      }
+    }
+
     const { error } = await supabase
       .from("students")
-      .update({
-        first_name: editData.first_name,
-        last_name: editData.last_name,
-        email: editData.email || null,
-        phone: editData.phone || null,
-        can_create_subrooms: editData.can_create_subrooms, // Update can_create_subrooms
-      })
+      .update(updatePayload)
       .eq("id", selectedStudent.id)
 
     if (error) {
