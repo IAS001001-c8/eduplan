@@ -58,6 +58,7 @@ interface Student {
   role: string
   profile_id?: string | null // Added for notifications
   establishment_id?: string | null // Added for notifications
+  special_needs?: string[] // EBP - Élèves à Besoins Particuliers
 }
 
 interface Room {
@@ -209,7 +210,7 @@ export function SeatingPlanEditor({
 
     const { data: studentsData, error: studentsError } = await supabase
       .from("students")
-      .select("id, first_name, last_name, class_name, role, profile_id, establishment_id") // Added profile_id and establishment_id
+      .select("id, first_name, last_name, class_name, role, profile_id, establishment_id, special_needs") // Added special_needs for EBP
       .in("class_id", subRoom.class_ids)
       .order("last_name")
 
