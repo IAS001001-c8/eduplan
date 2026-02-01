@@ -684,16 +684,16 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
           </div>
         )}
 
-        {filteredSubRooms.length === 0 && (
-          <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-indigo-200 dark:border-indigo-800">
+        {filteredSubRooms.length === 0 && viewMode !== "timeline" && (
+          <Card className="bg-white border-[#D9DADC]">
             <CardContent className="py-16 text-center">
-              <div className="w-20 h-20 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center mx-auto mb-4">
-                <Search className="w-10 h-10 text-indigo-600 dark:text-indigo-400" />
+              <div className="w-20 h-20 rounded-full bg-[#FDF6E9] flex items-center justify-center mx-auto mb-4">
+                <Search className="w-10 h-10 text-[#E7A541]" />
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-[#29282B] mb-2">
                 {searchQuery ? "Aucune sous-salle trouvée" : "Aucune sous-salle créée"}
               </h3>
-              <p className="text-muted-foreground">
+              <p className="text-[#29282B]/60">
                 {searchQuery
                   ? "Essayez avec un autre terme de recherche"
                   : "Commencez par créer votre première sous-salle"}
