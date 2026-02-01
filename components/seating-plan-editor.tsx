@@ -40,6 +40,8 @@ import {
   Search,
   AlertTriangle,
   Eye,
+  Brain,
+  Sparkles,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import cn from "classnames"
