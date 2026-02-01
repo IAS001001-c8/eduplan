@@ -20,9 +20,9 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 
 ### Restrictions Sandbox pour Délégués ✅
 - Les délégués ne peuvent créer de propositions qu'à partir de sous-salles existantes
+- **FIX** : Les salles physiques sont complètement masquées pour les délégués
+- Condition: `(isDelegateOrEco || useExistingSubRoom)` pour sous-salles, `!isDelegateOrEco && !useExistingSubRoom` pour salles physiques
 - Message d'information affiché dans le dialogue de création
-- Checkbox "Créer à partir d'une salle physique" masquée pour les délégués
-- `isDelegateOrEco` force `useExistingSubRoom = true`
 - Fichier modifié : `create-proposal-dialog.tsx`
 
 ### Plans Retournés Modifiables ✅
@@ -33,10 +33,17 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - Bouton "Modifier et resoumettre" stylé en orange
 - Fichiers modifiés : `sandbox-management.tsx`, `review-proposal-dialog.tsx`
 
-### Notifications Délégués ✅
-- Notifications envoyées lors de : validation, refus, renvoi
-- Utilisation de `notifyProposalStatusChange` avec tous les statuts
-- Fichier : `lib/notifications.ts`
+### Notifications Délégués - FIX ✅
+- **FIX** : Ajout de `proposed_by` et `establishment_id` à la requête de propositions
+- Les notifications sont maintenant correctement envoyées lors de : validation, refus, renvoi
+- Utilisation de `notifyProposalStatusChange` avec tous les statuts et les bons paramètres
+- Fichier modifié : `sandbox-management.tsx` (requête), `lib/notifications.ts`
+
+### Historique avec Commentaires Textuels ✅
+- **FIX** : Les commentaires textuels du professeur sont maintenant affichés dans la chronologie
+- Affichage en italique sous la date du renvoi/refus
+- Style : bordure gauche grise, texte orange (renvoi) ou rouge (refus)
+- Fichier modifié : `seating-plan-editor.tsx`
 
 ## Corrections Jan 30, 2026 (Session 12)
 
