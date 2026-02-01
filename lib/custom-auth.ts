@@ -44,7 +44,7 @@ export async function authenticateUserSimple(
       .select("*")
       .eq("username", username)
       .eq("establishment_id", establishment.id)
-      .single()
+      .maybeSingle()
 
     if (profileError || !profile) {
       return { user: null, error: "Identifiant ou mot de passe incorrect" }
