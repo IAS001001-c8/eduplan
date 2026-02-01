@@ -27,7 +27,6 @@ interface ActiveSubRoom {
   startTime: string
   endTime: string
   weekType: string
-  seatAssignments: Record<string, string>
   roomConfig: any
 }
 
@@ -36,6 +35,12 @@ interface Student {
   first_name: string
   last_name: string
   role?: string
+}
+
+interface SeatAssignment {
+  seat_id: string
+  student_id: string
+  seat_position: number
 }
 
 // Fonction pour obtenir le numéro de semaine ISO
@@ -56,6 +61,7 @@ function getDayOfWeek(): number {
 export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPlanProps) {
   const [activeSubRoom, setActiveSubRoom] = useState<ActiveSubRoom | null>(null)
   const [students, setStudents] = useState<Student[]>([])
+  const [seatAssignments, setSeatAssignments] = useState<Map<number, string>>(new Map())
   const [currentWeekType, setCurrentWeekType] = useState<string>("A")
   const [isLoading, setIsLoading] = useState(true)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -97,7 +103,6 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
         .select(`
           id,
           name,
-          seat_assignments,
           teacher_id,
           is_deleted,
           room_id,
@@ -109,13 +114,7 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
         .eq("teacher_id", teacherId)
         .eq("is_deleted", false)
 
-      if (subRoomError) {
-        console.error("Error fetching sub_rooms:", subRoomError)
-        setIsLoading(false)
-        return
-      }
-
-      if (!subRooms || subRooms.length === 0) {
+      if (subRoomError || !subRooms || subRooms.length === 0) {
         setActiveSubRoom(null)
         setIsLoading(false)
         return
@@ -158,12 +157,34 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
         return
       }
 
-      // 4. Charger les élèves de la/des classe(s)
-      // Utiliser class_ids si disponible, sinon class_id
+      // 4. Charger les placements depuis seating_assignments (table dédiée)
+      const { data: assignments, error: assignError } = await supabase
+        .from("seating_assignments")
+        .select("seat_id, student_id, seat_position")
+        .eq("sub_room_id", subRoom.id)
+
+      if (assignError) {
+        console.error("Error fetching seat assignments:", assignError)
+      }
+
+      // Créer une map seat_position -> student_id
+      const assignmentMap = new Map<number, string>()
+      assignments?.forEach((a: SeatAssignment) => {
+        // seat_position est le numéro de la place, ou on utilise seat_id si c'est numérique
+        const seatNum = a.seat_position || parseInt(a.seat_id) || 0
+        if (seatNum > 0 && a.student_id) {
+          assignmentMap.set(seatNum, a.student_id)
+        }
+      })
+      setSeatAssignments(assignmentMap)
+
+      // 5. Charger les élèves de la/des classe(s)
       const classIds = subRoom.class_ids && subRoom.class_ids.length > 0 
         ? subRoom.class_ids 
         : (subRoom.class_id ? [subRoom.class_id] : [])
 
+      let classNames = "Classe"
+      
       if (classIds.length > 0) {
         const { data: classStudents } = await supabase
           .from("students")
@@ -180,32 +201,19 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
           .select("name")
           .in("id", classIds)
         
-        const classNames = classData?.map(c => c.name).join(", ") || "Classe"
-
-        setActiveSubRoom({
-          id: subRoom.id,
-          name: subRoom.name,
-          roomName: subRoom.rooms?.name || "Salle",
-          className: classNames,
-          startTime: matchingSchedule.start_time?.slice(0, 5) || "",
-          endTime: matchingSchedule.end_time?.slice(0, 5) || "",
-          weekType: matchingSchedule.week_type,
-          seatAssignments: subRoom.seat_assignments || {},
-          roomConfig: subRoom.rooms?.config || { columns: [] },
-        })
-      } else {
-        setActiveSubRoom({
-          id: subRoom.id,
-          name: subRoom.name,
-          roomName: subRoom.rooms?.name || "Salle",
-          className: subRoom.classes?.name || "Classe",
-          startTime: matchingSchedule.start_time?.slice(0, 5) || "",
-          endTime: matchingSchedule.end_time?.slice(0, 5) || "",
-          weekType: matchingSchedule.week_type,
-          seatAssignments: subRoom.seat_assignments || {},
-          roomConfig: subRoom.rooms?.config || { columns: [] },
-        })
+        classNames = classData?.map(c => c.name).join(", ") || "Classe"
       }
+
+      setActiveSubRoom({
+        id: subRoom.id,
+        name: subRoom.name,
+        roomName: subRoom.rooms?.name || "Salle",
+        className: classNames,
+        startTime: matchingSchedule.start_time?.slice(0, 5) || "",
+        endTime: matchingSchedule.end_time?.slice(0, 5) || "",
+        weekType: matchingSchedule.week_type,
+        roomConfig: subRoom.rooms?.config || { columns: [] },
+      })
     } catch (error) {
       console.error("Error:", error)
     } finally {
@@ -213,43 +221,138 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
     }
   }
 
-  // Rendu du mini plan de classe
-  const renderMiniPlan = () => {
+  // Calculer les dimensions adaptatives pour le plan
+  const getAdaptiveSizes = (isFullscreenView: boolean) => {
+    if (!activeSubRoom) return { seatWidth: 32, seatHeight: 32, gap: 4 }
+    
+    const config = activeSubRoom.roomConfig
+    const columns = config.columns || []
+    
+    // Calculer le nombre total de colonnes et de rangées
+    const numColumns = columns.length
+    const maxTables = Math.max(...columns.map((c: any) => c.tables || 0), 1)
+    const maxSeatsPerTable = Math.max(...columns.map((c: any) => c.seatsPerTable || 2), 2)
+    
+    if (isFullscreenView) {
+      // En plein écran, adapter pour que tout soit visible
+      // Largeur disponible ~ 90vw - marges, hauteur disponible ~ 70vh
+      const availableWidth = window.innerWidth * 0.85
+      const availableHeight = window.innerHeight * 0.65
+      
+      // Calculer la taille max des sièges pour tenir dans l'espace
+      const gapX = 8 // gap entre colonnes
+      const gapY = 6 // gap entre tables
+      const gapSeat = 4 // gap entre sièges d'une même table
+      
+      const totalWidthNeeded = numColumns * maxSeatsPerTable
+      const totalHeightNeeded = maxTables
+      
+      // Taille max basée sur la largeur
+      const maxWidthBasedSize = (availableWidth - (numColumns - 1) * gapX - numColumns * (maxSeatsPerTable - 1) * gapSeat) / totalWidthNeeded
+      
+      // Taille max basée sur la hauteur
+      const maxHeightBasedSize = (availableHeight - (maxTables - 1) * gapY) / totalHeightNeeded
+      
+      // Prendre le minimum, avec une taille max de 100px et min de 40px
+      const seatSize = Math.min(Math.max(Math.min(maxWidthBasedSize, maxHeightBasedSize), 40), 100)
+      
+      return {
+        seatWidth: seatSize,
+        seatHeight: seatSize * 0.75,
+        gap: Math.max(4, seatSize * 0.08),
+        colGap: Math.max(12, seatSize * 0.15),
+        tableGap: Math.max(6, seatSize * 0.1),
+      }
+    } else {
+      // Version miniature dans le dashboard
+      return {
+        seatWidth: 32,
+        seatHeight: 32,
+        gap: 2,
+        colGap: 8,
+        tableGap: 4,
+      }
+    }
+  }
+
+  // Rendu du plan de classe
+  const renderPlan = (isFullscreenView: boolean) => {
     if (!activeSubRoom) return null
 
     const config = activeSubRoom.roomConfig
     const columns = config.columns || []
+    const sizes = getAdaptiveSizes(isFullscreenView)
     let seatNumber = 1
 
     return (
-      <div className="flex gap-2 justify-center">
+      <div className={cn(
+        "flex justify-center",
+        isFullscreenView ? "gap-4" : "gap-2"
+      )} style={{ gap: isFullscreenView ? sizes.colGap : sizes.gap }}>
         {columns.map((column: any, colIndex: number) => (
-          <div key={colIndex} className="flex flex-col gap-1">
+          <div key={colIndex} className="flex flex-col" style={{ gap: isFullscreenView ? sizes.tableGap : 1 }}>
             {Array.from({ length: column.tables || 0 }).map((_, tableIndex) => (
-              <div key={tableIndex} className="flex gap-0.5">
+              <div key={tableIndex} className="flex" style={{ gap: sizes.gap }}>
                 {Array.from({ length: column.seatsPerTable || 2 }).map((_, seatIndex) => {
                   const currentSeat = seatNumber++
-                  const studentId = activeSubRoom.seatAssignments[currentSeat.toString()]
+                  const studentId = seatAssignments.get(currentSeat)
                   const student = studentId ? students.find((s) => s.id === studentId) : null
 
-                  return (
-                    <div
-                      key={seatIndex}
-                      className={cn(
-                        "w-8 h-8 rounded text-[8px] flex items-center justify-center truncate font-medium",
-                        student
-                          ? student.role === "delegue"
-                            ? "bg-[#E7A541] text-white"
-                            : student.role === "eco-delegue"
-                            ? "bg-green-500 text-white"
-                            : "bg-[#29282B] text-white"
-                          : "bg-[#F5F5F6] border border-[#D9DADC] text-[#29282B]/30"
-                      )}
-                      title={student ? `${student.first_name} ${student.last_name}` : `Place ${currentSeat}`}
-                    >
-                      {student ? student.last_name.slice(0, 4) : currentSeat}
-                    </div>
-                  )
+                  if (isFullscreenView) {
+                    return (
+                      <div
+                        key={seatIndex}
+                        className={cn(
+                          "rounded-lg flex flex-col items-center justify-center p-1 transition-all shadow-sm",
+                          student
+                            ? student.role === "delegue"
+                              ? "bg-[#E7A541] text-white"
+                              : student.role === "eco-delegue"
+                              ? "bg-green-500 text-white"
+                              : "bg-[#29282B] text-white"
+                            : "bg-[#F5F5F6] border-2 border-dashed border-[#D9DADC]"
+                        )}
+                        style={{ 
+                          width: sizes.seatWidth, 
+                          height: sizes.seatHeight,
+                          fontSize: Math.max(10, sizes.seatWidth * 0.12),
+                        }}
+                      >
+                        {student ? (
+                          <>
+                            <span className="font-bold truncate w-full text-center" style={{ fontSize: Math.max(11, sizes.seatWidth * 0.14) }}>
+                              {student.last_name}
+                            </span>
+                            <span className="truncate w-full text-center opacity-80" style={{ fontSize: Math.max(9, sizes.seatWidth * 0.11) }}>
+                              {student.first_name}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-[#29282B]/30 font-medium">{currentSeat}</span>
+                        )}
+                      </div>
+                    )
+                  } else {
+                    // Version miniature
+                    return (
+                      <div
+                        key={seatIndex}
+                        className={cn(
+                          "w-8 h-8 rounded text-[8px] flex items-center justify-center truncate font-medium",
+                          student
+                            ? student.role === "delegue"
+                              ? "bg-[#E7A541] text-white"
+                              : student.role === "eco-delegue"
+                              ? "bg-green-500 text-white"
+                              : "bg-[#29282B] text-white"
+                            : "bg-[#F5F5F6] border border-[#D9DADC] text-[#29282B]/30"
+                        )}
+                        title={student ? `${student.first_name} ${student.last_name}` : `Place ${currentSeat}`}
+                      >
+                        {student ? student.last_name.slice(0, 4) : currentSeat}
+                      </div>
+                    )
+                  }
                 })}
               </div>
             ))}
@@ -259,105 +362,18 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
     )
   }
 
-  // Rendu du plan de classe en plein écran
-  const renderFullPlan = () => {
-    if (!activeSubRoom) return null
-
-    const config = activeSubRoom.roomConfig
-    const columns = config.columns || []
-    let seatNumber = 1
-
-    return (
-      <div className="p-6">
-        {/* Tableau */}
-        <div className="w-full max-w-4xl mx-auto h-14 bg-[#E7A541] rounded-xl flex items-center justify-center mb-10 shadow-lg">
-          <span className="text-white font-bold text-lg tracking-wide">TABLEAU</span>
-        </div>
-
-        {/* Places */}
-        <div className="flex gap-8 justify-center">
-          {columns.map((column: any, colIndex: number) => (
-            <div key={colIndex} className="flex flex-col gap-3">
-              {Array.from({ length: column.tables || 0 }).map((_, tableIndex) => (
-                <div key={tableIndex} className="flex gap-2">
-                  {Array.from({ length: column.seatsPerTable || 2 }).map((_, seatIndex) => {
-                    const currentSeat = seatNumber++
-                    const studentId = activeSubRoom.seatAssignments[currentSeat.toString()]
-                    const student = studentId ? students.find((s) => s.id === studentId) : null
-
-                    return (
-                      <div
-                        key={seatIndex}
-                        className={cn(
-                          "w-32 h-20 rounded-xl flex flex-col items-center justify-center p-2 shadow-md transition-all",
-                          student
-                            ? student.role === "delegue"
-                              ? "bg-[#E7A541] text-white"
-                              : student.role === "eco-delegue"
-                              ? "bg-green-500 text-white"
-                              : "bg-[#29282B] text-white"
-                            : "bg-[#F5F5F6] border-2 border-dashed border-[#D9DADC]"
-                        )}
-                      >
-                        {student ? (
-                          <>
-                            <span className="text-sm font-bold truncate w-full text-center">
-                              {student.last_name}
-                            </span>
-                            <span className="text-xs truncate w-full text-center opacity-80">
-                              {student.first_name}
-                            </span>
-                            {student.role && (
-                              <Badge className={cn(
-                                "mt-1 text-[10px] px-2",
-                                student.role === "delegue" ? "bg-white/20" : "bg-white/20"
-                              )}>
-                                {student.role === "delegue" ? "Délégué" : "Éco-délégué"}
-                              </Badge>
-                            )}
-                          </>
-                        ) : (
-                          <span className="text-sm text-[#29282B]/30 font-medium">{currentSeat}</span>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-
-        {/* Légende */}
-        <div className="flex items-center justify-center gap-6 mt-10 pt-6 border-t border-[#D9DADC]">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded bg-[#29282B]" />
-            <span className="text-sm text-[#29282B]">Élève</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded bg-[#E7A541]" />
-            <span className="text-sm text-[#29282B]">Délégué</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded bg-green-500" />
-            <span className="text-sm text-[#29282B]">Éco-délégué</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded bg-[#F5F5F6] border-2 border-dashed border-[#D9DADC]" />
-            <span className="text-sm text-[#29282B]">Place vide</span>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   if (isLoading) {
-    return null // Ne rien afficher pendant le chargement
+    return null
   }
 
   if (!activeSubRoom) {
-    return null // Ne rien afficher s'il n'y a pas de cours en cours
+    return null
   }
+
+  // Compter les élèves placés
+  const placedStudentsCount = Array.from(seatAssignments.values()).filter(id => 
+    students.some(s => s.id === id)
+  ).length
 
   return (
     <>
@@ -405,35 +421,66 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
                 <span className="text-[#29282B] font-medium">{activeSubRoom.className}</span>
               </div>
               <p className="text-lg font-bold text-[#29282B] mt-2">{activeSubRoom.name}</p>
-              <p className="text-sm text-[#29282B]/60">{students.length} élèves</p>
+              <p className="text-sm text-[#29282B]/60">
+                {placedStudentsCount}/{students.length} élèves placés
+              </p>
             </div>
 
             {/* Mini plan */}
             <div className="flex-1 flex justify-center">
-              {renderMiniPlan()}
+              {renderPlan(false)}
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Dialog plein écran - AGRANDI */}
+      {/* Dialog plein écran - Adaptatif */}
       <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
-        <DialogContent className="max-w-6xl w-[95vw] h-[90vh] overflow-auto">
+        <DialogContent className="max-w-[95vw] w-fit max-h-[95vh] overflow-auto">
           <DialogHeader className="border-b border-[#D9DADC] pb-4">
-            <DialogTitle className="flex items-center gap-4 text-[#29282B]">
-              <span className="text-2xl font-bold">{activeSubRoom.name}</span>
+            <DialogTitle className="flex items-center gap-4 text-[#29282B] flex-wrap">
+              <span className="text-xl font-bold">{activeSubRoom.name}</span>
               <Badge className="bg-[#FDF6E9] text-[#E7A541] border border-[#E7A541]/20 text-sm px-3 py-1">
                 {activeSubRoom.roomName}
               </Badge>
               <Badge className="bg-[#F5F5F6] text-[#29282B] text-sm px-3 py-1">
                 {activeSubRoom.className}
               </Badge>
-              <span className="text-base text-[#29282B]/60 ml-auto">
-                {activeSubRoom.startTime} - {activeSubRoom.endTime}
+              <span className="text-sm text-[#29282B]/60 ml-auto">
+                {activeSubRoom.startTime} - {activeSubRoom.endTime} • {placedStudentsCount}/{students.length} élèves
               </span>
             </DialogTitle>
           </DialogHeader>
-          {renderFullPlan()}
+          
+          <div className="py-6">
+            {/* Tableau */}
+            <div className="w-full max-w-3xl mx-auto h-10 bg-[#E7A541] rounded-lg flex items-center justify-center mb-8 shadow-md">
+              <span className="text-white font-bold tracking-wide">TABLEAU</span>
+            </div>
+
+            {/* Plan adaptatif */}
+            {renderPlan(true)}
+
+            {/* Légende */}
+            <div className="flex items-center justify-center gap-6 mt-8 pt-4 border-t border-[#D9DADC]">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-[#29282B]" />
+                <span className="text-sm text-[#29282B]">Élève</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-[#E7A541]" />
+                <span className="text-sm text-[#29282B]">Délégué</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-green-500" />
+                <span className="text-sm text-[#29282B]">Éco-délégué</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-[#F5F5F6] border-2 border-dashed border-[#D9DADC]" />
+                <span className="text-sm text-[#29282B]">Place vide</span>
+              </div>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </>
