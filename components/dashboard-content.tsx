@@ -39,13 +39,14 @@ import { ClassesManagement } from "@/components/classes-management"
 import { RoomsManagement } from "@/components/rooms-management"
 import { SeatingPlanManagement } from "@/components/seating-plan-management"
 import { SandboxManagement } from "@/components/sandbox-management"
+import { EstablishmentSettings } from "@/components/establishment-settings"
 
 interface DashboardContentProps {
   user: User
   profile: Profile
 }
 
-type SectionType = "home" | "students" | "teachers" | "classes" | "rooms" | "seating-plan" | "sandbox" | "settings"
+type SectionType = "home" | "students" | "teachers" | "classes" | "rooms" | "seating-plan" | "sandbox" | "settings" | "establishment-settings"
 
 export function DashboardContent({ user, profile }: DashboardContentProps) {
   const router = useRouter()
