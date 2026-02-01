@@ -324,6 +324,7 @@ export function SeatingPlanEditor({
   }
 
   const handleDragStart = (e: React.DragEvent | null, studentId: string) => {
+    if (isReadOnly) return // Block drag for read-only users
     setDraggedStudent(studentId)
     if (e) {
       e.dataTransfer.setData("studentId", studentId)
@@ -331,10 +332,12 @@ export function SeatingPlanEditor({
   }
 
   const handleDragOver = (e: React.DragEvent) => {
+    if (isReadOnly) return // Block drop for read-only users
     e.preventDefault()
   }
 
   const handleDrop = (e: React.DragEvent, seatNumber: number) => {
+    if (isReadOnly) return // Block drop for read-only users
     e.preventDefault()
     const studentId = e.dataTransfer.getData("studentId")
     if (!studentId) return
