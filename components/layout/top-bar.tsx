@@ -1,10 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Bell, Search, User, Settings, LogOut, Moon, Sun, Command } from "lucide-react"
+import { Search, Settings, LogOut, Moon, Sun, Command } from "lucide-react"
 import { NotificationsDropdown } from "@/components/notifications-dropdown"
 import { GlobalSearch } from "@/components/global-search"
 import type { UserRole } from "@/lib/types"
@@ -39,20 +37,6 @@ const getRoleLabel = (role: UserRole): string => {
       return "Éco-délégué"
     default:
       return "Utilisateur"
-  }
-}
-
-const getRoleColor = (role: UserRole): string => {
-  switch (role) {
-    case "vie-scolaire":
-      return "bg-indigo-500"
-    case "professeur":
-      return "bg-emerald-500"
-    case "delegue":
-    case "eco-delegue":
-      return "bg-sky-500"
-    default:
-      return "bg-slate-500"
   }
 }
 
@@ -90,7 +74,7 @@ export function TopBar({
     <>
       <header
         className={cn(
-          "fixed top-0 right-0 z-30 h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-sm transition-all duration-300",
+          "fixed top-0 right-0 z-30 h-16 border-b border-[#D9DADC] bg-white transition-all duration-300",
           isCollapsed ? "left-[70px]" : "left-[260px]"
         )}
       >
@@ -99,12 +83,12 @@ export function TopBar({
           <div className="flex-1 max-w-xl">
             <Button
               variant="outline"
-              className="w-full justify-start text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="w-full justify-start text-[#29282B]/50 bg-[#F5F5F6] border-[#D9DADC] hover:bg-[#EBEBED] hover:border-[#D9DADC]"
               onClick={() => setIsSearchOpen(true)}
             >
               <Search className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">Rechercher...</span>
-              <kbd className="ml-auto hidden sm:inline-flex h-5 items-center gap-1 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-1.5 font-mono text-[10px] font-medium text-slate-500">
+              <kbd className="ml-auto hidden sm:inline-flex h-5 items-center gap-1 rounded border border-[#D9DADC] bg-white px-1.5 font-mono text-[10px] font-medium text-[#29282B]/50">
                 <Command className="h-3 w-3" />K
               </kbd>
             </Button>
@@ -116,7 +100,7 @@ export function TopBar({
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 text-slate-500 hover:text-slate-900 dark:hover:text-white"
+              className="h-9 w-9 text-[#29282B]/60 hover:text-[#E7A541] hover:bg-[#FDF6E9]"
               onClick={toggleTheme}
             >
               {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -130,29 +114,29 @@ export function TopBar({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="h-9 gap-2 px-2 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  className="h-9 gap-2 px-2 hover:bg-[#F5F5F6]"
                 >
-                  <div className={cn("w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-medium", getRoleColor(userRole))}>
+                  <div className="w-7 h-7 rounded-full bg-[#E7A541] flex items-center justify-center text-white text-xs font-medium">
                     {userName.charAt(0).toUpperCase()}
                   </div>
                   <div className="hidden md:block text-left">
-                    <p className="text-sm font-medium text-slate-900 dark:text-white leading-none">{userName}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{getRoleLabel(userRole)}</p>
+                    <p className="text-sm font-medium text-[#29282B] leading-none">{userName}</p>
+                    <p className="text-xs text-[#29282B]/60">{getRoleLabel(userRole)}</p>
                   </div>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-56 bg-white border-[#D9DADC]">
                 <div className="px-2 py-1.5">
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">{userName}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{getRoleLabel(userRole)}</p>
+                  <p className="text-sm font-medium text-[#29282B]">{userName}</p>
+                  <p className="text-xs text-[#29282B]/60">{getRoleLabel(userRole)}</p>
                 </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={onOpenSettings}>
+                <DropdownMenuSeparator className="bg-[#D9DADC]" />
+                <DropdownMenuItem onClick={onOpenSettings} className="text-[#29282B] focus:bg-[#F5F5F6] focus:text-[#29282B]">
                   <Settings className="mr-2 h-4 w-4" />
                   Paramètres
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={onLogout} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950">
+                <DropdownMenuSeparator className="bg-[#D9DADC]" />
+                <DropdownMenuItem onClick={onLogout} className="text-red-600 focus:text-red-600 focus:bg-red-50">
                   <LogOut className="mr-2 h-4 w-4" />
                   Déconnexion
                 </DropdownMenuItem>
