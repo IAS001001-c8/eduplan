@@ -1239,40 +1239,10 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
 
       {/* View Toggle - Below filters */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-[#29282B]/60">
           {filteredStudents.length} élève(s) affiché(s)
         </div>
         <ViewToggle view={viewMode} onViewChange={setViewMode} />
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total élèves</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{students.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Délégués</CardTitle>
-            <Badge variant="secondary">Délégué</Badge>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{students.filter((s) => s.role === "delegue").length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Éco-délégués</CardTitle>
-            <Badge variant="outline">Éco-délégué</Badge>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{students.filter((s) => s.role === "eco-delegue").length}</div>
-          </CardContent>
-        </Card>
       </div>
 
       {filteredStudents.length === 0 ? (
