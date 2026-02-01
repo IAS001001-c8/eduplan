@@ -188,6 +188,99 @@ export function EstablishmentSettings({ establishmentId, onBack }: Establishment
     }
   }
 
+  // Fonctions EBP
+  const handleAddEBP = async () => {
+    if (!newEBP.code.trim() || !newEBP.label.trim()) {
+      toast({
+        title: "Erreur",
+        description: "Le code et le libellé sont obligatoires",
+        variant: "destructive",
+      })
+      return
+    }
+    
+    // Vérifier si le code existe déjà
+    if (specialNeeds.some(sn => sn.code.toLowerCase() === newEBP.code.toLowerCase())) {
+      toast({
+        title: "Erreur",
+        description: "Ce code existe déjà",
+        variant: "destructive",
+      })
+      return
+    }
+    
+    setIsSavingEBP(true)
+    const supabase = createClient()
+    
+    try {
+      const { data, error } = await supabase
+        .from("establishment_special_needs")
+        .insert({
+          establishment_id: establishmentId,
+          code: newEBP.code.toUpperCase(),
+          label: newEBP.label,
+          description: newEBP.description || null,
+          is_default: false,
+        })
+        .select()
+        .single()
+      
+      if (error) throw error
+      
+      setSpecialNeeds([...specialNeeds, data])
+      setNewEBP({ code: "", label: "", description: "" })
+      setShowAddEBP(false)
+      toast({
+        title: "Succès",
+        description: "Caractéristique EBP ajoutée",
+      })
+    } catch (error) {
+      console.error("Error adding EBP:", error)
+      toast({
+        title: "Erreur",
+        description: "Impossible d'ajouter la caractéristique",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSavingEBP(false)
+    }
+  }
+  
+  const handleDeleteEBP = async (ebp: SpecialNeedOption) => {
+    if (ebp.is_default) {
+      toast({
+        title: "Action impossible",
+        description: "Les caractéristiques par défaut ne peuvent pas être supprimées",
+        variant: "destructive",
+      })
+      return
+    }
+    
+    const supabase = createClient()
+    
+    try {
+      const { error } = await supabase
+        .from("establishment_special_needs")
+        .delete()
+        .eq("id", ebp.id)
+      
+      if (error) throw error
+      
+      setSpecialNeeds(specialNeeds.filter(sn => sn.id !== ebp.id))
+      toast({
+        title: "Succès",
+        description: "Caractéristique supprimée",
+      })
+    } catch (error) {
+      console.error("Error deleting EBP:", error)
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer la caractéristique",
+        variant: "destructive",
+      })
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="space-y-6">
