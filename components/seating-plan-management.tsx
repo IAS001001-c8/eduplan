@@ -754,13 +754,13 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
           itemType="sous-salle"
         />
 
-        <RenameSubRoomDialog
-          open={isRenameDialogOpen}
-          onOpenChange={setIsRenameDialogOpen}
-          subRoom={subRoomToRename}
+        <EditSubRoomDialog
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          subRoom={subRoomToEdit}
           onSuccess={() => {
             fetchSubRooms()
-            setSubRoomToRename(null)
+            setSubRoomToEdit(null)
           }}
         />
       </div>
