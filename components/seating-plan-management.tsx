@@ -498,11 +498,37 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
         </div>
 
         {/* View Toggle */}
-        <div className="flex justify-end mb-4">
-          <ViewToggle view={viewMode} onViewChange={setViewMode} />
+        <div className="flex justify-end mb-4 gap-2">
+          {userRole === "professeur" && currentUserRecord && (
+            <Button
+              variant={viewMode === "timeline" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("timeline")}
+              className={viewMode === "timeline" ? "bg-[#E7A541] hover:bg-[#D4933A]" : "border-[#D9DADC]"}
+            >
+              <Calendar className="h-4 w-4 mr-1" />
+              Timeline
+            </Button>
+          )}
+          <ViewToggle view={viewMode === "timeline" ? "list" : viewMode} onViewChange={(v) => setViewMode(v as "grid" | "list")} />
         </div>
 
-        {viewMode === "grid" ? (
+        {/* Timeline View for Professors */}
+        {viewMode === "timeline" && userRole === "professeur" && currentUserRecord && (
+          <ScheduleTimeline
+            teacherId={currentUserRecord.id}
+            establishmentId={establishmentId}
+            onEditSubRoom={(subRoomId) => {
+              const subRoom = subRooms.find(s => s.id === subRoomId)
+              if (subRoom) {
+                setSelectedSubRoom(subRoom)
+                setIsEditorOpen(true)
+              }
+            }}
+          />
+        )}
+
+        {viewMode === "grid" && (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredSubRooms.map((subRoom) => {
             const room = rooms.find(r => r.id === subRoom.room_id)
