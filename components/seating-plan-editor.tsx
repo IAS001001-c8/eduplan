@@ -1332,13 +1332,11 @@ export function SeatingPlanEditor({
       </div>
 
       {/* Alert for teacher comments if delegate received a return */}
-      {isSandbox && userRole === "delegue" && subRoom.proposal_data?.teacher_comments && (
+      {isSandbox && (userRole === "delegue" || userRole === "eco-delegue") && subRoom.proposal_data?.teacher_comments && (
         <div className="mx-6 mt-4 p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0">
-              <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-bold">!</span>
-              </div>
+              <AlertTriangle className="w-6 h-6 text-orange-500" />
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-orange-800 dark:text-orange-200 mb-2">
