@@ -1015,12 +1015,6 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
             )}
           </div>
         )}
-                  ? "Essayez avec un autre terme de recherche"
-                  : "Commencez par créer votre première sous-salle"}
-              </p>
-            </CardContent>
-          </Card>
-        )}
 
         <CreateSubRoomDialog
           open={isCreateDialogOpen}
