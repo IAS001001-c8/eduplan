@@ -1657,24 +1657,41 @@ export function SeatingPlanEditor({
                         </div>
                       )}
                       {subRoom.proposal_data.reviewed_at && (
-                        <div className="flex items-center gap-2">
-                          <div className={cn(
-                            "w-2 h-2 rounded-full",
-                            subRoom.proposal_data.status === "approved" ? "bg-green-500" :
-                            subRoom.proposal_data.status === "rejected" ? "bg-red-500" :
-                            "bg-orange-500"
-                          )}></div>
-                          <span>
-                            {subRoom.proposal_data.status === "approved" ? "Validé" :
-                             subRoom.proposal_data.status === "rejected" ? "Refusé" :
-                             "Renvoyé"} le {new Date(subRoom.proposal_data.reviewed_at).toLocaleDateString("fr-FR", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit"
-                            })}
-                          </span>
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <div className={cn(
+                              "w-2 h-2 rounded-full",
+                              subRoom.proposal_data.status === "approved" ? "bg-green-500" :
+                              subRoom.proposal_data.status === "rejected" ? "bg-red-500" :
+                              "bg-orange-500"
+                            )}></div>
+                            <span>
+                              {subRoom.proposal_data.status === "approved" ? "Validé" :
+                               subRoom.proposal_data.status === "rejected" ? "Refusé" :
+                               "Renvoyé"} le {new Date(subRoom.proposal_data.reviewed_at).toLocaleDateString("fr-FR", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })}
+                            </span>
+                          </div>
+                          {/* Show teacher comment/rejection reason in timeline */}
+                          {subRoom.proposal_data.status !== "approved" && (
+                            <div className="ml-4 pl-2 border-l-2 border-gray-200 dark:border-gray-700">
+                              {subRoom.proposal_data.teacher_comments && (
+                                <p className="text-xs text-orange-700 dark:text-orange-300 italic">
+                                  "{subRoom.proposal_data.teacher_comments}"
+                                </p>
+                              )}
+                              {subRoom.proposal_data.status === "rejected" && subRoom.proposal_data.rejection_reason && (
+                                <p className="text-xs text-red-700 dark:text-red-300 italic">
+                                  "{subRoom.proposal_data.rejection_reason}"
+                                </p>
+                              )}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
