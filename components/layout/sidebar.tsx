@@ -84,7 +84,7 @@ const navItems: NavItem[] = [
   },
   {
     id: "establishment-settings",
-    label: "Paramètres",
+    label: "Réglages A/B",
     icon: Sliders,
     roles: ["vie-scolaire"],
   },
