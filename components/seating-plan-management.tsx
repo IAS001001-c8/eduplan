@@ -506,7 +506,7 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
           {filteredSubRooms.map((subRoom) => {
             const room = rooms.find(r => r.id === subRoom.room_id)
             const columns = room?.config?.columns || []
-            const canRename = isVieScolaire || isTeacher
+            const canModify = isVieScolaire || isTeacher
             
             return (
             <Card 
@@ -519,17 +519,20 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
             >
               <CardHeader className="pb-2">
                 <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    checked={selectedSubRoomIds.includes(subRoom.id)}
-                    onChange={() => toggleSubRoomSelection(subRoom.id)}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-5 h-5 mt-1 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer shrink-0"
-                  />
+                  {/* Checkbox only for users who can delete */}
+                  {canModify && (
+                    <input
+                      type="checkbox"
+                      checked={selectedSubRoomIds.includes(subRoom.id)}
+                      onChange={() => toggleSubRoomSelection(subRoom.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-5 h-5 mt-1 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer shrink-0"
+                    />
+                  )}
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <CardTitle className="text-lg">{subRoom.name}</CardTitle>
-                      {canRename && (
+                      {canModify && (
                         <Button
                           variant="ghost"
                           size="icon"
