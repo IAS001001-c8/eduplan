@@ -1215,10 +1215,15 @@ export function SeatingPlanEditor({
         return a.seatNumber - b.seatNumber
       })
     
-    // Places sur les bords, triées par distance du centre (plus loin = mieux pour TSA)
+    // Places sur les bords, triées par distance du centre (plus loin = mieux pour TSA), puis par numéro
     const edgeSeats = allSeatsSorted
       .filter(s => s.isEdge)
-      .sort((a, b) => b.distanceFromCenter - a.distanceFromCenter)
+      .sort((a, b) => {
+        if (b.distanceFromCenter !== a.distanceFromCenter) {
+          return b.distanceFromCenter - a.distanceFromCenter
+        }
+        return a.seatNumber - b.seatNumber
+      })
     
     // ====== 1. PLACER LES EBP VUE/AUDITION AU PREMIER RANG ======
     const frontRowSeats = allSeatsSorted.filter(s => s.distanceFromBoard === 0)
