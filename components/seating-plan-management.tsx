@@ -663,10 +663,10 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
                             variant="ghost" 
                             size="sm" 
                             onClick={() => { 
-                              setSubRoomToRename(subRoom)
-                              setIsRenameDialogOpen(true) 
+                              setSubRoomToEdit(subRoom)
+                              setIsEditDialogOpen(true) 
                             }}
-                            title="Renommer"
+                            title="Modifier"
                             className="hover:bg-[#FDF6E9]"
                           >
                             <Pencil className="h-4 w-4" />
