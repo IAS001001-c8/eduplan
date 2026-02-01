@@ -328,7 +328,113 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
     if (subRoomsData) setSubRooms(subRoomsData)
 
     await setAvailableOptions(supabase)
+    
+    // Fetch teacher-class associations for folder structure
+    const { data: tcData } = await supabase
+      .from("teacher_classes")
+      .select("teacher_id, class_id")
+    
+    if (tcData) {
+      const mapping = new Map<string, string[]>()
+      tcData.forEach((tc: any) => {
+        const existing = mapping.get(tc.teacher_id) || []
+        if (!existing.includes(tc.class_id)) {
+          mapping.set(tc.teacher_id, [...existing, tc.class_id])
+        }
+      })
+      setTeacherClasses(mapping)
+    }
   }
+  
+  // Toggle folder expansion
+  const toggleFolder = (folderId: string) => {
+    setExpandedFolders(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(folderId)) {
+        newSet.delete(folderId)
+      } else {
+        newSet.add(folderId)
+      }
+      return newSet
+    })
+  }
+  
+  const toggleSubFolder = (subFolderId: string) => {
+    setExpandedSubFolders(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(subFolderId)) {
+        newSet.delete(subFolderId)
+      } else {
+        newSet.add(subFolderId)
+      }
+      return newSet
+    })
+  }
+  
+  // Organize sub-rooms into folder structure based on role
+  const folderStructure = useMemo(() => {
+    if (userRole === "vie-scolaire") {
+      // VS: Folders by class > sub-folders by teacher > sub-rooms
+      const structure: Map<string, Map<string, SubRoom[]>> = new Map()
+      
+      classes.filter(c => !c.is_level).forEach(cls => {
+        structure.set(cls.id, new Map())
+      })
+      
+      subRooms.forEach(subRoom => {
+        subRoom.class_ids.forEach(classId => {
+          if (!structure.has(classId)) {
+            structure.set(classId, new Map())
+          }
+          const classMap = structure.get(classId)!
+          const teacherId = subRoom.teacher_id
+          if (!classMap.has(teacherId)) {
+            classMap.set(teacherId, [])
+          }
+          // Avoid duplicates
+          const existing = classMap.get(teacherId)!
+          if (!existing.find(sr => sr.id === subRoom.id)) {
+            classMap.get(teacherId)!.push(subRoom)
+          }
+        })
+      })
+      
+      return { type: "vie-scolaire" as const, data: structure }
+    } else if (userRole === "professeur") {
+      // Prof: Folders by class > sub-rooms directly
+      const structure: Map<string, SubRoom[]> = new Map()
+      
+      subRooms.forEach(subRoom => {
+        subRoom.class_ids.forEach(classId => {
+          if (!structure.has(classId)) {
+            structure.set(classId, [])
+          }
+          const existing = structure.get(classId)!
+          if (!existing.find(sr => sr.id === subRoom.id)) {
+            structure.get(classId)!.push(subRoom)
+          }
+        })
+      })
+      
+      return { type: "professeur" as const, data: structure }
+    } else {
+      // Delegate/Eco-delegate: Folders by teacher > sub-rooms
+      const structure: Map<string, SubRoom[]> = new Map()
+      
+      subRooms.forEach(subRoom => {
+        const teacherId = subRoom.teacher_id
+        if (!structure.has(teacherId)) {
+          structure.set(teacherId, [])
+        }
+        const existing = structure.get(teacherId)!
+        if (!existing.find(sr => sr.id === subRoom.id)) {
+          structure.get(teacherId)!.push(subRoom)
+        }
+      })
+      
+      return { type: "delegue" as const, data: structure }
+    }
+  }, [subRooms, classes, userRole])
 
   const handleToggleClass = (classId: string) => {
     if (formData.isMultiClass) {
