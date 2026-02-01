@@ -72,6 +72,12 @@ export function EstablishmentSettings({ establishmentId, onBack }: Establishment
   const [isSaving, setIsSaving] = useState(false)
   const [copied, setCopied] = useState(false)
   const [showCalendar, setShowCalendar] = useState(false)
+  
+  // États pour la gestion EBP
+  const [specialNeeds, setSpecialNeeds] = useState<SpecialNeedOption[]>([])
+  const [showAddEBP, setShowAddEBP] = useState(false)
+  const [newEBP, setNewEBP] = useState({ code: "", label: "", description: "" })
+  const [isSavingEBP, setIsSavingEBP] = useState(false)
 
   useEffect(() => {
     fetchData()
