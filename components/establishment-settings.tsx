@@ -43,6 +43,14 @@ interface SettingsData {
   school_year_start_month: number
 }
 
+interface SpecialNeedOption {
+  id: string
+  code: string
+  label: string
+  description?: string
+  is_default: boolean
+}
+
 const TIMEZONES = [
   { value: "Europe/Paris", label: "Paris (GMT+1)" },
   { value: "Europe/London", label: "Londres (GMT+0)" },
