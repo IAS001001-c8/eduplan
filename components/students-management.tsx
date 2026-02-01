@@ -199,6 +199,14 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
   async function fetchData() {
     setLoading(true)
 
+    // Fetch special needs options for this establishment
+    const { data: specialNeedsData } = await supabase
+      .from("establishment_special_needs")
+      .select("code, label")
+      .eq("establishment_id", establishmentId)
+      .order("display_order")
+    
+    setSpecialNeedsOptions(specialNeedsData || [])
 
     const classesResult = await supabase
       .from("classes")
