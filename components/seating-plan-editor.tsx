@@ -1341,6 +1341,25 @@ export function SeatingPlanEditor({
         </div>
       </div>
 
+      {/* Read-only mode banner for delegates */}
+      {isReadOnly && (
+        <div className="mx-6 mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0">
+              <Eye className="w-6 h-6 text-blue-500" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-1">
+                Mode visualisation
+              </h3>
+              <p className="text-blue-700 dark:text-blue-300 text-sm">
+                En tant que délégué, vous pouvez uniquement consulter ce plan. Pour proposer des modifications, utilisez le <strong>Bac à sable</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Alert for teacher comments if delegate received a return */}
       {isSandbox && (userRole === "delegue" || userRole === "eco-delegue") && subRoom.proposal_data?.teacher_comments && (
         <div className="mx-6 mt-4 p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
