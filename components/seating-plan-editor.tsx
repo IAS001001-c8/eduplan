@@ -1283,10 +1283,10 @@ export function SeatingPlanEditor({
     })
     
     // 4. Élèves réguliers avec mixité
-    const boys = unassignedRegular.filter(s => (s as any).gender === 1 && !placedStudents.has(s.id))
-    const girls = unassignedRegular.filter(s => (s as any).gender === 2 && !placedStudents.has(s.id))
+    const boys = unassignedRegular.filter(s => s.gender === 1 && !placedStudents.has(s.id))
+    const girls = unassignedRegular.filter(s => s.gender === 2 && !placedStudents.has(s.id))
     const others = unassignedRegular.filter(s => 
-      (!(s as any).gender || (s as any).gender === 3) && !placedStudents.has(s.id)
+      (!s.gender || s.gender === 3) && !placedStudents.has(s.id)
     )
     
     const mixedOrder: Student[] = []
