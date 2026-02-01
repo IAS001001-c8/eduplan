@@ -613,17 +613,27 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
         {/* View Toggle */}
         <div className="flex justify-end mb-4 gap-2">
           {userRole === "professeur" && currentUserRecord && (
-            <Button
-              variant={viewMode === "timeline" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setViewMode("timeline")}
-              className={viewMode === "timeline" ? "bg-[#E7A541] hover:bg-[#D4933A] text-white" : "border-[#D9DADC] hover:border-[#E7A541] hover:bg-[#FDF6E9]"}
-            >
-              <Calendar className="h-4 w-4 mr-1" />
-              Emploi du temps
-            </Button>
+            <>
+              <Button
+                variant={viewMode === "files" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("files")}
+                className={viewMode === "files" ? "bg-[#E7A541] hover:bg-[#D4933A] text-white" : "border-[#D9DADC] hover:border-[#E7A541] hover:bg-[#FDF6E9]"}
+              >
+                <Folder className="h-4 w-4 mr-1" />
+                Fichiers
+              </Button>
+              <Button
+                variant={viewMode === "timeline" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("timeline")}
+                className={viewMode === "timeline" ? "bg-[#E7A541] hover:bg-[#D4933A] text-white" : "border-[#D9DADC] hover:border-[#E7A541] hover:bg-[#FDF6E9]"}
+              >
+                <Calendar className="h-4 w-4 mr-1" />
+                Emploi du temps
+              </Button>
+            </>
           )}
-          <ViewToggle view={viewMode === "timeline" ? "list" : viewMode} onViewChange={(v) => setViewMode(v as "grid" | "list")} />
         </div>
 
         {/* Timeline View for Professors */}
