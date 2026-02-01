@@ -13,10 +13,7 @@ import {
   Plus,
   ArrowRight,
   Clock,
-  TrendingUp,
-  AlertCircle,
   CheckCircle2,
-  FileText,
 } from "lucide-react"
 import { motion } from "framer-motion"
 
@@ -31,12 +28,6 @@ interface Stats {
   totalRooms: number
   totalSubRooms: number
   pendingProposals: number
-  recentActivity: Array<{
-    id: string
-    type: string
-    message: string
-    timestamp: string
-  }>
 }
 
 const containerVariants = {
@@ -61,7 +52,6 @@ export function VieScolaireDashboard({ establishmentId, onNavigate }: VieScolair
     totalRooms: 0,
     totalSubRooms: 0,
     pendingProposals: 0,
-    recentActivity: [],
   })
   const [isLoading, setIsLoading] = useState(true)
 
@@ -73,7 +63,6 @@ export function VieScolaireDashboard({ establishmentId, onNavigate }: VieScolair
     const supabase = createClient()
 
     try {
-      // Fetch counts in parallel
       const [studentsRes, teachersRes, roomsRes, subRoomsRes, proposalsRes] = await Promise.all([
         supabase.from("students").select("id", { count: "exact", head: true }).eq("establishment_id", establishmentId).eq("is_deleted", false),
         supabase.from("teachers").select("id", { count: "exact", head: true }).eq("establishment_id", establishmentId).eq("is_deleted", false),
@@ -88,7 +77,6 @@ export function VieScolaireDashboard({ establishmentId, onNavigate }: VieScolair
         totalRooms: roomsRes.count || 0,
         totalSubRooms: subRoomsRes.count || 0,
         pendingProposals: proposalsRes.count || 0,
-        recentActivity: [],
       })
     } catch (error) {
       console.error("Error fetching stats:", error)
@@ -102,45 +90,45 @@ export function VieScolaireDashboard({ establishmentId, onNavigate }: VieScolair
       title: "Élèves",
       value: stats.totalStudents,
       icon: Users,
-      color: "bg-blue-500",
-      lightColor: "bg-blue-50 dark:bg-blue-950",
-      textColor: "text-blue-600 dark:text-blue-400",
+      color: "bg-[#E7A541]",
+      lightColor: "bg-[#FDF6E9]",
+      textColor: "text-[#E7A541]",
       onClick: () => onNavigate("students"),
     },
     {
       title: "Professeurs",
       value: stats.totalTeachers,
       icon: GraduationCap,
-      color: "bg-emerald-500",
-      lightColor: "bg-emerald-50 dark:bg-emerald-950",
-      textColor: "text-emerald-600 dark:text-emerald-400",
+      color: "bg-[#29282B]",
+      lightColor: "bg-[#F5F5F6]",
+      textColor: "text-[#29282B]",
       onClick: () => onNavigate("teachers"),
     },
     {
       title: "Salles",
       value: stats.totalRooms,
       icon: School,
-      color: "bg-amber-500",
-      lightColor: "bg-amber-50 dark:bg-amber-950",
-      textColor: "text-amber-600 dark:text-amber-400",
+      color: "bg-[#D9DADC]",
+      lightColor: "bg-[#F5F5F6]",
+      textColor: "text-[#29282B]/70",
       onClick: () => onNavigate("rooms"),
     },
     {
       title: "Plans de classe",
       value: stats.totalSubRooms,
       icon: LayoutGrid,
-      color: "bg-purple-500",
-      lightColor: "bg-purple-50 dark:bg-purple-950",
-      textColor: "text-purple-600 dark:text-purple-400",
+      color: "bg-[#E7A541]",
+      lightColor: "bg-[#FDF6E9]",
+      textColor: "text-[#E7A541]",
       onClick: () => onNavigate("seating-plan"),
     },
   ]
 
   const quickActions = [
-    { label: "Ajouter un élève", icon: Users, action: () => onNavigate("students"), color: "bg-blue-500 hover:bg-blue-600" },
-    { label: "Ajouter un professeur", icon: GraduationCap, action: () => onNavigate("teachers"), color: "bg-emerald-500 hover:bg-emerald-600" },
-    { label: "Créer une salle", icon: School, action: () => onNavigate("rooms"), color: "bg-amber-500 hover:bg-amber-600" },
-    { label: "Créer un plan", icon: LayoutGrid, action: () => onNavigate("seating-plan"), color: "bg-purple-500 hover:bg-purple-600" },
+    { label: "Ajouter un élève", icon: Users, action: () => onNavigate("students") },
+    { label: "Ajouter un professeur", icon: GraduationCap, action: () => onNavigate("teachers") },
+    { label: "Créer une salle", icon: School, action: () => onNavigate("rooms") },
+    { label: "Créer un plan", icon: LayoutGrid, action: () => onNavigate("seating-plan") },
   ]
 
   if (isLoading) {
@@ -148,9 +136,9 @@ export function VieScolaireDashboard({ establishmentId, onNavigate }: VieScolair
       <div className="space-y-6">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="animate-pulse">
+            <Card key={i} className="animate-pulse border-[#D9DADC]">
               <CardContent className="p-6">
-                <div className="h-20 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-20 bg-[#F5F5F6] rounded" />
               </CardContent>
             </Card>
           ))}
@@ -170,15 +158,15 @@ export function VieScolaireDashboard({ establishmentId, onNavigate }: VieScolair
       <motion.div variants={itemVariants}>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-bold text-[#29282B]">
               Tableau de bord
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-[#29282B]/60 mt-1">
               Vue d'ensemble de votre établissement
             </p>
           </div>
           {stats.pendingProposals > 0 && (
-            <Badge variant="secondary" className="bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300">
+            <Badge className="bg-[#FDF6E9] text-[#E7A541] border border-[#E7A541]/20 hover:bg-[#FDF6E9]">
               <Clock className="w-3 h-3 mr-1" />
               {stats.pendingProposals} proposition{stats.pendingProposals > 1 ? "s" : ""} en attente
             </Badge>
@@ -188,20 +176,20 @@ export function VieScolaireDashboard({ establishmentId, onNavigate }: VieScolair
 
       {/* Stats Grid */}
       <motion.div variants={itemVariants} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((stat, index) => (
+        {statCards.map((stat) => (
           <Card
             key={stat.title}
-            className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:-translate-y-1 border-0 shadow-sm"
+            className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:-translate-y-1 border-[#D9DADC] bg-white"
             onClick={stat.onClick}
           >
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{stat.title}</p>
-                  <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{stat.value}</p>
+                  <p className="text-sm font-medium text-[#29282B]/60">{stat.title}</p>
+                  <p className="text-3xl font-bold text-[#29282B] mt-1">{stat.value}</p>
                 </div>
-                <div className={cn("p-3 rounded-xl", stat.lightColor)}>
-                  <stat.icon className={cn("h-6 w-6", stat.textColor)} />
+                <div className={`p-3 rounded-xl ${stat.lightColor}`}>
+                  <stat.icon className={`h-6 w-6 ${stat.textColor}`} />
                 </div>
               </div>
             </CardContent>
@@ -211,10 +199,10 @@ export function VieScolaireDashboard({ establishmentId, onNavigate }: VieScolair
 
       {/* Quick Actions */}
       <motion.div variants={itemVariants}>
-        <Card className="border-0 shadow-sm">
+        <Card className="border-[#D9DADC] bg-white">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-semibold">Actions rapides</CardTitle>
-            <CardDescription>Créez rapidement de nouvelles entrées</CardDescription>
+            <CardTitle className="text-lg font-semibold text-[#29282B]">Actions rapides</CardTitle>
+            <CardDescription className="text-[#29282B]/60">Créez rapidement de nouvelles entrées</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -222,13 +210,13 @@ export function VieScolaireDashboard({ establishmentId, onNavigate }: VieScolair
                 <Button
                   key={action.label}
                   variant="outline"
-                  className="h-auto py-4 flex flex-col items-center gap-2 hover:border-slate-300 dark:hover:border-slate-600 transition-all"
+                  className="h-auto py-4 flex flex-col items-center gap-2 border-[#D9DADC] hover:border-[#E7A541] hover:bg-[#FDF6E9] transition-all group"
                   onClick={action.action}
                 >
-                  <div className={cn("p-2 rounded-lg text-white", action.color)}>
-                    <action.icon className="h-5 w-5" />
+                  <div className="p-2 rounded-lg bg-[#F5F5F6] group-hover:bg-[#E7A541] transition-colors">
+                    <action.icon className="h-5 w-5 text-[#29282B]/60 group-hover:text-white transition-colors" />
                   </div>
-                  <span className="text-sm font-medium">{action.label}</span>
+                  <span className="text-sm font-medium text-[#29282B]">{action.label}</span>
                 </Button>
               ))}
             </div>
@@ -239,11 +227,11 @@ export function VieScolaireDashboard({ establishmentId, onNavigate }: VieScolair
       {/* Bottom Grid */}
       <motion.div variants={itemVariants} className="grid gap-6 md:grid-cols-2">
         {/* Pending Proposals */}
-        <Card className="border-0 shadow-sm">
+        <Card className="border-[#D9DADC] bg-white">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold">Propositions en attente</CardTitle>
-              <Button variant="ghost" size="sm" onClick={() => onNavigate("sandbox")}>
+              <CardTitle className="text-lg font-semibold text-[#29282B]">Propositions en attente</CardTitle>
+              <Button variant="ghost" size="sm" onClick={() => onNavigate("sandbox")} className="text-[#E7A541] hover:text-[#D4933A] hover:bg-[#FDF6E9]">
                 Voir tout
                 <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
@@ -252,25 +240,28 @@ export function VieScolaireDashboard({ establishmentId, onNavigate }: VieScolair
           <CardContent>
             {stats.pendingProposals > 0 ? (
               <div className="space-y-3">
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800">
-                  <div className="p-2 rounded-full bg-orange-100 dark:bg-orange-900">
-                    <Clock className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                <div 
+                  className="flex items-center gap-3 p-3 rounded-lg bg-[#FDF6E9] border border-[#E7A541]/20 cursor-pointer hover:bg-[#FCF0DD] transition-colors"
+                  onClick={() => onNavigate("sandbox")}
+                >
+                  <div className="p-2 rounded-full bg-[#E7A541]/20">
+                    <Clock className="h-4 w-4 text-[#E7A541]" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-slate-900 dark:text-white">
+                    <p className="text-sm font-medium text-[#29282B]">
                       {stats.pendingProposals} proposition{stats.pendingProposals > 1 ? "s" : ""} à examiner
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-xs text-[#29282B]/60">
                       Cliquez pour voir les détails
                     </p>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-slate-400" />
+                  <ArrowRight className="h-4 w-4 text-[#29282B]/40" />
                 </div>
               </div>
             ) : (
               <div className="text-center py-8">
-                <CheckCircle2 className="h-12 w-12 text-emerald-500 mx-auto mb-3" />
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-3" />
+                <p className="text-sm text-[#29282B]/60">
                   Aucune proposition en attente
                 </p>
               </div>
@@ -279,38 +270,38 @@ export function VieScolaireDashboard({ establishmentId, onNavigate }: VieScolair
         </Card>
 
         {/* Quick Stats */}
-        <Card className="border-0 shadow-sm">
+        <Card className="border-[#D9DADC] bg-white">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-semibold">Résumé</CardTitle>
+            <CardTitle className="text-lg font-semibold text-[#29282B]">Résumé</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-900">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-[#F5F5F6]">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900">
-                    <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <div className="p-2 rounded-lg bg-[#FDF6E9]">
+                    <Users className="h-4 w-4 text-[#E7A541]" />
                   </div>
-                  <span className="text-sm font-medium">Élèves inscrits</span>
+                  <span className="text-sm font-medium text-[#29282B]">Élèves inscrits</span>
                 </div>
-                <span className="text-lg font-bold text-slate-900 dark:text-white">{stats.totalStudents}</span>
+                <span className="text-lg font-bold text-[#29282B]">{stats.totalStudents}</span>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-900">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-[#F5F5F6]">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900">
-                    <GraduationCap className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <div className="p-2 rounded-lg bg-[#F5F5F6] border border-[#D9DADC]">
+                    <GraduationCap className="h-4 w-4 text-[#29282B]" />
                   </div>
-                  <span className="text-sm font-medium">Professeurs actifs</span>
+                  <span className="text-sm font-medium text-[#29282B]">Professeurs actifs</span>
                 </div>
-                <span className="text-lg font-bold text-slate-900 dark:text-white">{stats.totalTeachers}</span>
+                <span className="text-lg font-bold text-[#29282B]">{stats.totalTeachers}</span>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-900">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-[#F5F5F6]">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
-                    <LayoutGrid className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <div className="p-2 rounded-lg bg-[#FDF6E9]">
+                    <LayoutGrid className="h-4 w-4 text-[#E7A541]" />
                   </div>
-                  <span className="text-sm font-medium">Plans configurés</span>
+                  <span className="text-sm font-medium text-[#29282B]">Plans configurés</span>
                 </div>
-                <span className="text-lg font-bold text-slate-900 dark:text-white">{stats.totalSubRooms}</span>
+                <span className="text-lg font-bold text-[#29282B]">{stats.totalSubRooms}</span>
               </div>
             </div>
           </CardContent>
@@ -318,8 +309,4 @@ export function VieScolaireDashboard({ establishmentId, onNavigate }: VieScolair
       </motion.div>
     </motion.div>
   )
-}
-
-function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(" ")
 }
