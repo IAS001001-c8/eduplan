@@ -25,7 +25,7 @@ interface SandboxManagementProps {
 interface Proposal {
   id: string
   name: string
-  status: "draft" | "pending" | "approved" | "rejected"
+  status: "draft" | "pending" | "approved" | "rejected" | "returned"
   is_submitted: boolean
   created_at: string
   room_id: string
@@ -34,6 +34,7 @@ interface Proposal {
   sub_room_id?: string
   seat_assignments?: any[]
   comments?: string
+  teacher_comments?: string
   rooms: { name: string; code: string }
   classes: { name: string }
   teachers: { first_name: string; last_name: string }
