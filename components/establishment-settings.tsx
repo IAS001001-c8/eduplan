@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
 import { createClient } from "@/lib/supabase/client"
-import { ArrowLeft, Building2, Calendar, Globe, Copy, Check } from "lucide-react"
+import { ArrowLeft, Building2, Calendar, Globe, Copy, Check, UserCog, Plus, Trash2, GripVertical } from "lucide-react"
 import { WeekABCalendar } from "@/components/week-ab-calendar"
 
 interface EstablishmentSettingsProps {
