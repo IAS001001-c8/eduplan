@@ -41,6 +41,7 @@ Ce guide explique comment créer manuellement un établissement et son compte Vi
 | `id` | *(auto-généré)* | Laisser vide, UUID auto |
 | `name` | `Collège Victor Hugo` | Nom complet de l'établissement |
 | `code` | `cvh001` | Code unique (minuscules, pour la connexion) |
+| `password` | `Etablissement2024!` | Mot de passe de l'établissement (obligatoire) |
 | `created_at` | *(auto)* | Date de création |
 
 5. Cliquer sur **"Save"**
@@ -48,8 +49,8 @@ Ce guide explique comment créer manuellement un établissement et son compte Vi
 ### Via SQL
 
 ```sql
-INSERT INTO public.establishments (name, code)
-VALUES ('Collège Victor Hugo', 'cvh001')
+INSERT INTO public.establishments (name, code, password)
+VALUES ('Collège Victor Hugo', 'cvh001', 'Etablissement2024!')
 RETURNING id, name, code;
 ```
 
