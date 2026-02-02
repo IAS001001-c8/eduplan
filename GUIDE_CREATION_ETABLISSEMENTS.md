@@ -180,6 +180,7 @@ DO $$
 DECLARE
   v_establishment_name TEXT := 'Collège Victor Hugo';      -- Nom de l'établissement
   v_establishment_code TEXT := 'cvh001';                   -- Code unique (minuscules)
+  v_establishment_password TEXT := 'Etablissement2024!';   -- Mot de passe établissement
   v_vs_username TEXT := 'vs.victorhugo';                   -- Identifiant Vie Scolaire
   v_vs_password TEXT := 'VieScol2024!';                    -- Mot de passe
   v_vs_email TEXT := 'viescolaire@victorhugo.fr';          -- Email (optionnel)
@@ -193,8 +194,8 @@ BEGIN
   -- ==========================================
   -- 1. CRÉATION DE L'ÉTABLISSEMENT
   -- ==========================================
-  INSERT INTO public.establishments (name, code)
-  VALUES (v_establishment_name, v_establishment_code)
+  INSERT INTO public.establishments (name, code, password)
+  VALUES (v_establishment_name, v_establishment_code, v_establishment_password)
   RETURNING id INTO v_establishment_id;
   
   RAISE NOTICE '✅ Établissement créé: % (ID: %)', v_establishment_name, v_establishment_id;
