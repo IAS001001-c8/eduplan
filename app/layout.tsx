@@ -9,6 +9,7 @@ const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-gei
 export const metadata = {
   title: "EduPlan - Une école. Un Plan",
   description: "Système de gestion de plans de classe",
+  manifest: "/manifest.json",
   icons: {
     icon: [
       {
@@ -22,7 +23,12 @@ export const metadata = {
       },
     ],
   },
-    generator: 'v0.app'
+  generator: 'v0.app',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "EduPlan",
+  },
 }
 
 export const viewport = {
