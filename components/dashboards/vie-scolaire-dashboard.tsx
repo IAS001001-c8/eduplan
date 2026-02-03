@@ -68,7 +68,7 @@ export function VieScolaireDashboard({ establishmentId, onNavigate }: VieScolair
         supabase.from("teachers").select("id", { count: "exact", head: true }).eq("establishment_id", establishmentId).eq("is_deleted", false),
         supabase.from("rooms").select("id", { count: "exact", head: true }).eq("establishment_id", establishmentId),
         supabase.from("sub_rooms").select("id", { count: "exact", head: true }).eq("establishment_id", establishmentId),
-        supabase.from("sub_room_proposals").select("id", { count: "exact", head: true }).eq("status", "pending").eq("is_submitted", true),
+        supabase.from("sub_room_proposals").select("id", { count: "exact", head: true }).eq("establishment_id", establishmentId).eq("status", "pending").eq("is_submitted", true),
       ])
 
       setStats({

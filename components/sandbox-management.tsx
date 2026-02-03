@@ -116,6 +116,9 @@ export function SandboxManagement({ establishmentId, userRole, userId, onBack }:
         if (teacherData) {
           query = query.eq("teacher_id", teacherData.id)
         }
+      } else if (userRole === "vie-scolaire") {
+        // Filter by establishment to avoid data leaks between establishments
+        query = query.eq("establishment_id", establishmentId)
       }
 
       const { data, error } = await query
