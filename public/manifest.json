@@ -1,0 +1,29 @@
+{
+  "name": "EduPlan - Gestion de Plans de Classe",
+  "short_name": "EduPlan",
+  "description": "Application de gestion de plans de classe pour les établissements scolaires",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#E7A541",
+  "orientation": "any",
+  "scope": "/",
+  "lang": "fr-FR",
+  "icons": [
+    {
+      "src": "/images/logo-edu-plan-remove.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/logo-edu-plan-remove.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
