@@ -40,8 +40,8 @@
     },
     "appx": {
       "identityName": "EduPlan",
-      "publisher": "CN=EduPlan",
-      "publisherDisplayName": "EduPlan",
+      "publisher": "CN=mauboussin",
+      "publisherDisplayName": "mauboussin",
       "applicationId": "EduPlan",
       "displayName": "EduPlan",
       "languages": ["fr-FR"]
