@@ -90,6 +90,17 @@ export function TopBar({
 
           {/* Actions */}
           <div className="flex items-center gap-2 ml-4">
+            {/* Refresh Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 text-[#29282B]/60 hover:text-[#29282B] hover:bg-[#F5F5F6]"
+              onClick={() => window.location.reload()}
+              title="Rafraîchir la page"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+
             {/* Notifications */}
             <NotificationsDropdown userId={userId} establishmentId={establishmentId} />
 
