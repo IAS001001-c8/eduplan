@@ -136,3 +136,7 @@ node_modules/.pnpm/@next+swc-linux-arm64-gnu@15.1.9/node_modules/@next/swc-linux
 # Environment files
 *.env
 *.env.*
+-e 
+# Environment files
+*.env
+*.env.*
