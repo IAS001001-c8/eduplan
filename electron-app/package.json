@@ -39,11 +39,11 @@
       "icon": "assets/icon.png"
     },
     "appx": {
-      "identityName": "EduPlan",
-      "publisher": "CN=mauboussin",
+      "identityName": "mauboussin.EduPlan-LNC",
+      "publisher": "CN=1C530B69-D6AE-43AC-A089-794FC1E30BDB",
       "publisherDisplayName": "mauboussin",
       "applicationId": "EduPlan",
-      "displayName": "EduPlan",
+      "displayName": "EduPlan-LNC",
       "languages": ["fr-FR"]
     },
     "nsis": {
