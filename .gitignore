@@ -144,3 +144,4 @@ node_modules/.pnpm/@next+swc-linux-arm64-gnu@15.1.9/node_modules/@next/swc-linux
 # Environment files
 *.env
 *.env.*
+electron-app/node_modules/electron/dist/electron

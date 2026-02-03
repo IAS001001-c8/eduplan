@@ -1,12 +1,56 @@
 {
-  "name": "electron-app",
+  "name": "eduplan",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "EduPlan - Application de gestion de plans de classe",
+  "main": "main.js",
+  "author": "EduPlan",
+  "license": "MIT",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:appx": "electron-builder --win appx"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  "dependencies": {
+    "electron-store": "^8.1.0"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.eduplan.app",
+    "productName": "EduPlan",
+    "copyright": "Copyright © 2025 EduPlan",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "appx",
+          "arch": ["x64"]
+        },
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/icon.png"
+    },
+    "appx": {
+      "identityName": "EduPlan",
+      "publisher": "CN=EduPlan",
+      "publisherDisplayName": "EduPlan",
+      "applicationId": "EduPlan",
+      "displayName": "EduPlan",
+      "languages": ["fr-FR"]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico"
+    }
+  }
 }
