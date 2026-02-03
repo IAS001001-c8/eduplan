@@ -122,3 +122,5 @@ node_modules/@next/swc-linux-arm64-musl/next-swc.linux-arm64-musl.node
 # Environment files
 *.env
 *.env.*
+node_modules/.pnpm/@next+swc-linux-arm64-gnu@15.1.9/node_modules/@next/swc-linux-arm64-gnu/next-swc.linux-arm64-gnu.node
+.pnpm-store/v10/files/75/fae423849727c67f2f6ba9268a81cebd8f4da64da679fc9a1e121f9749b7542644c2d40a6840f896de1329daef27e5a2395b8f1501e4289ea203d6ef4b5ded
