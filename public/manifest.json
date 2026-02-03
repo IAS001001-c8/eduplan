@@ -2,34 +2,33 @@
   "name": "EduPlan - Gestion de Plans de Classe",
   "short_name": "EduPlan",
   "description": "Application de gestion de plans de classe pour les établissements scolaires. Créez, organisez et partagez vos plans de classe facilement.",
-  "start_url": "/",
+  "start_url": "https://eduplan-lnc.com/",
   "display": "standalone",
   "background_color": "#FFFFFF",
   "theme_color": "#E7A541",
   "orientation": "any",
-  "scope": "/",
+  "scope": "https://eduplan-lnc.com/",
   "lang": "fr-FR",
   "id": "eduplan-classroom-manager",
   "icons": [
     {
-      "src": "/images/eduplan-icon-512.png",
+      "src": "https://eduplan-lnc.com/images/eduplan-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
   "categories": ["education", "productivity"],
-  "screenshots": [],
   "prefer_related_applications": false,
   "shortcuts": [
     {
       "name": "Tableau de bord",
-      "url": "/dashboard",
+      "url": "https://eduplan-lnc.com/dashboard",
       "description": "Accéder au tableau de bord"
     },
     {
       "name": "Plans de classe",
-      "url": "/dashboard/seating-plan",
+      "url": "https://eduplan-lnc.com/dashboard/seating-plan",
       "description": "Gérer les plans de classe"
     }
   ]
