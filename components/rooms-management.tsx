@@ -418,7 +418,7 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => router.back()}
+              onClick={() => router.push("/dashboard")}
               className="hover:bg-white/50 dark:hover:bg-slate-800/50"
             >
               <ArrowLeft className="h-5 w-5" />
