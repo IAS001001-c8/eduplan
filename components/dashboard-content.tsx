@@ -25,6 +25,7 @@ import type { Profile } from "@/lib/types"
 // Layout Components
 import { Sidebar } from "@/components/layout/sidebar"
 import { TopBar } from "@/components/layout/top-bar"
+import { AppFooter } from "@/components/layout/app-footer"
 import { cn } from "@/lib/utils"
 
 // Dashboard Components
