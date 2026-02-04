@@ -360,7 +360,7 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Sidebar */}
       <Sidebar
         userRole={profile.role}
@@ -385,15 +385,17 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
       {/* Main Content */}
       <main
         className={cn(
-          "pt-16 min-h-screen transition-all duration-300 bg-[#F9F9FA] flex flex-col",
+          "pt-16 flex-1 transition-all duration-300 bg-[#F9F9FA]",
           isCollapsed ? "pl-[70px]" : "pl-[260px]"
         )}
       >
-        <div className="p-6 flex-1">
+        <div className="p-6">
           {renderContent()}
         </div>
-        <AppFooter />
       </main>
+
+      {/* Footer - Full width, below sidebar */}
+      <AppFooter />
 
       {/* Settings Dialog */}
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
