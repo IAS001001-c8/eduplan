@@ -75,13 +75,14 @@ export function DashboardLayout({
       {/* Main Content */}
       <main
         className={cn(
-          "pt-16 min-h-screen transition-all duration-300",
+          "pt-16 min-h-screen transition-all duration-300 flex flex-col",
           isCollapsed ? "pl-[70px]" : "pl-[260px]"
         )}
       >
-        <div className="p-6">
+        <div className="p-6 flex-1">
           {children}
         </div>
+        <AppFooter />
       </main>
     </div>
   )
