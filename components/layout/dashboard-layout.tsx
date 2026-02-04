@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Sidebar } from "@/components/layout/sidebar"
 import { TopBar } from "@/components/layout/top-bar"
+import { AppFooter } from "@/components/layout/app-footer"
 import type { UserRole } from "@/lib/types"
 
 interface DashboardLayoutProps {
