@@ -71,10 +71,19 @@ interface RoomsManagementProps {
   onBack?: () => void
 }
 
-export function RoomsManagement({ rooms: initialRooms = [], establishmentId, userRole, userId }: RoomsManagementProps) {
+export function RoomsManagement({ rooms: initialRooms = [], establishmentId, userRole, userId, onBack }: RoomsManagementProps) {
   const supabase = createClient()
   const router = useRouter()
   const { user } = useAuth()
+
+  // Fonction pour retourner au dashboard
+  const handleBack = () => {
+    if (onBack) {
+      onBack()
+    } else {
+      router.push("/dashboard")
+    }
+  }
 
   const [localRooms, setLocalRooms] = useState<Room[]>(initialRooms)
   const [filteredRooms, setFilteredRooms] = useState<Room[]>(initialRooms)
