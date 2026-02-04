@@ -385,13 +385,14 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
       {/* Main Content */}
       <main
         className={cn(
-          "pt-16 min-h-screen transition-all duration-300 bg-[#F9F9FA]",
+          "pt-16 min-h-screen transition-all duration-300 bg-[#F9F9FA] flex flex-col",
           isCollapsed ? "pl-[70px]" : "pl-[260px]"
         )}
       >
-        <div className="p-6">
+        <div className="p-6 flex-1">
           {renderContent()}
         </div>
+        <AppFooter />
       </main>
 
       {/* Settings Dialog */}
