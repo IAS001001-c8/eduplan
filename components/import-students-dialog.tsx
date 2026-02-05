@@ -405,6 +405,31 @@ export function ImportStudentsDialog({
               </div>
 
               <div>
+                <Label>Sexe (optionnel)</Label>
+                <Select
+                  value={columnMapping.gender?.toString() ?? "-1"}
+                  onValueChange={(value) =>
+                    setColumnMapping({ ...columnMapping, gender: value === "-1" ? null : Number.parseInt(value) })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner une colonne" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="-1">Ignorer</SelectItem>
+                    {(hasHeaders ? parsedData[0] : parsedData[0].map((_, i) => `Colonne ${i + 1}`)).map(
+                      (header, index) => (
+                        <SelectItem key={index} value={index.toString()}>
+                          {header}
+                        </SelectItem>
+                      ),
+                    )}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">Format: H/M/1 (Homme), F/2 (Femme), X/NB/3 (Non identifié)</p>
+              </div>
+
+              <div>
                 <Label>LV2 (optionnel)</Label>
                 <Select
                   value={columnMapping.lv2?.toString() ?? "-1"}
