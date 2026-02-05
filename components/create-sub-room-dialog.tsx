@@ -342,6 +342,8 @@ export function CreateSubRoomDialog({
         isCollaborative: false,
         isMultiClass: false,
         schedules: [],
+        filterLv2: "all",
+        selectedStudentIds: [],
       })
 
       onOpenChange(false)
