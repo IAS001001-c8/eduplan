@@ -1818,6 +1818,28 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
               </div>
             </div>
 
+            {/* Champ LV2 */}
+            <div>
+              <Label htmlFor="lv2">Langue Vivante 2 (LV2)</Label>
+              <Select
+                value={formData.lv2}
+                onValueChange={(value) => setFormData({ ...formData, lv2: value })}
+              >
+                <SelectTrigger className="border-[#D9DADC]">
+                  <SelectValue placeholder="Non renseigné" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Non renseigné</SelectItem>
+                  <SelectItem value="Espagnol">Espagnol</SelectItem>
+                  <SelectItem value="Allemand">Allemand</SelectItem>
+                  <SelectItem value="Italien">Italien</SelectItem>
+                  <SelectItem value="Portugais">Portugais</SelectItem>
+                  <SelectItem value="Chinois">Chinois</SelectItem>
+                  <SelectItem value="Arabe">Arabe</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Caractéristiques EBP - Visible seulement pour vie-scolaire */}
             {userRole === "vie-scolaire" && specialNeedsOptions.length > 0 && (
               <div className="space-y-2">
