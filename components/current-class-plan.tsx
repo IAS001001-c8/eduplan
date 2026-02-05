@@ -180,7 +180,7 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
       })
       setSeatAssignments(assignmentMap)
 
-      // 5. Charger les élèves de la/des classe(s)
+      // 5. Charger les élèves de la/des classe(s) ou les élèves filtrés par LV2
       const classIds = subRoom.class_ids && subRoom.class_ids.length > 0 
         ? subRoom.class_ids 
         : (subRoom.class_id ? [subRoom.class_id] : [])
@@ -188,14 +188,31 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
       let classNames = "Classe"
       
       if (classIds.length > 0) {
-        const { data: classStudents } = await supabase
-          .from("students")
-          .select("id, first_name, last_name, role")
-          .in("class_id", classIds)
-          .eq("is_deleted", false)
-          .order("last_name")
-
-        setStudents(classStudents || [])
+        let classStudents: any[] = []
+        
+        // Si des élèves filtrés par LV2 existent, les utiliser
+        if (subRoom.filtered_student_ids && subRoom.filtered_student_ids.length > 0) {
+          const { data: filteredStudents } = await supabase
+            .from("students")
+            .select("id, first_name, last_name, role, lv2")
+            .in("id", subRoom.filtered_student_ids)
+            .eq("is_deleted", false)
+            .order("last_name")
+          
+          classStudents = filteredStudents || []
+        } else {
+          // Sinon, charger tous les élèves des classes
+          const { data: allStudents } = await supabase
+            .from("students")
+            .select("id, first_name, last_name, role")
+            .in("class_id", classIds)
+            .eq("is_deleted", false)
+            .order("last_name")
+          
+          classStudents = allStudents || []
+        }
+        
+        setStudents(classStudents)
 
         // Obtenir le nom de la classe
         const { data: classData } = await supabase
@@ -204,6 +221,11 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
           .in("id", classIds)
         
         classNames = classData?.map(c => c.name).join(", ") || "Classe"
+        
+        // Ajouter le filtre LV2 au nom si applicable
+        if (subRoom.lv2_filter) {
+          classNames += ` (${subRoom.lv2_filter})`
+        }
       }
 
       setActiveSubRoom({
