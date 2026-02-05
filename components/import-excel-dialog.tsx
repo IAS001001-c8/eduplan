@@ -519,6 +519,7 @@ export function ImportExcelDialog({
                     <TableHead>Prénom</TableHead>
                     <TableHead>Nom</TableHead>
                     <TableHead>Sexe</TableHead>
+                    <TableHead>LV2</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Téléphone</TableHead>
                   </TableRow>
@@ -557,6 +558,7 @@ export function ImportExcelDialog({
                             <span className="text-[#29282B]/40">-</span>
                           )}
                         </TableCell>
+                        <TableCell className="text-[#29282B]/60">{student.lv2 || "-"}</TableCell>
                         <TableCell className="text-[#29282B]/60">{student.email || "-"}</TableCell>
                         <TableCell className="text-[#29282B]/60">{student.phone || "-"}</TableCell>
                       </TableRow>
