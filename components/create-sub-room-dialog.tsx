@@ -576,14 +576,14 @@ export function CreateSubRoomDialog({
             )}
           </div>
 
-          {/* Filtre LV2 - visible quand multi-classes est activé et au moins une classe sélectionnée */}
-          {formData.isMultiClass && formData.selectedClasses.length > 0 && (
+          {/* Filtre LV2 - visible quand au moins une classe est sélectionnée */}
+          {formData.selectedClasses.length > 0 && (
             <div className="space-y-3 border border-blue-200 bg-blue-50/50 rounded-md p-4">
               <Label className="text-sm font-medium text-blue-800">
                 Filtrer par LV2 (optionnel)
               </Label>
               <p className="text-xs text-blue-600">
-                Créez une sous-salle regroupant uniquement les élèves d'une même LV2 provenant des classes sélectionnées
+                Créez une sous-salle regroupant uniquement les élèves d'une même LV2 {formData.isMultiClass ? "provenant des classes sélectionnées" : "de cette classe"}
               </p>
               
               {/* Liste des LV2 disponibles */}
