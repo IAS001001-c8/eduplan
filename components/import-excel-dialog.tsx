@@ -96,7 +96,7 @@ export function ImportExcelDialog({
     setFile(null)
     setHeaders([])
     setRawData([])
-    setMapping({ first_name: null, last_name: null, email: null, phone: null, gender: null })
+    setMapping({ first_name: null, last_name: null, email: null, phone: null, gender: null, lv2: null })
     setPreviewData([])
     setDuplicates([])
     setHasReadDisclaimer(false)
