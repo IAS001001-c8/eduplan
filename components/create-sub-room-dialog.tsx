@@ -265,6 +265,17 @@ export function CreateSubRoomDialog({
       const firstTeacher = teachers.find((t) => t.id === formData.selectedTeachers[0])
 
       const defaultName = `${selectedRoom?.name || "Salle"} - ${firstTeacher?.last_name || "Prof"}`
+      
+      // Calculer les élèves filtrés par LV2 si un filtre est appliqué
+      let filteredStudentIds: string[] | null = null
+      let lv2Filter: string | null = null
+      
+      if (formData.filterLv2 !== "all") {
+        const studentsInSelectedClasses = students.filter(s => formData.selectedClasses.includes(s.class_id))
+        const filteredStudents = studentsInSelectedClasses.filter(s => s.lv2 === formData.filterLv2)
+        filteredStudentIds = filteredStudents.map(s => s.id)
+        lv2Filter = formData.filterLv2
+      }
 
       const { data: subRoom, error: subRoomError } = await supabase
         .from("sub_rooms")
@@ -275,6 +286,8 @@ export function CreateSubRoomDialog({
           teacher_id: formData.selectedTeachers[0],
           establishment_id: establishmentId,
           class_ids: formData.selectedClasses,
+          filtered_student_ids: filteredStudentIds,
+          lv2_filter: lv2Filter,
         })
         .select()
         .single()
