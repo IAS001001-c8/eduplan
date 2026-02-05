@@ -157,14 +157,16 @@ export function CreateSubRoomDialog({
 
   const fetchData = async () => {
     try {
-      const [roomsRes, teachersRes, classesRes] = await Promise.all([
+      const [roomsRes, teachersRes, classesRes, studentsRes] = await Promise.all([
         supabase.from("rooms").select("*").eq("establishment_id", establishmentId),
         supabase.from("teachers").select("*").eq("establishment_id", establishmentId).order("last_name"),
         supabase.from("classes").select("*").eq("establishment_id", establishmentId),
+        supabase.from("students").select("id, first_name, last_name, class_id, class_name, lv2").eq("establishment_id", establishmentId).eq("is_deleted", false),
       ])
 
       if (roomsRes.data) setRooms(roomsRes.data)
       if (teachersRes.data) setTeachers(teachersRes.data)
+      if (studentsRes.data) setStudents(studentsRes.data)
 
       if (classesRes.data) {
         const filteredClasses = classesRes.data.filter((c: Class) => !c.is_level)
