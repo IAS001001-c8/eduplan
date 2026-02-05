@@ -12,28 +12,36 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 ## Fonctionnalité LV2 (Langue Vivante 2) - Feb 5, 2026 ✅
 
 ### État d'implémentation - TERMINÉ (Frontend) ⚠️ DB: Script à exécuter
-- ✅ **Frontend** : Toutes les modifications UI implémentées
+- ✅ **Frontend** : Toutes les modifications UI implémentées et testées (100%)
 - ⏳ **Base de données** : Script SQL à exécuter (`/app/scripts/add_lv2_column.sql`)
 
 ### Modifications Frontend - Feb 5, 2026
 | Composant | Modification | Status |
 |-----------|--------------|--------|
-| `import-students-dialog.tsx` | Ajout mapping colonne LV2 lors de l'import | ✅ |
-| `import-students-dialog.tsx` | Prévisualisation LV2 avant import | ✅ |
-| `students-management.tsx` | Interface Student avec champ `lv2` | ✅ |
+| `students-management.tsx` | Champ LV2 dans formulaire d'ajout élève unique | ✅ |
+| `students-management.tsx` | Champ LV2 dans dialogue d'édition | ✅ |
 | `students-management.tsx` | Colonne LV2 dans le tableau | ✅ |
 | `students-management.tsx` | Filtre par LV2 (badges cliquables) | ✅ |
-| `students-management.tsx` | Champ LV2 dans dialogue d'édition | ✅ |
-| `create-sub-room-dialog.tsx` | Filtre LV2 pour créer sous-salles multi-classes | ✅ |
+| `import-excel-dialog.tsx` | Mapping colonne LV2 dans import Excel | ✅ |
+| `import-excel-dialog.tsx` | Prévisualisation LV2 dans import Excel | ✅ |
+| `import-students-dialog.tsx` | Mapping colonne LV2 dans import copier-coller | ✅ |
+| `import-students-dialog.tsx` | Mapping colonne Sexe dans import copier-coller | ✅ |
+| `import-students-dialog.tsx` | Prévisualisation LV2 et Sexe | ✅ |
+| `create-sub-room-dialog.tsx` | Filtre LV2 pour salles uni-classe ET multi-classes | ✅ |
+| `create-sub-room-dialog.tsx` | Stockage filtered_student_ids et lv2_filter | ✅ |
+| `seating-plan-editor.tsx` | Chargement des élèves filtrés par LV2 | ✅ |
+| `current-class-plan.tsx` | Chargement des élèves filtrés par LV2 | ✅ |
 
 ### Valeurs LV2 supportées
 - Espagnol, Allemand, Italien, Portugais, Chinois, Arabe, null (non renseigné)
 
 ### Script SQL à exécuter
 ```sql
--- Dans l'éditeur SQL de Supabase
+-- Dans l'éditeur SQL de Supabase (fichier: /app/scripts/add_lv2_column.sql)
 ALTER TABLE public.students ADD COLUMN IF NOT EXISTS lv2 TEXT DEFAULT NULL;
 CREATE INDEX IF NOT EXISTS idx_students_lv2 ON public.students(lv2);
+ALTER TABLE public.sub_rooms ADD COLUMN IF NOT EXISTS filtered_student_ids UUID[] DEFAULT NULL;
+ALTER TABLE public.sub_rooms ADD COLUMN IF NOT EXISTS lv2_filter TEXT DEFAULT NULL;
 ```
 
 ### Cas d'usage principal
