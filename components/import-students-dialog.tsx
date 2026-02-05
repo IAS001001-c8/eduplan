@@ -40,6 +40,7 @@ export function ImportStudentsDialog({
     last_name: null,
     email: null,
     phone: null,
+    gender: null,
     lv2: null,
   })
   const [selectedClassId, setSelectedClassId] = useState<string>("")
