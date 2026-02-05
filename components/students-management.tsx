@@ -151,6 +151,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
 
   const [searchQuery, setSearchQuery] = useState("") // Added search query state
   const [roleFilter, setRoleFilter] = useState<"all" | "delegue" | "eco-delegue" | "eleve">("all") // Added role filter state
+  const [filterLv2, setFilterLv2] = useState<string>("all") // Added LV2 filter state
   const [isBulkDemoteDialogOpen, setIsBulkDemoteDialogOpen] = useState(false) // Added bulk demote dialog state
 
   // PDF download state
