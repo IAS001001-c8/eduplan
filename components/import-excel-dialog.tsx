@@ -221,6 +221,7 @@ export function ImportExcelDialog({
       const emailIndex = mapping.email ? headers.indexOf(mapping.email) : -1
       const phoneIndex = mapping.phone ? headers.indexOf(mapping.phone) : -1
       const genderIndex = mapping.gender ? headers.indexOf(mapping.gender) : -1
+      const lv2Index = mapping.lv2 ? headers.indexOf(mapping.lv2) : -1
 
       const firstName = String(row[firstNameIndex] || "").trim()
       const lastName = String(row[lastNameIndex] || "").trim()
@@ -236,12 +237,22 @@ export function ImportExcelDialog({
         foundDuplicates.push(`${firstName} ${lastName}`)
       }
 
+      // Normaliser la LV2 (première lettre majuscule)
+      let lv2Value: string | undefined = undefined
+      if (lv2Index >= 0 && row[lv2Index]) {
+        const rawLv2 = String(row[lv2Index]).trim()
+        if (rawLv2) {
+          lv2Value = rawLv2.charAt(0).toUpperCase() + rawLv2.slice(1).toLowerCase()
+        }
+      }
+
       students.push({
         first_name: firstName,
         last_name: lastName,
         email: emailIndex >= 0 ? String(row[emailIndex] || "").trim() || undefined : undefined,
         phone: phoneIndex >= 0 ? String(row[phoneIndex] || "").trim() || undefined : undefined,
-        gender: genderIndex >= 0 ? parseGender(row[genderIndex]) : undefined
+        gender: genderIndex >= 0 ? parseGender(row[genderIndex]) : undefined,
+        lv2: lv2Value
       })
     })
 
