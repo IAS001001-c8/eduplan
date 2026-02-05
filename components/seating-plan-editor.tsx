@@ -83,6 +83,8 @@ interface SubRoom {
   name: string
   room_id: string
   class_ids: string[]
+  filtered_student_ids?: string[]
+  lv2_filter?: string
   establishment_id?: string
   is_sandbox?: boolean // Added for sandbox functionality
   proposal_data?: {
