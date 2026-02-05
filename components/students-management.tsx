@@ -2271,6 +2271,27 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
               </Select>
             </div>
 
+            <div>
+              <Label htmlFor="edit-lv2">Langue Vivante 2 (LV2)</Label>
+              <Select
+                value={editData.lv2}
+                onValueChange={(value) => setEditData({ ...editData, lv2: value })}
+              >
+                <SelectTrigger className="border-[#D9DADC]">
+                  <SelectValue placeholder="Non renseigné" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Non renseigné</SelectItem>
+                  <SelectItem value="Espagnol">Espagnol</SelectItem>
+                  <SelectItem value="Allemand">Allemand</SelectItem>
+                  <SelectItem value="Italien">Italien</SelectItem>
+                  <SelectItem value="Portugais">Portugais</SelectItem>
+                  <SelectItem value="Chinois">Chinois</SelectItem>
+                  <SelectItem value="Arabe">Arabe</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Besoins particuliers - VS seulement */}
             {userRole === "vie-scolaire" && specialNeedsOptions.length > 0 && (
               <div className="space-y-2 border-t border-[#D9DADC] pt-4">
