@@ -207,29 +207,41 @@ export function SeatingPlanEditor({
       }
     }
 
-    if (!subRoom.class_ids || subRoom.class_ids.length === 0) {
-      console.warn("[v0] No class_ids found for this sub-room")
-      setStudents([])
-      return
-    }
-
-    const { data: studentsData, error: studentsError } = await supabase
-      .from("students")
-      .select("id, first_name, last_name, class_name, role, profile_id, establishment_id, special_needs, gender") // Added special_needs and gender for EBP
-      .in("class_id", subRoom.class_ids)
-      .order("last_name")
-
-    if (studentsError) {
-      console.error("[v0] Error fetching students:", studentsError)
-      // Handle student fetch error if necessary, e.g., by setting an error state
-    }
-
-    if (studentsData) {
-      console.log("[v0] Students loaded:", studentsData.length)
-      setStudents(studentsData)
+    // Charger les élèves - soit filtrés par LV2, soit tous les élèves des classes
+    let studentsData: any[] = []
+    
+    if (subRoom.filtered_student_ids && subRoom.filtered_student_ids.length > 0) {
+      // Charger uniquement les élèves filtrés par LV2
+      console.log("[v0] Loading filtered students by LV2:", subRoom.lv2_filter, "Count:", subRoom.filtered_student_ids.length)
+      const { data, error } = await supabase
+        .from("students")
+        .select("id, first_name, last_name, class_name, role, profile_id, establishment_id, special_needs, gender, lv2")
+        .in("id", subRoom.filtered_student_ids)
+        .order("last_name")
+      
+      if (error) {
+        console.error("[v0] Error fetching filtered students:", error)
+      }
+      studentsData = data || []
+    } else if (subRoom.class_ids && subRoom.class_ids.length > 0) {
+      // Charger tous les élèves des classes
+      console.log("[v0] Loading all students from class_ids:", subRoom.class_ids)
+      const { data, error } = await supabase
+        .from("students")
+        .select("id, first_name, last_name, class_name, role, profile_id, establishment_id, special_needs, gender")
+        .in("class_id", subRoom.class_ids)
+        .order("last_name")
+      
+      if (error) {
+        console.error("[v0] Error fetching students:", error)
+      }
+      studentsData = data || []
     } else {
-      setStudents([]) // Ensure students is an empty array if no data or error
+      console.warn("[v0] No class_ids or filtered_student_ids found for this sub-room")
     }
+
+    console.log("[v0] Students loaded:", studentsData.length)
+    setStudents(studentsData)
 
     // Fetch existing seat assignments
     if (isSandbox && subRoom.is_sandbox && subRoom.proposal_data?.seat_assignments) {
