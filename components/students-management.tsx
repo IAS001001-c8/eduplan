@@ -1463,6 +1463,9 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
                               : "Élève"}
                         </Badge>
                       </TableCell>
+                      <TableCell className="text-muted-foreground text-sm">
+                        {student.lv2 || "-"}
+                      </TableCell>
                       {userRole === "vie-scolaire" && (
                         <TableCell className="text-muted-foreground text-sm">
                           {student.email || "-"}
