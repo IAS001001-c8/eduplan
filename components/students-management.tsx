@@ -383,6 +383,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
               phone: formData.phone.trim() || null,
               gender: formData.gender ? parseInt(formData.gender) : null,
               special_needs: formData.special_needs,
+              lv2: formData.lv2 || null,
               class_id: formData.class_id,
               class_name: selectedClass.name,
               role: "eleve",
