@@ -60,6 +60,7 @@ interface Student {
   birth_date?: string | null
   gender?: number | null // 1 = Homme, 2 = Femme, 3 = Non identifié
   special_needs?: string[] // Codes des besoins particuliers (EBP)
+  lv2?: string | null // Langue Vivante 2
 }
 
 interface StudentsManagementProps {
