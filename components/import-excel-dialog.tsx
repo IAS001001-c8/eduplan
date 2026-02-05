@@ -142,7 +142,8 @@ export function ImportExcelDialog({
           last_name: null,
           email: null,
           phone: null,
-          gender: null
+          gender: null,
+          lv2: null
         }
 
         headerRow.forEach((header) => {
@@ -157,6 +158,8 @@ export function ImportExcelDialog({
             autoMapping.phone = header
           } else if (headerLower.includes("sexe") || headerLower.includes("genre") || headerLower === "gender" || headerLower === "sex") {
             autoMapping.gender = header
+          } else if (headerLower.includes("lv2") || headerLower.includes("langue") || headerLower.includes("language")) {
+            autoMapping.lv2 = header
           }
         })
 
