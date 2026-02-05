@@ -983,6 +983,14 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
     if (roleFilter !== "all" && s.role !== roleFilter) {
       return false
     }
+    // Filter by LV2
+    if (filterLv2 !== "all") {
+      if (filterLv2 === "none") {
+        if (s.lv2) return false
+      } else {
+        if (s.lv2 !== filterLv2) return false
+      }
+    }
     // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
@@ -991,6 +999,9 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
     }
     return true
   })
+
+  // Get unique LV2 values for filter
+  const uniqueLv2 = [...new Set(students.map(s => s.lv2).filter(Boolean) as string[])].sort()
 
   // Compute isAllSelected based on filtered students
   const filteredStudentIds = filteredStudents.map(s => s.id)
