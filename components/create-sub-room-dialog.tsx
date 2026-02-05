@@ -39,6 +39,15 @@ interface Room {
   code: string
 }
 
+interface Student {
+  id: string
+  first_name: string
+  last_name: string
+  class_id: string
+  class_name?: string
+  lv2?: string | null
+}
+
 interface CreateSubRoomDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
