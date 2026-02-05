@@ -287,7 +287,7 @@ export function ImportStudentsDialog({
                 <li>Copiez les données depuis Excel, Google Sheets ou un fichier CSV</li>
                 <li>Les colonnes doivent être séparées par des tabulations ou des virgules</li>
                 <li>Colonnes requises: Prénom, Nom</li>
-                <li>Colonnes optionnelles: Email, Téléphone, LV2</li>
+                <li>Colonnes optionnelles: Email, Téléphone, Sexe, LV2</li>
               </ul>
             </div>
             <DialogFooter>
