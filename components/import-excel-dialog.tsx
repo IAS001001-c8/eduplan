@@ -356,13 +356,13 @@ export function ImportExcelDialog({
 
         {/* Step 2: Mapping */}
         {step === "mapping" && (
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-y-auto max-h-[55vh]">
             <div className="bg-[#F5F5F6] rounded-lg p-4 mb-4">
               <p className="text-sm font-medium text-[#29282B] mb-2">Fichier: {file?.name}</p>
               <p className="text-xs text-[#29282B]/60">{rawData.length} ligne(s) détectée(s)</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label className="text-[#29282B]">Prénom <span className="text-red-500">*</span></Label>
                 <Select value={mapping.first_name || ""} onValueChange={(v) => setMapping(m => ({ ...m, first_name: v }))}>
