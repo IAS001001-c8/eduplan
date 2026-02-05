@@ -444,6 +444,24 @@ export function ImportExcelDialog({
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="space-y-2 col-span-2">
+                <Label className="text-[#29282B]">LV2 (Langue Vivante 2)</Label>
+                <Select 
+                  value={mapping.lv2 || ""} 
+                  onValueChange={(v) => setMapping(m => ({ ...m, lv2: v || null }))}
+                >
+                  <SelectTrigger className="border-[#D9DADC]">
+                    <SelectValue placeholder="Optionnel" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Non mappé</SelectItem>
+                    {headers.map(h => (
+                      <SelectItem key={h} value={h}>{h}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Disclaimer pour le format du sexe */}
