@@ -40,6 +40,7 @@ export function ImportStudentsDialog({
     last_name: null,
     email: null,
     phone: null,
+    lv2: null,
   })
   const [selectedClassId, setSelectedClassId] = useState<string>("")
   const [importing, setImporting] = useState(false)
@@ -122,6 +123,9 @@ export function ImportStudentsDialog({
         const lastName = row[columnMapping.last_name!]
         const email = columnMapping.email !== null && columnMapping.email !== -1 ? row[columnMapping.email] : null
         const phone = columnMapping.phone !== null && columnMapping.phone !== -1 ? row[columnMapping.phone] : null
+        const lv2Raw = columnMapping.lv2 !== null && columnMapping.lv2 !== -1 ? row[columnMapping.lv2]?.trim() : null
+        // Normaliser la LV2 (première lettre majuscule)
+        const lv2 = lv2Raw ? lv2Raw.charAt(0).toUpperCase() + lv2Raw.slice(1).toLowerCase() : null
 
         if (!firstName || !lastName) {
           errorCount++
@@ -137,6 +141,7 @@ export function ImportStudentsDialog({
               last_name: lastName,
               email,
               phone,
+              lv2,
               class_id: selectedClassId,
               class_name: selectedClass.name, // Added class_name
               role: "eleve",
@@ -184,6 +189,7 @@ export function ImportStudentsDialog({
       last_name: null,
       email: null,
       phone: null,
+      lv2: null,
     })
     setSelectedClassId("")
     setHasHeaders(true)
@@ -267,7 +273,7 @@ export function ImportStudentsDialog({
                 <li>Copiez les données depuis Excel, Google Sheets ou un fichier CSV</li>
                 <li>Les colonnes doivent être séparées par des tabulations ou des virgules</li>
                 <li>Colonnes requises: Prénom, Nom</li>
-                <li>Colonnes optionnelles: Email, Téléphone</li>
+                <li>Colonnes optionnelles: Email, Téléphone, LV2</li>
               </ul>
             </div>
             <DialogFooter>
