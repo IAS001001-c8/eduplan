@@ -108,6 +108,8 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
           room_id,
           class_id,
           class_ids,
+          filtered_student_ids,
+          lv2_filter,
           rooms (name, config),
           classes (id, name)
         `)
