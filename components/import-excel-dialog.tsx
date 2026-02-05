@@ -421,7 +421,7 @@ export function ImportExcelDialog({
                 </Select>
               </div>
 
-              <div className="space-y-2 col-span-2">
+              <div className="space-y-2">
                 <Label className="text-[#29282B]">Sexe</Label>
                 <Select 
                   value={mapping.gender || ""} 
@@ -445,8 +445,8 @@ export function ImportExcelDialog({
                 </Select>
               </div>
 
-              <div className="space-y-2 col-span-2">
-                <Label className="text-[#29282B]">LV2 (Langue Vivante 2)</Label>
+              <div className="space-y-2">
+                <Label className="text-[#29282B]">LV2</Label>
                 <Select 
                   value={mapping.lv2 || ""} 
                   onValueChange={(v) => setMapping(m => ({ ...m, lv2: v || null }))}
