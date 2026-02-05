@@ -55,6 +55,8 @@ interface SubRoom {
   is_multi_class: boolean
   created_by: string
   created_at: string
+  filtered_student_ids?: string[]
+  lv2_filter?: string
   rooms: { name: string; code: string }
   teachers: { first_name: string; last_name: string }
 }
