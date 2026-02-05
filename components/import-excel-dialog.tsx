@@ -27,6 +27,7 @@ export interface ImportedStudent {
   email?: string
   phone?: string
   gender?: number // 1 = Homme, 2 = Femme, 3 = Non identifié
+  lv2?: string // Langue Vivante 2
 }
 
 type ColumnMapping = {
@@ -35,6 +36,7 @@ type ColumnMapping = {
   email: string | null
   phone: string | null
   gender: string | null
+  lv2: string | null
 }
 
 export function ImportExcelDialog({ 
