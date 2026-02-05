@@ -328,6 +328,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       email: s.email || null,
       phone: s.phone || null,
       gender: s.gender || null,
+      lv2: s.lv2 || null,
       class_id: excelImportClassId,
       class_name: selectedClass.name,
       role: "eleve",
