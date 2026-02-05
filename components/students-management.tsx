@@ -902,6 +902,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       can_create_subrooms: student.can_create_subrooms,
       gender: student.gender ? String(student.gender) as "1" | "2" | "3" : "",
       special_needs: student.special_needs || [],
+      lv2: student.lv2 || "",
     })
     setIsEditDialogOpen(true)
   }
