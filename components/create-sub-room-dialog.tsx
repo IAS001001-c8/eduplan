@@ -563,6 +563,76 @@ export function CreateSubRoomDialog({
             )}
           </div>
 
+          {/* Filtre LV2 - visible quand multi-classes est activé et au moins une classe sélectionnée */}
+          {formData.isMultiClass && formData.selectedClasses.length > 0 && (
+            <div className="space-y-3 border border-blue-200 bg-blue-50/50 rounded-md p-4">
+              <Label className="text-sm font-medium text-blue-800">
+                Filtrer par LV2 (optionnel)
+              </Label>
+              <p className="text-xs text-blue-600">
+                Créez une sous-salle regroupant uniquement les élèves d'une même LV2 provenant des classes sélectionnées
+              </p>
+              
+              {/* Liste des LV2 disponibles */}
+              {(() => {
+                // Calculer les élèves des classes sélectionnées
+                const studentsInSelectedClasses = students.filter(s => formData.selectedClasses.includes(s.class_id))
+                const availableLv2 = [...new Set(studentsInSelectedClasses.map(s => s.lv2).filter(Boolean) as string[])].sort()
+                
+                // Filtrer les élèves par LV2 si un filtre est actif
+                const filteredStudentsByLv2 = formData.filterLv2 === "all" 
+                  ? studentsInSelectedClasses 
+                  : studentsInSelectedClasses.filter(s => s.lv2 === formData.filterLv2)
+                
+                return (
+                  <>
+                    <Select
+                      value={formData.filterLv2}
+                      onValueChange={(value) => setFormData({ 
+                        ...formData, 
+                        filterLv2: value,
+                        selectedStudentIds: value === "all" ? [] : students.filter(s => formData.selectedClasses.includes(s.class_id) && s.lv2 === value).map(s => s.id)
+                      })}
+                    >
+                      <SelectTrigger className="border-blue-200 bg-white">
+                        <SelectValue placeholder="Sélectionner une LV2" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tous les élèves (pas de filtre LV2)</SelectItem>
+                        {availableLv2.map((lv2) => (
+                          <SelectItem key={lv2} value={lv2}>
+                            {lv2} ({studentsInSelectedClasses.filter(s => s.lv2 === lv2).length} élèves)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {/* Aperçu des élèves filtrés */}
+                    {formData.filterLv2 !== "all" && (
+                      <div className="mt-3 p-3 bg-white border border-blue-200 rounded-md">
+                        <p className="text-sm font-medium text-blue-800 mb-2">
+                          {filteredStudentsByLv2.length} élève(s) en {formData.filterLv2}
+                        </p>
+                        <div className="max-h-32 overflow-y-auto">
+                          {filteredStudentsByLv2.slice(0, 10).map((student) => (
+                            <div key={student.id} className="text-xs text-blue-600 py-0.5">
+                              {student.first_name} {student.last_name} ({student.class_name || classes.find(c => c.id === student.class_id)?.name})
+                            </div>
+                          ))}
+                          {filteredStudentsByLv2.length > 10 && (
+                            <div className="text-xs text-blue-400 py-0.5">
+                              ... et {filteredStudentsByLv2.length - 10} autres
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
+            </div>
+          )}
+
           {/* Créneaux horaires - Section pour définir quand la sous-salle est utilisée */}
           <div className="border-t border-[#D9DADC] pt-4 mt-4">
             <SubRoomScheduleForm
