@@ -130,6 +130,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
     can_create_subrooms: false,
     gender: "" as "" | "1" | "2" | "3",
     special_needs: [] as string[],
+    lv2: "" as string,
   })
   const [accessData, setAccessData] = useState({
     username: "",
