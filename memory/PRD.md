@@ -9,6 +9,38 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - **Email**: Resend (noreply@eduplan-lnc.com) - Désactivé dans l'UI
 - **Auth**: Custom auth avec profils Supabase (auto-détection du rôle)
 
+## Fonctionnalité LV2 (Langue Vivante 2) - Feb 5, 2026 ✅
+
+### État d'implémentation - TERMINÉ (Frontend) ⚠️ DB: Script à exécuter
+- ✅ **Frontend** : Toutes les modifications UI implémentées
+- ⏳ **Base de données** : Script SQL à exécuter (`/app/scripts/add_lv2_column.sql`)
+
+### Modifications Frontend - Feb 5, 2026
+| Composant | Modification | Status |
+|-----------|--------------|--------|
+| `import-students-dialog.tsx` | Ajout mapping colonne LV2 lors de l'import | ✅ |
+| `import-students-dialog.tsx` | Prévisualisation LV2 avant import | ✅ |
+| `students-management.tsx` | Interface Student avec champ `lv2` | ✅ |
+| `students-management.tsx` | Colonne LV2 dans le tableau | ✅ |
+| `students-management.tsx` | Filtre par LV2 (badges cliquables) | ✅ |
+| `students-management.tsx` | Champ LV2 dans dialogue d'édition | ✅ |
+| `create-sub-room-dialog.tsx` | Filtre LV2 pour créer sous-salles multi-classes | ✅ |
+
+### Valeurs LV2 supportées
+- Espagnol, Allemand, Italien, Portugais, Chinois, Arabe, null (non renseigné)
+
+### Script SQL à exécuter
+```sql
+-- Dans l'éditeur SQL de Supabase
+ALTER TABLE public.students ADD COLUMN IF NOT EXISTS lv2 TEXT DEFAULT NULL;
+CREATE INDEX IF NOT EXISTS idx_students_lv2 ON public.students(lv2);
+```
+
+### Cas d'usage principal
+Créer des sous-salles regroupant les élèves d'une même LV2 provenant de plusieurs classes (ex: tous les élèves d'allemand des 4A, 4B et 4C).
+
+---
+
 ## Fonctionnalité EBP (Élèves à Besoins Particuliers) - Feb 1, 2026
 
 ### État d'implémentation - TERMINÉ ✅
