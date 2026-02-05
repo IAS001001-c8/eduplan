@@ -460,6 +460,9 @@ export function ImportStudentsDialog({
                     {columnMapping.phone !== null && columnMapping.phone !== -1 && (
                       <th className="p-2 text-left font-medium">Téléphone</th>
                     )}
+                    {columnMapping.lv2 !== null && columnMapping.lv2 !== -1 && (
+                      <th className="p-2 text-left font-medium">LV2</th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -479,6 +482,11 @@ export function ImportStudentsDialog({
                       {columnMapping.phone !== null && columnMapping.phone !== -1 && (
                         <td className="p-2">
                           {row[columnMapping.phone] || <span className="text-muted-foreground italic">-</span>}
+                        </td>
+                      )}
+                      {columnMapping.lv2 !== null && columnMapping.lv2 !== -1 && (
+                        <td className="p-2">
+                          {row[columnMapping.lv2] || <span className="text-muted-foreground italic">-</span>}
                         </td>
                       )}
                     </tr>
