@@ -78,6 +78,7 @@ export function CreateSubRoomDialog({
   const [rooms, setRooms] = useState<Room[]>([])
   const [teachers, setTeachers] = useState<Teacher[]>([])
   const [classes, setClasses] = useState<Class[]>([])
+  const [students, setStudents] = useState<Student[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [currentTeacherId, setCurrentTeacherId] = useState<string | null>(null)
 
@@ -89,6 +90,8 @@ export function CreateSubRoomDialog({
     isCollaborative: false,
     isMultiClass: false,
     schedules: [] as ScheduleSlot[],
+    filterLv2: "all" as string, // LV2 filter
+    selectedStudentIds: [] as string[], // Selected students for LV2 filtering
   })
 
   const supabase = createClient()
