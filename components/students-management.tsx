@@ -919,6 +919,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
       phone: editData.phone || null,
       can_create_subrooms: editData.can_create_subrooms,
       gender: editData.gender ? parseInt(editData.gender) : null,
+      lv2: editData.lv2 || null,
     }
 
     // Only vie-scolaire can edit special_needs
