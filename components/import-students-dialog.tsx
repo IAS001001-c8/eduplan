@@ -124,7 +124,18 @@ export function ImportStudentsDialog({
         const lastName = row[columnMapping.last_name!]
         const email = columnMapping.email !== null && columnMapping.email !== -1 ? row[columnMapping.email] : null
         const phone = columnMapping.phone !== null && columnMapping.phone !== -1 ? row[columnMapping.phone] : null
+        const genderRaw = columnMapping.gender !== null && columnMapping.gender !== -1 ? row[columnMapping.gender]?.trim() : null
         const lv2Raw = columnMapping.lv2 !== null && columnMapping.lv2 !== -1 ? row[columnMapping.lv2]?.trim() : null
+        
+        // Convertir le genre en format numérique
+        let gender: number | null = null
+        if (genderRaw) {
+          const genderStr = genderRaw.toUpperCase()
+          if (genderStr === "1" || genderStr === "M" || genderStr === "H" || genderStr === "HOMME" || genderStr === "MASCULIN") gender = 1
+          else if (genderStr === "2" || genderStr === "F" || genderStr === "FEMME" || genderStr === "FÉMININ" || genderStr === "FEMININ") gender = 2
+          else if (genderStr === "3" || genderStr === "X" || genderStr === "NB" || genderStr === "NON IDENTIFIÉ" || genderStr === "AUTRE") gender = 3
+        }
+        
         // Normaliser la LV2 (première lettre majuscule)
         const lv2 = lv2Raw ? lv2Raw.charAt(0).toUpperCase() + lv2Raw.slice(1).toLowerCase() : null
 
@@ -142,6 +153,7 @@ export function ImportStudentsDialog({
               last_name: lastName,
               email,
               phone,
+              gender,
               lv2,
               class_id: selectedClassId,
               class_name: selectedClass.name, // Added class_name
