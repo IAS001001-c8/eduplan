@@ -448,6 +448,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
         can_create_subrooms: false,
         gender: "",
         special_needs: [],
+        lv2: "",
       })
       fetchData() // Auto-refresh after add
     } catch (error) {
