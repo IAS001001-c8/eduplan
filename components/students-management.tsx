@@ -1292,6 +1292,43 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
                 )}
               </div>
             </div>
+            {/* LV2 Filter */}
+            {uniqueLv2.length > 0 && (
+              <div>
+                <Label>Filtrer par LV2</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  <Badge
+                    variant={filterLv2 === "all" ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => setFilterLv2("all")}
+                  >
+                    Toutes
+                  </Badge>
+                  <Badge
+                    variant={filterLv2 === "none" ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => setFilterLv2("none")}
+                  >
+                    Non renseigné
+                  </Badge>
+                  {uniqueLv2.map((lv2) => (
+                    <Badge
+                      key={lv2}
+                      variant={filterLv2 === lv2 ? "default" : "outline"}
+                      className="cursor-pointer"
+                      onClick={() => setFilterLv2(lv2)}
+                    >
+                      {lv2}
+                    </Badge>
+                  ))}
+                  {filterLv2 !== "all" && (
+                    <Button variant="ghost" size="sm" onClick={() => setFilterLv2("all")}>
+                      Réinitialiser
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
