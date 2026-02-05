@@ -54,7 +54,8 @@ export function ImportExcelDialog({
     last_name: null,
     email: null,
     phone: null,
-    gender: null
+    gender: null,
+    lv2: null
   })
   const [previewData, setPreviewData] = useState<ImportedStudent[]>([])
   const [duplicates, setDuplicates] = useState<string[]>([])
