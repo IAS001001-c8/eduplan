@@ -1404,6 +1404,7 @@ export function StudentsManagement({ establishmentId, userRole, userId, onBack }
                     <TableHead>Prénom</TableHead>
                     <TableHead>Classe</TableHead>
                     <TableHead>Rôle</TableHead>
+                    <TableHead>LV2</TableHead>
                     {userRole === "vie-scolaire" && <TableHead>Email</TableHead>}
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
