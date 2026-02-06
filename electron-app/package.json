@@ -1,6 +1,6 @@
 {
   "name": "eduplan",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "EduPlan - Application de gestion de plans de classe",
   "main": "main.js",
   "author": "EduPlan",
