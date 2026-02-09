@@ -1,6 +1,6 @@
 {
   "name": "eduplan",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "EduPlan - Application de gestion de plans de classe",
   "main": "main.js",
   "author": "EduPlan",
@@ -24,20 +24,20 @@
     "copyright": "Copyright © 2025 EduPlan",
     "directories": {
       "output": "dist",
-      "buildResources": "assets"
+      "buildResources": "build"
     },
+    "files": [
+      "main.js",
+      "package.json"
+    ],
     "win": {
       "target": [
         {
           "target": "appx",
           "arch": ["x64"]
-        },
-        {
-          "target": "nsis",
-          "arch": ["x64"]
         }
       ],
-      "icon": "assets/icon.png"
+      "icon": "build/icon.png"
     },
     "appx": {
       "identityName": "mauboussin.597364587809B",
@@ -47,18 +47,14 @@
       "displayName": "EduPlan-LNC",
       "languages": ["fr-FR"],
       "backgroundColor": "#E7A541",
-      "showNameOnTiles": true
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "installerIcon": "assets/icon.ico",
-      "uninstallerIcon": "assets/icon.ico"
+      "showNameOnTiles": true,
+      "setBuildNumber": false
     },
     "extraResources": [
       {
-        "from": "assets",
-        "to": "assets"
+        "from": "build",
+        "to": ".",
+        "filter": ["**/*.png"]
       }
     ]
   }
