@@ -1,61 +1,71 @@
 # EduPlan - Application Windows (Electron)
 
-## Prérequis
-- Node.js 18+
-- Yarn ou npm
+## Version: 1.0.4
 
-## Installation
-```bash
-cd electron-app
-yarn install
+## Structure des dossiers
+
+```
+electron-app/
+├── build/              # Icônes pour Microsoft Store (AppX)
+│   ├── icon.png        # Icône principale 256x256
+│   ├── StoreLogo*.png  # Logo du Store (50-200px)
+│   ├── Square44x44Logo*.png    # Petites tuiles
+│   ├── Square71x71Logo*.png    # Tuiles moyennes (legacy)
+│   ├── Square150x150Logo*.png  # Tuiles moyennes
+│   ├── Square310x310Logo*.png  # Grandes tuiles
+│   ├── Wide310x150Logo*.png    # Tuiles larges
+│   ├── SplashScreen*.png       # Écran de démarrage
+│   ├── BadgeLogo*.png          # Badge notifications
+│   └── LockScreenLogo*.png     # Écran de verrouillage
+├── assets/             # Icônes pour installeur NSIS
+│   ├── icon.png
+│   └── icon.ico
+├── main.js             # Point d'entrée Electron
+└── package.json        # Configuration
 ```
 
-## Build
+## Build pour Microsoft Store
 
-### Build AppX (Microsoft Store)
 ```bash
+# 1. Nettoyer le cache
+rd /s /q dist
+
+# 2. Construire l'AppX
 yarn build:appx
 ```
 
-### Build NSIS (Installeur .exe)
-```bash
-yarn build:win
-```
+Le fichier `.appx` sera dans `dist/`.
 
-## Assets des icônes (Microsoft Store)
+## Configuration AppX
 
-Les icônes de tuiles sont générées automatiquement dans le dossier `/assets`:
+| Paramètre | Valeur |
+|-----------|--------|
+| identityName | mauboussin.597364587809B |
+| publisher | CN=1C530B69-D6AE-43AC-A089-794FC1E30BDB |
+| publisherDisplayName | mauboussin |
+| applicationId | EduPlan |
+| displayName | EduPlan-LNC |
+| backgroundColor | #E7A541 |
 
-| Fichier | Taille | Description |
-|---------|--------|-------------|
-| `StoreLogo.png` | 50x50 | Logo du Store |
-| `Square44x44Logo.png` | 44x44 | Petite tuile |
-| `Square71x71Logo.png` | 71x71 | Tuile moyenne |
-| `Square150x150Logo.png` | 150x150 | Tuile standard |
-| `Square310x310Logo.png` | 310x310 | Grande tuile |
-| `Wide310x150Logo.png` | 310x150 | Tuile large |
-| `icon.ico` | Multi-tailles | Icône pour l'installeur NSIS |
+## Icônes (59 fichiers)
 
-Chaque icône a des versions avec scale factors (100%, 125%, 150%, 200%, 400%) pour s'adapter aux différentes résolutions d'écran.
+Toutes les icônes utilisent `icone-eduplan-sans-slogan.png` :
+- Fond doré (#E7A541)
+- Logo centré avec 20% de padding
+- Toutes les tailles requises par Microsoft (scale-100 à scale-400)
+- Versions targetsize pour la barre des tâches
+- Versions altform-unplated (fond transparent)
 
-## Configuration Microsoft Store
-
-Dans `package.json`, les paramètres AppX :
-- `identityName`: Identité du package depuis Partner Center
-- `publisher`: CN du certificat depuis Partner Center
-- `publisherDisplayName`: Nom d'affichage de l'éditeur
-- `applicationId`: ID de l'application
-- `displayName`: Nom affiché dans le Store
-- `backgroundColor`: Couleur de fond des tuiles (#E7A541)
-
-## Résolution des erreurs courantes
+## Dépannage
 
 ### "Tile icons include a default image"
-Les icônes de tuiles personnalisées sont dans `/assets`. Vérifiez que tous les fichiers `Square*.png`, `Wide*.png` et `StoreLogo.png` sont présents.
+- Vérifiez que le dossier `build/` contient tous les fichiers
+- Supprimez `dist/` et reconstruisez
+- Les icônes doivent être dans `build/`, pas `assets/`
 
-### Build échoue avec "icon.ico not found"
-Le fichier `icon.ico` doit être dans `/assets`. Il est généré avec les tailles 16, 32, 48, 64, 128, 256 pixels.
-
-## Version
-- Version actuelle: 1.0.2
-- Incrémentez la version dans `package.json` avant chaque soumission au Store
+### Après git pull
+```bash
+cd electron-app
+rd /s /q dist
+yarn build:appx
+```
