@@ -367,6 +367,8 @@ export function CreateSubRoomDialog({
         schedules: [],
         filterLv2: "all",
         selectedStudentIds: [],
+        isTemporary: false,
+        temporaryDate: "",
       })
 
       onOpenChange(false)
