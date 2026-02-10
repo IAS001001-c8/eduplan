@@ -881,6 +881,11 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
                                       <div className="flex items-center gap-2">
                                         <FileText className="h-3.5 w-3.5 text-[#29282B]/40" />
                                         <span className="font-medium text-[#29282B] text-xs">{subRoom.name}</span>
+                                        {subRoom.is_temporary && (
+                                          <Badge className="text-[9px] px-1 py-0 bg-orange-100 text-orange-700 border-orange-200">
+                                            Temp. {subRoom.temporary_date ? new Date(subRoom.temporary_date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) : ''}
+                                          </Badge>
+                                        )}
                                         {subRoom.is_multi_class && (
                                           <Badge className="text-[9px] px-1 py-0 bg-violet-100 text-violet-700 border-violet-200">Multi</Badge>
                                         )}
