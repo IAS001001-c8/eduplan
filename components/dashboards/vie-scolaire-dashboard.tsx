@@ -16,6 +16,7 @@ import {
   CheckCircle2,
 } from "lucide-react"
 import { motion } from "framer-motion"
+import { FeatureSuggestions } from "@/components/feature-suggestions"
 
 interface VieScolaireDashboardProps {
   establishmentId: string
