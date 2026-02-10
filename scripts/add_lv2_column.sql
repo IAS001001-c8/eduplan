@@ -72,6 +72,21 @@ $$ LANGUAGE plpgsql;
 -- SELECT cleanup_expired_temporary_subrooms();
 
 -- ============================================================
+-- 3. PROPOSITIONS TEMPORAIRES (pour délégués)
+-- ============================================================
+
+-- Ajouter les colonnes temporaires à la table sub_room_proposals
+ALTER TABLE public.sub_room_proposals 
+ADD COLUMN IF NOT EXISTS is_temporary BOOLEAN DEFAULT FALSE;
+
+ALTER TABLE public.sub_room_proposals 
+ADD COLUMN IF NOT EXISTS temporary_date DATE DEFAULT NULL;
+
+-- Commentaires pour documentation
+COMMENT ON COLUMN public.sub_room_proposals.is_temporary IS 'Indique si la proposition concerne un plan temporaire';
+COMMENT ON COLUMN public.sub_room_proposals.temporary_date IS 'Date à laquelle le plan temporaire est actif';
+
+-- ============================================================
 -- VALEURS POSSIBLES
 -- ============================================================
 -- LV2: Espagnol, Allemand, Italien, Portugais, Chinois, Arabe, null (non renseigné)
