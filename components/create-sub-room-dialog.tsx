@@ -658,6 +658,41 @@ export function CreateSubRoomDialog({
             </div>
           )}
 
+          {/* Section Sous-salle temporaire */}
+          <div className="border-t border-[#D9DADC] pt-4 mt-4">
+            <div className="flex items-center space-x-2 mb-3">
+              <Checkbox
+                id="isTemporary"
+                checked={formData.isTemporary}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, isTemporary: checked as boolean, temporaryDate: "" })
+                }
+              />
+              <Label htmlFor="isTemporary" className="text-sm font-medium cursor-pointer">
+                Sous-salle temporaire (pour un jour uniquement)
+              </Label>
+            </div>
+            
+            {formData.isTemporary && (
+              <div className="ml-6 p-3 bg-orange-50 border border-orange-200 rounded-md space-y-3">
+                <p className="text-xs text-orange-700">
+                  ⏰ Cette sous-salle sera disponible uniquement à la date sélectionnée et sera automatiquement supprimée après le créneau.
+                </p>
+                <div>
+                  <Label htmlFor="temporaryDate" className="text-sm text-orange-800">Date du cours</Label>
+                  <Input
+                    id="temporaryDate"
+                    type="date"
+                    value={formData.temporaryDate}
+                    onChange={(e) => setFormData({ ...formData, temporaryDate: e.target.value })}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="mt-1 border-orange-300 focus:border-orange-500"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Créneaux horaires - Section pour définir quand la sous-salle est utilisée */}
           <div className="border-t border-[#D9DADC] pt-4 mt-4">
             <SubRoomScheduleForm
@@ -677,10 +712,11 @@ export function CreateSubRoomDialog({
               isLoading ||
               !formData.roomId ||
               formData.selectedTeachers.length === 0 ||
-              formData.selectedClasses.length === 0
+              formData.selectedClasses.length === 0 ||
+              (formData.isTemporary && !formData.temporaryDate)
             }
           >
-            {isLoading ? "Création..." : "Créer"}
+            {isLoading ? "Création..." : formData.isTemporary ? "Créer (temporaire)" : "Créer"}
           </Button>
         </DialogFooter>
       </DialogContent>
