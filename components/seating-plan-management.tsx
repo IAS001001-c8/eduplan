@@ -493,14 +493,37 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
 
       const supabase = createClient()
 
-      // Delete seating assignments first
+      // Delete sub_room_schedules first (foreign key constraint)
+      const { error: schedulesError } = await supabase
+        .from("sub_room_schedules")
+        .delete()
+        .in("sub_room_id", subRoomsToDelete)
+
+      if (schedulesError) {
+        console.error("Error deleting schedules:", schedulesError)
+        // Continue anyway - table might not exist or be empty
+      }
+
+      // Delete seating assignments
       const { error: assignmentsError } = await supabase
         .from("seating_assignments")
         .delete()
         .in("sub_room_id", subRoomsToDelete)
 
       if (assignmentsError) {
-        throw assignmentsError
+        console.error("Error deleting assignments:", assignmentsError)
+        // Continue anyway
+      }
+
+      // Delete sub_room_teachers links
+      const { error: teachersError } = await supabase
+        .from("sub_room_teachers")
+        .delete()
+        .in("sub_room_id", subRoomsToDelete)
+
+      if (teachersError) {
+        console.error("Error deleting teacher links:", teachersError)
+        // Continue anyway
       }
 
       // Delete sub-rooms
@@ -520,6 +543,7 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
       setSubRoomsToDelete([])
       await fetchData()
     } catch (error) {
+      console.error("Error deleting sub-rooms:", error)
       toast({
         title: "Erreur",
         description: "Impossible de supprimer les sous-salles",
