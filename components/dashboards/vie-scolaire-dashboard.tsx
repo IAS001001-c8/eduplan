@@ -308,6 +308,11 @@ export function VieScolaireDashboard({ establishmentId, onNavigate }: VieScolair
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Feature Suggestions */}
+      <motion.div variants={itemVariants}>
+        <FeatureSuggestions />
+      </motion.div>
     </motion.div>
   )
 }
