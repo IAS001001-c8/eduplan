@@ -185,8 +185,10 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
         .select(`
           id,
           name,
+          sub_room_id,
           classes (name),
           profiles!sub_room_proposals_proposed_by_fkey (first_name, last_name),
+          sub_rooms (is_temporary, temporary_date),
           created_at
         `)
         .eq("teacher_id", teacherData.id)
@@ -202,6 +204,8 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
           className: p.classes?.name || "Classe",
           proposedBy: `${p.profiles?.first_name || ""} ${p.profiles?.last_name || ""}`.trim() || "Inconnu",
           createdAt: new Date(p.created_at).toLocaleDateString("fr-FR"),
+          isTemporary: p.sub_rooms?.is_temporary || false,
+          temporaryDate: p.sub_rooms?.temporary_date || null,
         })) || []
       )
     } catch (error) {
