@@ -153,15 +153,121 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
         return
       }
 
-      // Filtrer par type de semaine
-      const matchingSchedule = schedules?.find((s: any) => {
+      // Fonction helper pour charger les données d'une sous-salle
+      const loadSubRoomData = async (subRoom: any, schedule: any) => {
+        // Charger les placements
+        const { data: assignments } = await supabase
+          .from("seating_assignments")
+          .select("seat_id, student_id, seat_position")
+          .eq("sub_room_id", subRoom.id)
+
+        const assignmentMap = new Map<number, string>()
+        assignments?.forEach((a: SeatAssignment) => {
+          const seatNum = a.seat_position || parseInt(a.seat_id) || 0
+          if (seatNum > 0 && a.student_id) {
+            assignmentMap.set(seatNum, a.student_id)
+          }
+        })
+
+        // Charger les élèves
+        const classIds = subRoom.class_ids && subRoom.class_ids.length > 0 
+          ? subRoom.class_ids 
+          : (subRoom.class_id ? [subRoom.class_id] : [])
+
+        let classNames = "Classe"
+        let classStudents: any[] = []
+        
+        if (classIds.length > 0) {
+          if (subRoom.filtered_student_ids && subRoom.filtered_student_ids.length > 0) {
+            const { data: filteredStudents } = await supabase
+              .from("students")
+              .select("id, first_name, last_name, role, lv2")
+              .in("id", subRoom.filtered_student_ids)
+              .eq("is_deleted", false)
+              .order("last_name")
+            
+            classStudents = filteredStudents || []
+          } else {
+            const { data: allStudents } = await supabase
+              .from("students")
+              .select("id, first_name, last_name, role")
+              .in("class_id", classIds)
+              .eq("is_deleted", false)
+              .order("last_name")
+            
+            classStudents = allStudents || []
+          }
+
+          const { data: classData } = await supabase
+            .from("classes")
+            .select("name")
+            .in("id", classIds)
+          
+          classNames = classData?.map(c => c.name).join(", ") || "Classe"
+          
+          if (subRoom.lv2_filter) {
+            classNames += ` (${subRoom.lv2_filter})`
+          }
+        }
+
+        return {
+          subRoomData: {
+            id: subRoom.id,
+            name: subRoom.name,
+            roomName: subRoom.rooms?.name || "Salle",
+            className: classNames,
+            startTime: schedule.start_time?.slice(0, 5) || "",
+            endTime: schedule.end_time?.slice(0, 5) || "",
+            weekType: schedule.week_type,
+            roomConfig: subRoom.rooms?.config || null,
+            isTemporary: subRoom.is_temporary || false,
+            temporaryDate: subRoom.temporary_date || null,
+          },
+          students: classStudents,
+          assignments: assignmentMap,
+        }
+      }
+
+      // Chercher le créneau actif pour les sous-salles NORMALES
+      const normalSchedule = schedules?.find((s: any) => {
+        const subRoom = normalSubRooms.find(sr => sr.id === s.sub_room_id)
+        if (!subRoom) return false
         return s.week_type === "both" || s.week_type === weekType
       })
 
-      if (!matchingSchedule) {
+      if (normalSchedule) {
+        const subRoom = normalSubRooms.find(sr => sr.id === normalSchedule.sub_room_id) as any
+        if (subRoom) {
+          const data = await loadSubRoomData(subRoom, normalSchedule)
+          setActiveSubRoom(data.subRoomData)
+          setStudents(data.students)
+          setSeatAssignments(data.assignments)
+        }
+      } else {
         setActiveSubRoom(null)
-        setIsLoading(false)
-        return
+        setStudents([])
+        setSeatAssignments(new Map())
+      }
+
+      // Chercher le créneau actif pour les sous-salles TEMPORAIRES (aujourd'hui seulement)
+      const temporarySchedule = schedules?.find((s: any) => {
+        const subRoom = temporarySubRooms.find(sr => sr.id === s.sub_room_id)
+        if (!subRoom) return false
+        return s.week_type === "both" || s.week_type === weekType
+      })
+
+      if (temporarySchedule) {
+        const subRoom = temporarySubRooms.find(sr => sr.id === temporarySchedule.sub_room_id) as any
+        if (subRoom) {
+          const data = await loadSubRoomData(subRoom, temporarySchedule)
+          setActiveTemporarySubRoom(data.subRoomData)
+          setTemporaryStudents(data.students)
+          setTemporarySeatAssignments(data.assignments)
+        }
+      } else {
+        setActiveTemporarySubRoom(null)
+        setTemporaryStudents([])
+        setTemporarySeatAssignments(new Map())
       }
 
       // Trouver la sous-salle correspondante
