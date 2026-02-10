@@ -62,11 +62,15 @@ function getDayOfWeek(): number {
 
 export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPlanProps) {
   const [activeSubRoom, setActiveSubRoom] = useState<ActiveSubRoom | null>(null)
+  const [activeTemporarySubRoom, setActiveTemporarySubRoom] = useState<ActiveSubRoom | null>(null)
   const [students, setStudents] = useState<Student[]>([])
+  const [temporaryStudents, setTemporaryStudents] = useState<Student[]>([])
   const [seatAssignments, setSeatAssignments] = useState<Map<number, string>>(new Map())
+  const [temporarySeatAssignments, setTemporarySeatAssignments] = useState<Map<number, string>>(new Map())
   const [currentWeekType, setCurrentWeekType] = useState<string>("A")
   const [isLoading, setIsLoading] = useState(true)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [showTemporaryFullscreen, setShowTemporaryFullscreen] = useState(false)
 
   useEffect(() => {
     fetchActiveSubRoom()
