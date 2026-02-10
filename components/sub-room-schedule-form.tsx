@@ -148,7 +148,7 @@ export function SubRoomScheduleForm({ schedules, onChange, disabled = false, max
 
               <div className="grid grid-cols-2 gap-3">
                 {/* Jour */}
-                <div>
+                <div className={isTemporary ? "col-span-2" : ""}>
                   <Label className="text-xs text-[#29282B]/60">Jour</Label>
                   <Select
                     value={schedule.day_of_week.toString()}
@@ -170,28 +170,30 @@ export function SubRoomScheduleForm({ schedules, onChange, disabled = false, max
                   </Select>
                 </div>
 
-                {/* Semaine A/B */}
-                <div>
-                  <Label className="text-xs text-[#29282B]/60">Semaine</Label>
-                  <Select
-                    value={schedule.week_type}
-                    onValueChange={(value) =>
-                      updateSchedule(schedule.id, { week_type: value as "A" | "B" | "both" })
-                    }
-                    disabled={disabled}
-                  >
-                    <SelectTrigger className="border-[#D9DADC] mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {WEEK_TYPES.map((type) => (
-                        <SelectItem key={type.value} value={type.value}>
-                          {type.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Semaine A/B - Masqué pour les sous-salles temporaires */}
+                {!isTemporary && (
+                  <div>
+                    <Label className="text-xs text-[#29282B]/60">Semaine</Label>
+                    <Select
+                      value={schedule.week_type}
+                      onValueChange={(value) =>
+                        updateSchedule(schedule.id, { week_type: value as "A" | "B" | "both" })
+                      }
+                      disabled={disabled}
+                    >
+                      <SelectTrigger className="border-[#D9DADC] mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {WEEK_TYPES.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
