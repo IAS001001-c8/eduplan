@@ -1552,9 +1552,11 @@ export function SeatingPlanEditor({
     
     // Générer un résumé
     const placedEBP = ebpVisionHearing.length + ebpTSA.length + ebpOther.length
+    const rotatedCount = previouslyPlaced.size > 0 ? students.filter(s => !s.special_needs || s.special_needs.length === 0).filter(s => previouslyPlaced.has(Array.from(previouslyPlaced.entries()).find(([_, id]) => id === s.id)?.[0] || -1)).length : 0
+    
     toast({
       title: "✅ Placement intelligent terminé",
-      description: `${placedStudents.size}/${numStudents} élèves placés (${placedEBP} EBP). Mixité et espacement optimisés.`,
+      description: `${placedStudents.size}/${numStudents} élèves placés (${placedEBP} EBP prioritaires). ${rotatedCount > 0 ? `${rotatedCount} élèves ont changé de rang.` : ''} Mixité optimisée.`,
     })
   }
   
