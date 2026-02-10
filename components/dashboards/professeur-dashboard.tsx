@@ -17,7 +17,6 @@ import {
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { CurrentClassPlan } from "@/components/current-class-plan"
-import { FeatureSuggestions } from "@/components/feature-suggestions"
 import { cn } from "@/lib/utils"
 
 interface ProfesseurDashboardProps {
