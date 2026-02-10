@@ -9,6 +9,49 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - **Email**: Resend (noreply@eduplan-lnc.com) - Désactivé dans l'UI
 - **Auth**: Custom auth avec profils Supabase (auto-détection du rôle)
 
+## Session 15 - Feb 10, 2026 ✅
+
+### Nouvelles fonctionnalités implémentées
+
+#### 1. Suggestions de fonctionnalités - TERMINÉ ✅
+**Composant**: `/app/components/feature-suggestions.tsx`
+
+Section affichée sur les dashboards vie-scolaire et professeur proposant des idées d'améliorations:
+- **Salles collaboratives** (Collaboration, Priorité haute) - Partage de plans entre professeurs
+- **Notifications aux parents** (Communication, Priorité moyenne) - Informer les parents des changements
+- **Application mobile** (Mobile, Priorité haute) - Gestion depuis téléphone
+- **Tableau de bord analytique** (Analytique, Priorité moyenne) - Statistiques avancées
+- **Affichage QR Code** (Automatisation, Priorité basse) - Élèves scannent pour voir leur place
+- **Export email automatique** (Communication, Priorité moyenne) - Envoi automatique aux élèves
+
+Dialog de détail avec description complète et liste des avantages.
+
+#### 2. Script reset mot de passe vie-scolaire - TERMINÉ ✅
+**Fichier**: `/app/scripts/reset_vie_scolaire_password.sql`
+
+Script SQL pour Supabase permettant de réinitialiser le mot de passe d'un compte vie-scolaire:
+- Fonction `reset_vie_scolaire_password(email, password)`
+- Validation du rôle vie-scolaire
+- Méthode alternative inline (bloc DO)
+- Instructions d'utilisation détaillées
+
+#### 3. Propositions temporaires pour délégués - TERMINÉ ✅
+**Fichiers modifiés**:
+- `/app/components/create-proposal-dialog.tsx` - Toggle "Proposition temporaire" + Date picker
+- `/app/components/dashboards/professeur-dashboard.tsx` - Lecture isTemporary depuis proposal directement
+- `/app/scripts/add_lv2_column.sql` - Colonnes `is_temporary` et `temporary_date` ajoutées à `sub_room_proposals`
+
+Les délégués peuvent maintenant créer des propositions temporaires avec une date spécifique.
+
+### Tests effectués - 100% réussite ✅
+- Login vie-scolaire
+- Affichage section "Fonctionnalités suggérées"
+- Dialog de détail des suggestions
+- Bouton "Voir les X autres suggestions"
+- Scripts SQL valides
+
+---
+
 ## Fonctionnalité Sous-salles Temporaires - Feb 10, 2026 ✅
 
 ### État d'implémentation - TERMINÉ (Frontend) ⚠️ DB: Script à exécuter
