@@ -11,44 +11,24 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 
 ## Session 15 - Feb 10, 2026 ✅
 
-### Nouvelles fonctionnalités implémentées
+### Modifications effectuées
 
-#### 1. Suggestions de fonctionnalités - TERMINÉ ✅
-**Composant**: `/app/components/feature-suggestions.tsx`
+#### 1. Section "Fonctionnalités suggérées" retirée
+- Composant supprimé des dashboards vie-scolaire et professeur
+- Fichier `/app/components/feature-suggestions.tsx` supprimé
 
-Section affichée sur les dashboards vie-scolaire et professeur proposant des idées d'améliorations:
-- **Salles collaboratives** (Collaboration, Priorité haute) - Partage de plans entre professeurs
-- **Notifications aux parents** (Communication, Priorité moyenne) - Informer les parents des changements
-- **Application mobile** (Mobile, Priorité haute) - Gestion depuis téléphone
-- **Tableau de bord analytique** (Analytique, Priorité moyenne) - Statistiques avancées
-- **Affichage QR Code** (Automatisation, Priorité basse) - Élèves scannent pour voir leur place
-- **Export email automatique** (Communication, Priorité moyenne) - Envoi automatique aux élèves
+#### 2. Sous-salles temporaires - Limite à 1 créneau ✅
+- Quand l'option "Sous-salle temporaire" est cochée, on ne peut ajouter qu'UN SEUL créneau
+- Le sélecteur de semaine A/B est masqué pour les sous-salles temporaires
+- Message explicatif : "(1 seul créneau pour les sous-salles temporaires)"
 
-Dialog de détail avec description complète et liste des avantages.
+#### 3. Correction suppression sous-salles ✅
+- Ajout de la suppression de `sub_room_schedules` avant la suppression
+- Ajout de la suppression de `sub_room_teachers` avant la suppression
+- Meilleure gestion des erreurs avec logs
 
-#### 2. Script reset mot de passe vie-scolaire - TERMINÉ ✅
-**Fichier**: `/app/scripts/reset_vie_scolaire_password.sql`
-
-Script SQL pour Supabase permettant de réinitialiser le mot de passe d'un compte vie-scolaire:
-- Fonction `reset_vie_scolaire_password(email, password)`
-- Validation du rôle vie-scolaire
-- Méthode alternative inline (bloc DO)
-- Instructions d'utilisation détaillées
-
-#### 3. Propositions temporaires pour délégués - TERMINÉ ✅
-**Fichiers modifiés**:
-- `/app/components/create-proposal-dialog.tsx` - Toggle "Proposition temporaire" + Date picker
-- `/app/components/dashboards/professeur-dashboard.tsx` - Lecture isTemporary depuis proposal directement
-- `/app/scripts/add_lv2_column.sql` - Colonnes `is_temporary` et `temporary_date` ajoutées à `sub_room_proposals`
-
-Les délégués peuvent maintenant créer des propositions temporaires avec une date spécifique.
-
-### Tests effectués - 100% réussite ✅
-- Login vie-scolaire
-- Affichage section "Fonctionnalités suggérées"
-- Dialog de détail des suggestions
-- Bouton "Voir les X autres suggestions"
-- Scripts SQL valides
+#### 4. Scripts SQL créés
+- `/app/scripts/reset_vie_scolaire_password.sql` - Reset mot de passe vie-scolaire
 
 ---
 
