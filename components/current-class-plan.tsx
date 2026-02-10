@@ -28,6 +28,8 @@ interface ActiveSubRoom {
   endTime: string
   weekType: string
   roomConfig: any
+  isTemporary?: boolean
+  temporaryDate?: string
 }
 
 interface Student {
