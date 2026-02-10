@@ -408,21 +408,41 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
                 {pendingProposals.map((proposal) => (
                   <div
                     key={proposal.id}
-                    className="flex items-center gap-4 p-4 rounded-lg bg-[#FDF6E9] border border-[#E7A541]/20 cursor-pointer hover:bg-[#FCF0DD] transition-colors"
+                    className={cn(
+                      "flex items-center gap-4 p-4 rounded-lg border cursor-pointer transition-colors",
+                      proposal.isTemporary 
+                        ? "bg-orange-50 border-orange-200 hover:bg-orange-100" 
+                        : "bg-[#FDF6E9] border-[#E7A541]/20 hover:bg-[#FCF0DD]"
+                    )}
                     onClick={() => onNavigate("sandbox")}
                   >
-                    <div className="p-2 rounded-full bg-[#E7A541]/20">
-                      <Clock className="h-4 w-4 text-[#E7A541]" />
+                    <div className={cn(
+                      "p-2 rounded-full",
+                      proposal.isTemporary ? "bg-orange-200" : "bg-[#E7A541]/20"
+                    )}>
+                      <Clock className={cn(
+                        "h-4 w-4",
+                        proposal.isTemporary ? "text-orange-600" : "text-[#E7A541]"
+                      )} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#29282B] truncate">
-                        {proposal.name}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-[#29282B] truncate">
+                          {proposal.name}
+                        </p>
+                        {proposal.isTemporary && (
+                          <Badge className="bg-orange-100 text-orange-700 border border-orange-300 text-[10px] px-1.5 py-0">
+                            Temporaire {proposal.temporaryDate ? `(${new Date(proposal.temporaryDate).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })})` : ''}
+                          </Badge>
+                        )}
+                      </div>
                       <p className="text-xs text-[#29282B]/60">
                         {proposal.className} • Par {proposal.proposedBy}
                       </p>
                     </div>
-                    <Badge className="bg-[#E7A541] text-white">
+                    <Badge className={cn(
+                      proposal.isTemporary ? "bg-orange-500 text-white" : "bg-[#E7A541] text-white"
+                    )}>
                       À valider
                     </Badge>
                   </div>
