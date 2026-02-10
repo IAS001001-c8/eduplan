@@ -52,8 +52,11 @@ function generateId(): string {
   return Math.random().toString(36).substring(2, 9)
 }
 
-export function SubRoomScheduleForm({ schedules, onChange, disabled = false }: SubRoomScheduleFormProps) {
+export function SubRoomScheduleForm({ schedules, onChange, disabled = false, maxSchedules, isTemporary = false }: SubRoomScheduleFormProps) {
+  const canAddMore = maxSchedules === undefined || schedules.length < maxSchedules
+
   const addSchedule = () => {
+    if (!canAddMore) return
     const newSchedule: ScheduleSlot = {
       id: generateId(),
       day_of_week: 0,
