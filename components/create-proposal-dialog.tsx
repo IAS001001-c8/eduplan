@@ -396,6 +396,43 @@ export function CreateProposalDialog({
             </div>
           )}
 
+          {/* Temporary proposal option */}
+          <div className="space-y-3 p-3 bg-orange-50 dark:bg-orange-900/10 rounded-lg border border-orange-200 dark:border-orange-800">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="isTemporary"
+                checked={isTemporary}
+                onCheckedChange={(checked) => {
+                  setIsTemporary(checked === true)
+                  if (!checked) setTemporaryDate("")
+                }}
+              />
+              <Label htmlFor="isTemporary" className="text-sm font-medium cursor-pointer text-orange-800 dark:text-orange-300">
+                Proposition temporaire (pour un jour uniquement)
+              </Label>
+            </div>
+            
+            {isTemporary && (
+              <div className="space-y-2 pl-6">
+                <Label htmlFor="temporaryDate" className="text-sm text-orange-700 dark:text-orange-400">
+                  Date du cours
+                </Label>
+                <Input
+                  id="temporaryDate"
+                  type="date"
+                  value={temporaryDate}
+                  onChange={(e) => setTemporaryDate(e.target.value)}
+                  min={new Date().toISOString().split("T")[0]}
+                  required={isTemporary}
+                  className="border-orange-300 dark:border-orange-700 focus:border-orange-500"
+                />
+                <p className="text-xs text-orange-600 dark:text-orange-500">
+                  Le plan sera proposé pour cette date uniquement et sera masqué automatiquement après.
+                </p>
+              </div>
+            )}
+          </div>
+
           <div className="flex gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
               Annuler
