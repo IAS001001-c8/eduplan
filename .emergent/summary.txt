@@ -1,188 +1,239 @@
-<analysis>
-**original_problem_statement**: The user initially requested a comprehensive feature for managing Élèves à Besoins Particuliers (EBP - Students with Special Needs), which included data model changes, UI updates for student management, special badges/colors in seating plans, and an Intelligent Placement algorithm.
+<analysis>**original_problem_statement**: The user's initial high-level goals were to add features for managing special needs students (EBP), redesign the seating plan view, and create an intelligent placement algorithm.
 
-This evolved to include:
-*   A complete redesign of the Plan de classe (seating plan) management section into a File View with a role-based folder structure.
-*   Numerous bug fixes related to login, data display, and UI behavior.
-*   Creation of a guide for setting up new establishments and users directly in Supabase.
-*   A new critical bug report: login fails for newly created users.
-*   A new critical data-leak bug: propositions en attente are visible across all establishments.
+Over the course of the project, the focus shifted multiple times. Key work streams included:
+- Fixing a critical data leak.
+- A major effort to deploy the application to Vercel and package it as a Windows application using Electron for the Microsoft Store. This involved extensive debugging of build and configuration issues.
+- Implementing a new LV2 (second language) feature, allowing students to be imported and filtered by their LV2 to create multi-class groups.
+- Implementing a temporary sub-rooms feature for creating date-specific, auto-expiring classes, which appear with high priority on the teacher's dashboard.
+- Implementing several smaller features and bug fixes based on user feedback, including enhancements to the intelligent placement algorithm, UI adjustments, and multiple attempts to resolve a recurring icon issue with the Microsoft Store submission.
 
 **PRODUCT REQUIREMENTS:**
-1.  **Data Model**: Extend  with  and . Allow establishments to define custom EBP characteristics.
-2.  **Student Management**: Update import, creation, and editing forms to include  and . Restrict EBP modification to the  role and log changes.
-3.  **UI & Display**:
-    *   Show a purple EBP X badge on student lists (hidden from ).
-    *   Color EBP students blue in the seating plan (visible only to /).
-    *   The Plan de classe management view must be a File View with a folder structure:
-        *   : 
-        *   : 
-        *   : 
-4.  **Intelligent Placement Feature**:
-    *   Add Placement Intelligent and Complétion Intelligente buttons.
-    *   The algorithm must place students with vision/hearing issues in front, students with ASD on the periphery with an empty adjacent seat, avoid placing EBP students together, and respect gender mix. If constraints conflict, it must find a least worst solution.
+1.  **LV2 Feature**: Add an LV2 field to students. Support import, editing, and filtering by LV2. Allow creating sub-rooms by combining students from multiple classes who share the same LV2.
+2.  **Temporary Sub-Rooms**: Add a feature to create temporary, date-specific sub-rooms. These rooms should be automatically hidden after their date has passed and should appear in a high-priority section on the teacher's dashboard when active. Delegate-proposed temporary rooms should be clearly marked.
+3.  **Intelligent Placement V2**: Enhance the algorithm with a 3-tier logic: 1. EBP needs, 2. Gender mix, 3. Rotating non-EBP students to different rows.
+4.  **UI/UX Fixes**: Ensure EBP student color coding has priority over other roles (delegate). Fix UI overflow in the Excel import dialog.
+5.  **Windows App Deployment**: Successfully package the application for the Microsoft Store, resolving all default icon errors.
+6.  **Password Reset**: Create a Supabase script to allow resetting a vie scolaire account password.
+7.  **Feature Suggestions**: Implement a section in the application to suggest potential new features to the user.
 
 **User's preferred language**: French
 
 **what currently exists?**
-The application is a Next.js app using Supabase for the backend. The EBP feature and the File View for seating plans have been fully implemented. The agent has successfully implemented the advanced intelligent placement algorithm, corrected multiple UI/UX issues, and fixed several critical bugs, including seat numbering and teacher editing. A guide for creating new establishments and users in Supabase has also been created. The application is largely functional but is blocked by a new login issue and a data filtering bug.
+The application is a Next.js app with a Supabase (PostgreSQL) backend. A parallel  project exists for Windows packaging.
+
+Key features implemented in this session include:
+-   **LV2 Management**: The full feature is implemented across student import (Excel & copy-paste), student management (list, edit, filter), and sub-room creation. This required adding a  column to the  table and a  array to the  table.
+-   **Temporary Sub-Rooms**: This feature is fully implemented. It required adding  and  columns to the  table. The UI in the creation dialog, teacher dashboard, and sub-room list has been updated to support this.
+-   **Intelligent Placement V2**: The algorithm in  has been updated with the requested 3-tier logic.
+-   **Icon Generation System**: The  directory contains Python scripts and a custom  designed to generate all necessary icons for the Microsoft Store and force their usage to prevent submission failures. The app version has been incremented to  for the next submission attempt.
 
 **Last working item**:
-- Last item agent was working: The agent was starting to investigate two new critical bugs reported by the user:
-    1.  Login fails for a newly created user/establishment (id ou mdp incorrecte).
-    2.  The Propositions en attente view on the vie-scolaire dashboard is not filtered by establishment, causing a data leak.
-    The agent began by examining the authentication logic in .
-- Status: IN PROGRESS
+- Last item agent was working: The agent just finished implementing a batch of user requests, with the final one being the enhancement of the Intelligent Placement algorithm. This also included hiding expired temporary sub-rooms and adding indicators for temporary proposals.
+- Status: IN PROGRESS (The coding for the batch of features is done, but system-wide testing is required, and two requested tasks have not been started).
 - Agent Testing Done: N
-- Which testing method agent to use? backend testing agent for the query filtering and frontend testing agent for the login flow.
+- Which testing method agent to use? **testing_agent_v3_fork**. This is critical as the changes touch multiple core components (dashboards, seating plan editor, sub-room management, database schema). The agent should validate the entire LV2 and temporary sub-room flow.
 - User Testing Done: N
 
 **All Pending/In progress Issue list**:
--   **Issue 1**: Login fails for newly created users/establishments. (P0)
--   **Issue 2**: Propositions en attente view is not filtered by . (P0)
--   **Issue 3**: Drag and drop does not work on mobile devices. (P2)
--   **Issue 4**: Vie Scolaire dashboard statistics may be static or unverified. (P2)
--   **Issue 5**: React 19  warnings from  persist in the console. (P3)
+-   **Issue 1: Microsoft Store Submission Failure (P0)**
+-   **Issue 2: Excel Import Dialog UI Overflow (P1)**
+-   **Issue 3: Drag and drop does not work on mobile devices (P2)**
+-   **Issue 4: Vie Scolaire dashboard statistics may be static or unverified (P2)**
 
 Issues Detail:
--   **Issue 1: Login fails for newly created users/establishments.**
-    -   Attempted fixes: The agent started investigating .
-    -   Next debug checklist:
-        1.  Analyze the  function in . It uses a Supabase RPC function named .
-        2.  Check the definition and logic of the  RPC function in the user's Supabase instance to ensure it's compatible with the password hashes being generated.
-        3.  The user's schema shows a  column. The issue is likely a mismatch between how the user is creating the password hash manually and how the  function validates it. Guide the user on the correct hashing method (e.g., bcrypt).
-    -   Why fix this issue and what will be achieved with the fix?: This is a critical blocker preventing the user from onboarding new establishments.
-    -   Status: IN PROGRESS
+-   **Issue 1: Microsoft Store Submission Failure**
+    -   Attempted fixes: This is a highly recurring issue. The agent has tried:
+        1.  Generating all required icon sizes using a Python script.
+        2.  Replacing all icons in  and .
+        3.  Reorganizing icons into a  directory.
+        4.  Creating a custom  in  to explicitly force every icon path and override  defaults. The app version was bumped to .
+    -   Next debug checklist: The user needs to build the  package from the  directory and submit it to the Microsoft Partner Center. If it fails again, the agent must meticulously compare the generated  package contents against the Microsoft Store requirements.
+    -   Why fix this issue and what will be achieved with the fix?: This is a critical blocker preventing the user from publishing their application. The user is highly frustrated with this issue.
+    -   Status: USER VERIFICATION PENDING
     -   Is recurring issue? Y
-    -   Should Test frontend/backend/both after fix? both
-    -   Blocked on other issue: None
+    -   Should Test frontend/backend/both after fix? N/A (Packaging issue)
+    -   Blocked on other issue: None.
 
--   **Issue 2: Propositions en attente view is not filtered by .**
+-   **Issue 2: Excel Import Dialog UI Overflow**
+    -   Attempted fixes: The agent added  to the dialog content and adjusted the grid layout () for the mapping fields in .
+    -   Next debug checklist: Verify visually via a screenshot or have the testing agent check that the content in the Column Mapping step of the Excel import is scrollable and no longer breaks the dialog layout.
+    -   Why fix this issue and what will be achieved with the fix?: Restores usability to the Excel import feature.
+    -   Status: TESTING PENDING
+    -   Is recurring issue? Y
+    -   Should Test frontend/backend/both after fix? frontend
+    -   Blocked on other issue: None.
+
+-   **Issue 3: Drag and drop does not work on mobile devices.**
     -   Attempted fixes: None.
-    -   Next debug checklist:
-        1.  Identify the component rendering the Propositions en attente list, likely on the  dashboard.
-        2.  Locate the Supabase query fetching data for the  table.
-        3.  Add a  filter to the query to restrict results to the currently logged-in user's establishment.
-    -   Why fix this issue and what will be achieved with the fix?: This is a critical data leak and privacy issue. Fixing it will ensure data segregation between establishments.
+    -   Next debug checklist: Investigate using  instead of  for mobile devices.
+    -   Why fix this issue and what will be achieved with the fix?: Improves usability on tablets and mobile.
+    -   Status: NOT STARTED
+    -   Is recurring issue? N
+    -   Should Test frontend/backend/both after fix? frontend
+    -   Blocked on other issue: None.
+
+-   **Issue 4: Vie Scolaire dashboard statistics may be static or unverified.**
+    -   Attempted fixes: None.
+    -   Next debug checklist: Review the queries in  and verify that the calculations are correct and dynamic.
+    -   Why fix this issue and what will be achieved with the fix?: Ensures data displayed on the dashboard is accurate.
     -   Status: NOT STARTED
     -   Is recurring issue? N
     -   Should Test frontend/backend/both after fix? both
-    -   Blocked on other issue: None
+    -   Blocked on other issue: None.
 
 **In progress Task List**:
--   None. Current focus is on bug fixing.
+- None.
 
 **Upcoming and Future Tasks**
 Upcoming Tasks:
-- (P1) Implement drag and drop on mobile devices.
-- (P2) Verify dynamic statistics on the Vie Scolaire dashboard.
+-   **(P0) Run Database Migration Script**: The agent has created a script at  that adds columns for BOTH the LV2 and Temporary Sub-room features. This script MUST be executed against the Supabase database for any of the new features to work.
+-   **(P1) Create Password Reset Script**: Create a SQL script that can be run on Supabase to reset the password for a vie scolaire user account.
+-   **(P2) Implement In-App Feature Suggestions**: Code a new UI component to present potential future enhancements to the user, as requested.
+-   **(P2) Full Regression Test**: Run the  to validate all the recent, complex changes (LV2, temporary rooms, intelligent placement, UI fixes).
 
 Future Tasks:
-- (P3) Implement a full collaborative room system (sharing plans between teachers).
-- (P3) Re-implement Resend email functionality.
-- (P3) Implement custom fonts  and  throughout the application.
-- (P3) Implement the landing page based on the detailed design plan created.
+-   (P3) Implement a full collaborative room system (sharing plans between teachers).
+-   (P3) Re-implement Resend email functionality.
+-   (P3) Implement custom fonts  and .
+-   (P3) Implement the landing page based on the detailed design plan.
 
 **Completed work in this session**
--   **EBP Feature & Intelligent Placement**:
-    -   Implemented the advanced Placement Intelligent and Complétion Intelligente algorithms with complex rules (vision/hearing, TSA, no EBP neighbors, gender mix) and fallback logic in .
-    -   Fixed EBP data saving for existing students.
-    -   Added UI for managing custom EBP characteristics in establishment settings ().
--   **File View Refactor**:
-    -   Completely redesigned the Plan de classe management page () from a card/list view to a role-based folder navigation system.
--   **Critical Bug Fixes**:
-    -   Fixed a bug causing seat numbering to start at 2 instead of 1 ().
-    -   Resolved an issue preventing  from modifying teacher information ().
-    -   Corrected a crash in the File View caused by  .
--   **UI/UX Improvements**:
-    -   Configured the sidebar to be closed by default for non- roles.
-    -   Enhanced the student info pop-up in the seating plan editor to show gender and role for all students.
--   **Documentation**:
-    -   Created and corrected a comprehensive guide for creating establishments and users via Supabase ().
-    -   Consistently updated .
+-   **LV2 Feature Implementation (DONE)**: Fully integrated LV2 management, from data import to creating filtered sub-rooms.
+-   **Temporary Sub-Rooms Feature (DONE)**: Implemented date-specific, auto-expiring sub-rooms with a prioritized dashboard view.
+-   **Intelligent Placement V2 (DONE)**: Enhanced the placement algorithm with a 3-tier logic in .
+-   **Deployment & Packaging (IN PROGRESS)**: Made extensive, repeated efforts to fix Microsoft Store icon errors by creating icon generation scripts, a custom manifest (), and reorganizing the  build structure. The app version is now .
+-   **Bug Fixes (TESTING PENDING)**:
+    -   Fixed UI overflow in the Excel import dialog.
+    -   Filtered expired temporary sub-rooms from the main list view.
+    -   Added a Temporaire indicator to delegate proposals.
+    -   Confirmed EBP color priority logic in the seating plan editor is correct.
+-   **Documentation (DONE)**: Created a combined SQL migration script and updated the Electron app's README.
 
 **Earlier issues found/mentioned but not fixed**
--   None; all known issues from previous sessions have either been resolved or are tracked in the pending list.
+-   Mobile drag-and-drop support.
+-   Verification of Vie Scolaire dashboard statistics.
+-   React 19  warnings from .
 
 **Known issue recurrence from previous fork**
--   **Issue recurrence in previous fork**: Authentication / Login failures.
--   **Recurrence count**: 2
--   **Status**: IN PROGRESS. The custom authentication system is brittle, especially when users are created manually.
+-   **Issue recurrence in this fork**: Microsoft Store submission failure due to default icons.
+-   **Recurrence count**: 5+
+-   **Status**: USER VERIFICATION PENDING (The latest attempt with  and a custom manifest needs to be tested by the user).
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Frontend**: Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS, Shadcn UI.
--   **Backend**: Server-side logic within Next.js components and route handlers.
+-   **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS, Shadcn UI.
+-   **Backend**: Server-side logic within Next.js, direct client-side calls to Supabase.
 -   **Database**: Supabase (PostgreSQL).
--   **Authentication**: A custom JWT-based system using a Supabase RPC function (), which is separate from Supabase's built-in auth and is a recurring source of issues.
+-   **Packaging**: Electron () configured to use a custom  to build an  package for the Microsoft Store.
+-   **Scripting**: Python (, ) used for build-time asset generation (icons).
 
 **key DB schema**
--   : Contains uid=0(root) gid=0(root) groups=0(root), , , and a  (text, NOT NULL) column.
--   : Contains uid=0(root) gid=0(root) groups=0(root), , , and  (text, NOT NULL). The login logic likely fails due to a mismatch between the stored hash and the verification function.
--   : Table for student-proposed seating plans, which currently lacks filtering by .
+-   : added .
+-   : added , , .
 
 **changes in tech stack**
--   None.
+-   Python (, ) was introduced via shell scripts as part of the build process for image manipulation.
 
 **All files of reference**
--   **/app/lib/custom-auth.ts**: Key file for debugging the current login failure (P0 issue).
--   **/app/components/seating-plan-management.tsx**: Location of the new File View feature.
--   **/app/components/seating-plan-editor.tsx**: Contains the complex intelligent placement algorithm.
--   **/app/GUIDE_CREATION_ETABLISSEMENTS.md**: The guide created for the user.
+-   **/app/scripts/add_lv2_column.sql**: Contains the un-applied database schema changes.
+-   **/app/electron-app/package.json**: Contains the latest build configuration for the Windows app (v1.0.5).
+-   **/app/electron-app/build/appxmanifest.xml**: The custom manifest to force correct icon usage.
+-   **/app/components/current-class-plan.tsx**: Contains the complex logic for displaying active classes.
+-   **/app/components/seating-plan-editor.tsx**: Contains the new intelligent placement algorithm.
+-   **/app/components/create-sub-room-dialog.tsx**: Contains the UI for creating temporary sub-rooms.
+
+**Areas that need refactoring**:
+-   The component  is now over 500 lines and handles logic for both temporary and regular sub-rooms, including data fetching and rendering. It should be broken down into smaller, more focused components.
+-   The icon generation process relies on multiple Python scripts called via bash. This could be consolidated into a single, more robust script within the  project.
+
+**key api endpoints**
+-   N/A (Direct Supabase client usage, no distinct API backend).
 
 **Critical Info for New Agent**
--   **PRIORITY #1: FIX LOGIN (P0).** The user cannot use newly created establishments. The issue lies in the custom authentication flow () and its interaction with the  in the  table. You must investigate the  Supabase RPC function and guide the user on how to correctly hash passwords for manual insertion.
--   **PRIORITY #2: FIX DATA LEAK (P0).** The Propositions en attente view shows data from all establishments. This is a critical security flaw. You must find the Supabase query fetching this data and add a filter for .
--   The user has provided a full database schema. Use this as a reference for your queries and debugging.
--   The user is technically proficient, so you can provide technical explanations and ask them to run SQL or check their Supabase dashboard.
+-   **RUN THE SQL SCRIPT!** None of the new features (LV2, Temporary Sub-rooms) will work until the schema is updated. Execute the script at  on the Supabase instance first.
+-   **The user is very frustrated with the Microsoft Store icon issue.** Be prepared for them to report another failure. Your first step if that happens should be to analyze the build artifacts and the custom  in . Do not simply regenerate the icons again.
+-   **A full regression test is needed.** A large number of features were added or changed. Before starting new tasks, use the  to ensure the core functionality (LV2 flow, temporary room flow, placement algorithm) works as expected and that no regressions were introduced.
 
 **documents and test reports created in this job**
--   /app/GUIDE_CREATION_ETABLISSEMENTS.md
--   /app/memory/PRD.md
--   /app/test_reports/iteration_6.json
--   /app/test_reports/iteration_7.json
--   /app/test_reports/iteration_8.json
--   /app/test_reports/iteration_9.json
+-   /app/test_reports/iteration_10.json
+-   /app/scripts/add_lv2_column.sql
+-   /app/electron-app/README.md
+-   /app/electron-app/build/appxmanifest.xml
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User**: Reports login for new establishment/user fails (id ou mdp incorrecte) and adding EBP fails. Provides full DB schema.
-2.  **Agent**: Acknowledges the login issue.
-3.  **User**: Reports a new bug: Propositions en attente are visible across all establishments.
-4.  **Agent**: Acknowledges both bugs and starts investigating the login issue.
-5.  **User**: (Implicit in previous messages) Awaiting fixes for the login and data filtering issues.
+1.  **User**: Asks for a temporary sub-room feature with specific behavior (date-based, auto-delete, priority on dashboard). (REQUEST)
+2.  **Agent**: Asks clarifying questions about deletion, UI indicators, and conflicts. (CLARIFICATION)
+3.  **User**: Confirms agent's understanding and provides answers: agent chooses deletion method, yes to UI indicator, and show both temporary and regular sections if a conflict occurs, with temporary having priority. (CONFIRMATION)
+4.  **Agent**: Implements the temporary sub-room feature. (IMPLEMENTATION)
+5.  **User**: Reports the feature works well but has issues: expired rooms are still visible, delegate proposals don't show the temporary status. Also requests two new features: EBP color priority and a major enhancement to the intelligent placement algorithm. Finally, requests a password reset script. (FEEDBACK & NEW REQUESTS)
+6.  **Agent**: Starts implementing the fixes and new features. (IMPLEMENTATION)
+7.  **User**: Asks if  and  will work for the Electron app. (QUESTION)
+8.  **Agent**: Confirms npm <command>
+
+Usage:
+
+npm install        install all the dependencies in your project
+npm install <foo>  add the <foo> dependency to your project
+npm test           run this project's tests
+npm run <foo>      run the script named <foo>
+npm <command> -h   quick help on <command>
+npm -l             display usage info for all commands
+npm help <term>    search for help on <term>
+npm help npm       more involved overview
+
+All commands:
+
+    access, adduser, audit, bugs, cache, ci, completion,
+    config, dedupe, deprecate, diff, dist-tag, docs, doctor,
+    edit, exec, explain, explore, find-dupes, fund, get, help,
+    help-search, hook, init, install, install-ci-test,
+    install-test, link, ll, login, logout, ls, org, outdated,
+    owner, pack, ping, pkg, prefix, profile, prune, publish,
+    query, rebuild, repo, restart, root, run-script, sbom,
+    search, set, shrinkwrap, star, stars, start, stop, team,
+    test, token, uninstall, unpublish, unstar, update, version,
+    view, whoami
+
+Specify configs in the ini-formatted file:
+    /root/.npmrc
+or on the command line via: npm <command> --key=value
+
+More configuration info: npm help config
+Configuration fields: npm help 7 config
+
+npm@10.8.2 /usr/lib/node_modules/npm works and adds the  target back to the build script. (ANSWER)
+9.  **User**: Expresses extreme frustration that the Microsoft Store certification failed *again* for the same default icon issue (version 1.0.4). (BUG REPORT)
+10. **Agent**: Apologizes and proposes a more robust solution: creating a custom  to force icon paths and override  defaults. (PLAN)
+11. **User**: Asks for a new feature: creating temporary sub-rooms with a specific date and having them auto-delete after the date has passed. Also wants a new Cours en cours section on the dashboard for these temporary rooms. (NEW FEATURE REQUEST) - This message appears to be a repeat or rephrasing of an earlier one, which the agent already acted on.
 
 **Project Health Check:**
--   **Broken**:
-    -   Authentication for manually created users/establishments is non-functional.
-    -   Data filtering for Propositions en attente is missing, causing a data leak.
+-   **Broken**: The Windows application packaging for the Microsoft Store is critically broken, failing certification repeatedly despite numerous fixes.
+-   **Mocked**: None.
 
 **3rd Party Integrations**
 -   **Supabase**: Database and custom authentication (via RPC).
--   ** & **: Used for PDF generation.
+-   **Resend**: For sending emails (API key is configured, but not actively used in UI).
+-   **jspdf & html2canvas**: For PDF generation.
+-   **Vercel**: For hosting and CI/CD.
+-   **GitHub**: For version control.
+-   **Electron**: For packaging the web app as a desktop application.
 
 **Testing status**
--   Testing agent used after significant changes: YES
+-   Testing agent used after significant changes: YES (for the initial LV2 feature, but NOT for the subsequent fixes and the temporary sub-room feature).
 -   Troubleshoot agent used after agent stuck in loop: NO
--   Test files created: None
--   Known regressions: Authentication for manually created users is broken.
+-   Test files created: []
+-   Known regressions: None confirmed, but the risk is high given the number of recent, untested changes.
 
 **Credentials to test flow:**
--   **Failing Credentials**:
-    -   **Establishment Code**: 
-    -   **Username**: 
-    -   **Password**: 
--   **Working Credentials**:
-    -   **Role**: 
-    -   **Username**: 
-    -   **Password**: 
-    -   **Establishment Code**: 
+-   **Role**: 
+-   **Username**: 
+-   **Password**: 
+-   **Establishment Code**: 
 
 **What agent forgot to execute**
--   The agent did not fully resolve the root cause of the authentication issues, which is a recurring problem.
--   The agent has not yet addressed older, lower-priority tasks from the initial handoff (mobile drag-and-drop, dashboard stats verification).
-
-Consigne : 
-attention dans le dashbord de la vie scolaire la section proposition en attentes marche mais il y à un provlèles elle est commune à tt les établissement c'et à dire que la si je vais sur le collège victor hugo je voit quand même(pas très grave mais quand même) et profite -en pour vérifier qu'il n'y ait pas d'autres fonctionalité dans ce cas. 
-</analysis>
+-   **The agent did not execute the SQL migration script.** This is a critical oversight. The script at  must be run for the new features to function.
+-   The agent did not create the requested Supabase password reset script.
+-   The agent did not implement the requested in-app feature suggestion mechanism.
+-   The agent did not perform a final round of testing after implementing the last batch of user requests and fixes.</analysis>
