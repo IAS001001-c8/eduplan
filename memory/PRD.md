@@ -9,6 +9,34 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 - **Email**: Resend (noreply@eduplan-lnc.com) - Désactivé dans l'UI
 - **Auth**: Custom auth avec profils Supabase (auto-détection du rôle)
 
+## Fonctionnalité Sous-salles Temporaires - Feb 10, 2026 ✅
+
+### État d'implémentation - TERMINÉ (Frontend) ⚠️ DB: Script à exécuter
+- ✅ **Frontend** : Implémentation complète
+- ⏳ **Base de données** : Script SQL à exécuter (`/app/scripts/add_lv2_column.sql`)
+
+### Description
+Permet de créer des sous-salles pour **un jour uniquement** (remplacement, examen, cours exceptionnel).
+
+### Modifications Frontend - Feb 10, 2026
+| Composant | Modification | Status |
+|-----------|--------------|--------|
+| `create-sub-room-dialog.tsx` | Toggle "Sous-salle temporaire" + Date picker | ✅ |
+| `current-class-plan.tsx` | Section "Cours temporaire en cours" (prioritaire) | ✅ |
+| `current-class-plan.tsx` | Affichage des deux sections si conflit | ✅ |
+| `seating-plan-management.tsx` | Badge "Temp." avec date sur les sous-salles | ✅ |
+
+### Colonnes DB ajoutées à `sub_rooms`
+- `is_temporary: BOOLEAN` (défaut: false)
+- `temporary_date: DATE` (nullable)
+
+### Comportement
+1. **Création** : L'utilisateur coche "Sous-salle temporaire" et sélectionne une date
+2. **Dashboard prof** : Si une sous-salle temporaire est active ce jour-là au créneau actuel, elle s'affiche AVANT la sous-salle normale
+3. **Nettoyage** : Fonction SQL `cleanup_expired_temporary_subrooms()` pour supprimer les expirées
+
+---
+
 ## Fonctionnalité LV2 (Langue Vivante 2) - Feb 5, 2026 ✅
 
 ### État d'implémentation - TERMINÉ (Frontend) ⚠️ DB: Script à exécuter
@@ -35,17 +63,19 @@ Application Next.js 15 + Supabase pour la gestion de plans de classe scolaires.
 ### Valeurs LV2 supportées
 - Espagnol, Allemand, Italien, Portugais, Chinois, Arabe, null (non renseigné)
 
-### Script SQL à exécuter
-```sql
--- Dans l'éditeur SQL de Supabase (fichier: /app/scripts/add_lv2_column.sql)
-ALTER TABLE public.students ADD COLUMN IF NOT EXISTS lv2 TEXT DEFAULT NULL;
-CREATE INDEX IF NOT EXISTS idx_students_lv2 ON public.students(lv2);
-ALTER TABLE public.sub_rooms ADD COLUMN IF NOT EXISTS filtered_student_ids UUID[] DEFAULT NULL;
-ALTER TABLE public.sub_rooms ADD COLUMN IF NOT EXISTS lv2_filter TEXT DEFAULT NULL;
-```
-
 ### Cas d'usage principal
-Créer des sous-salles regroupant les élèves d'une même LV2 provenant de plusieurs classes (ex: tous les élèves d'allemand des 4A, 4B et 4C).
+Créer des sous-salles regroupant les élèves d'une même LV2 provenant de plusieurs classes.
+
+---
+
+## Script SQL UNIQUE à exécuter ⚠️
+Fichier : `/app/scripts/add_lv2_column.sql`
+
+Contient :
+1. LV2 sur table `students`
+2. `filtered_student_ids` et `lv2_filter` sur `sub_rooms`
+3. `is_temporary` et `temporary_date` sur `sub_rooms`
+4. Fonction `cleanup_expired_temporary_subrooms()`
 
 ---
 
