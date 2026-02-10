@@ -95,19 +95,24 @@ export function SubRoomScheduleForm({ schedules, onChange, disabled = false, max
       <div className="flex items-center justify-between">
         <Label className="text-[#29282B] font-medium flex items-center gap-2">
           <Clock className="h-4 w-4 text-[#E7A541]" />
-          Créneaux horaires
+          {isTemporary ? "Créneau horaire" : "Créneaux horaires"}
+          {maxSchedules === 1 && (
+            <span className="text-xs text-orange-600 font-normal">(1 seul créneau pour les sous-salles temporaires)</span>
+          )}
         </Label>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={addSchedule}
-          disabled={disabled}
-          className="border-[#D9DADC] hover:border-[#E7A541] hover:bg-[#FDF6E9]"
-        >
-          <Plus className="h-4 w-4 mr-1" />
-          Ajouter un créneau
-        </Button>
+        {canAddMore && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addSchedule}
+            disabled={disabled}
+            className="border-[#D9DADC] hover:border-[#E7A541] hover:bg-[#FDF6E9]"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Ajouter un créneau
+          </Button>
+        )}
       </div>
 
       {schedules.length === 0 ? (
