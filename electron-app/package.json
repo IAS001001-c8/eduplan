@@ -1,6 +1,6 @@
 {
   "name": "eduplan",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "EduPlan - Application de gestion de plans de classe",
   "main": "main.js",
   "author": "EduPlan",
@@ -35,10 +35,6 @@
         {
           "target": "appx",
           "arch": ["x64"]
-        },
-        {
-          "target": "nsis",
-          "arch": ["x64"]
         }
       ],
       "icon": "build/icon.png"
@@ -52,14 +48,8 @@
       "languages": ["fr-FR"],
       "backgroundColor": "#E7A541",
       "showNameOnTiles": true,
-      "setBuildNumber": false
-    },
-    "extraResources": [
-      {
-        "from": "build",
-        "to": ".",
-        "filter": ["**/*.png"]
-      }
-    ]
+      "setBuildNumber": false,
+      "artifactName": "EduPlan-${version}.${ext}"
+    }
   }
 }
