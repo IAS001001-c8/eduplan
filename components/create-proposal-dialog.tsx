@@ -61,6 +61,10 @@ export function CreateProposalDialog({
   const [teachers, setTeachers] = useState<Teacher[]>([])
   const [classId, setClassId] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
+  
+  // États pour les propositions temporaires
+  const [isTemporary, setIsTemporary] = useState(false)
+  const [temporaryDate, setTemporaryDate] = useState("")
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
