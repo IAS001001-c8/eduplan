@@ -664,9 +664,19 @@ export function CreateSubRoomDialog({
               <Checkbox
                 id="isTemporary"
                 checked={formData.isTemporary}
-                onCheckedChange={(checked) => 
-                  setFormData({ ...formData, isTemporary: checked as boolean, temporaryDate: "" })
-                }
+                onCheckedChange={(checked) => {
+                  const isTemp = checked as boolean
+                  // Si on active le mode temporaire et qu'il y a plus d'un créneau, on garde seulement le premier
+                  const newSchedules = isTemp && formData.schedules.length > 1 
+                    ? [formData.schedules[0]] 
+                    : formData.schedules
+                  setFormData({ 
+                    ...formData, 
+                    isTemporary: isTemp, 
+                    temporaryDate: "",
+                    schedules: newSchedules
+                  })
+                }}
               />
               <Label htmlFor="isTemporary" className="text-sm font-medium cursor-pointer">
                 Sous-salle temporaire (pour un jour uniquement)
