@@ -116,6 +116,8 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
           class_ids,
           filtered_student_ids,
           lv2_filter,
+          is_temporary,
+          temporary_date,
           rooms (name, config),
           classes (id, name)
         `)
@@ -124,9 +126,15 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
 
       if (subRoomError || !subRooms || subRooms.length === 0) {
         setActiveSubRoom(null)
+        setActiveTemporarySubRoom(null)
         setIsLoading(false)
         return
       }
+
+      // Séparer les sous-salles normales et temporaires
+      const todayStr = now.toISOString().split('T')[0]
+      const normalSubRooms = subRooms.filter((sr: any) => !sr.is_temporary)
+      const temporarySubRooms = subRooms.filter((sr: any) => sr.is_temporary && sr.temporary_date === todayStr)
 
       // 3. Chercher les créneaux actifs pour ces sous-salles
       const subRoomIds = subRooms.map(sr => sr.id)
