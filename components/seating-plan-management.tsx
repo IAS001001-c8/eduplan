@@ -57,6 +57,8 @@ interface SubRoom {
   created_at: string
   filtered_student_ids?: string[]
   lv2_filter?: string
+  is_temporary?: boolean
+  temporary_date?: string
   rooms: { name: string; code: string }
   teachers: { first_name: string; last_name: string }
 }
