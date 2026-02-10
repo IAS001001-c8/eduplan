@@ -331,11 +331,16 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
   }
 
   // Rendu du plan de classe
-  const renderPlan = (isFullscreenView: boolean) => {
-    if (!activeSubRoom) return null
+  const renderPlan = (
+    isFullscreenView: boolean, 
+    subRoom: ActiveSubRoom, 
+    studentList: Student[], 
+    assignmentMap: Map<number, string>
+  ) => {
+    if (!subRoom) return null
 
-    const config = activeSubRoom.roomConfig
-    const columns = config.columns || []
+    const config = subRoom.roomConfig
+    const columns = config?.columns || []
     const sizes = getAdaptiveSizes(isFullscreenView)
     let seatNumber = 1
 
@@ -350,8 +355,8 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
               <div key={tableIndex} className="flex" style={{ gap: sizes.gap }}>
                 {Array.from({ length: column.seatsPerTable || 2 }).map((_, seatIndex) => {
                   const currentSeat = seatNumber++
-                  const studentId = seatAssignments.get(currentSeat)
-                  const student = studentId ? students.find((s) => s.id === studentId) : null
+                  const studentId = assignmentMap.get(currentSeat)
+                  const student = studentId ? studentList.find((s) => s.id === studentId) : null
 
                   if (isFullscreenView) {
                     return (
@@ -417,46 +422,73 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
     )
   }
 
-  if (isLoading) {
-    return null
-  }
+  // Rendu d'une carte de cours
+  const renderCourseCard = (
+    subRoom: ActiveSubRoom,
+    studentList: Student[],
+    assignmentMap: Map<number, string>,
+    isTemporary: boolean,
+    onFullscreenClick: () => void
+  ) => {
+    const placedCount = Array.from(assignmentMap.values()).filter(id => 
+      studentList.some(s => s.id === id)
+    ).length
 
-  if (!activeSubRoom) {
-    return null
-  }
-
-  // Compter les élèves placés
-  const placedStudentsCount = Array.from(seatAssignments.values()).filter(id => 
-    students.some(s => s.id === id)
-  ).length
-
-  return (
-    <>
-      <Card className="border-[#E7A541] bg-gradient-to-r from-[#FDF6E9] to-white shadow-lg">
+    return (
+      <Card className={cn(
+        "shadow-lg",
+        isTemporary 
+          ? "border-orange-500 bg-gradient-to-r from-orange-50 to-white" 
+          : "border-[#E7A541] bg-gradient-to-r from-[#FDF6E9] to-white"
+      )}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-3 rounded-xl bg-[#E7A541] shadow-md">
-                <Clock className="h-6 w-6 text-white" />
+              <div className={cn(
+                "p-3 rounded-xl shadow-md",
+                isTemporary ? "bg-orange-500" : "bg-[#E7A541]"
+              )}>
+                {isTemporary ? (
+                  <CalendarClock className="h-6 w-6 text-white" />
+                ) : (
+                  <Clock className="h-6 w-6 text-white" />
+                )}
               </div>
               <div>
-                <CardTitle className="text-xl text-[#29282B]">Cours en cours</CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle className={cn(
+                    "text-xl",
+                    isTemporary ? "text-orange-700" : "text-[#29282B]"
+                  )}>
+                    {isTemporary ? "Cours temporaire en cours" : "Cours en cours"}
+                  </CardTitle>
+                  {isTemporary && (
+                    <Badge className="bg-orange-100 text-orange-700 border border-orange-300">
+                      Aujourd'hui uniquement
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-sm text-[#29282B]/60">
-                  {activeSubRoom.startTime} - {activeSubRoom.endTime}
-                  {activeSubRoom.weekType !== "both" && (
+                  {subRoom.startTime} - {subRoom.endTime}
+                  {subRoom.weekType !== "both" && (
                     <Badge className={cn(
                       "ml-2 text-xs",
-                      activeSubRoom.weekType === "A" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                      subRoom.weekType === "A" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
                     )}>
-                      Semaine {activeSubRoom.weekType}
+                      Semaine {subRoom.weekType}
                     </Badge>
                   )}
                 </p>
               </div>
             </div>
             <Button
-              onClick={() => setIsFullscreen(true)}
-              className="bg-[#E7A541] hover:bg-[#D4933A] text-white shadow-md"
+              onClick={onFullscreenClick}
+              className={cn(
+                "shadow-md",
+                isTemporary 
+                  ? "bg-orange-500 hover:bg-orange-600 text-white"
+                  : "bg-[#E7A541] hover:bg-[#D4933A] text-white"
+              )}
             >
               <Maximize2 className="h-4 w-4 mr-2" />
               Plein écran
@@ -468,53 +500,83 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
             {/* Infos */}
             <div className="space-y-3 min-w-[200px]">
               <div className="flex items-center gap-2 text-sm">
-                <MapPin className="h-4 w-4 text-[#E7A541]" />
-                <span className="text-[#29282B] font-medium">{activeSubRoom.roomName}</span>
+                <MapPin className={cn("h-4 w-4", isTemporary ? "text-orange-500" : "text-[#E7A541]")} />
+                <span className="text-[#29282B] font-medium">{subRoom.roomName}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <Users className="h-4 w-4 text-[#E7A541]" />
-                <span className="text-[#29282B] font-medium">{activeSubRoom.className}</span>
+                <Users className={cn("h-4 w-4", isTemporary ? "text-orange-500" : "text-[#E7A541]")} />
+                <span className="text-[#29282B] font-medium">{subRoom.className}</span>
               </div>
-              <p className="text-lg font-bold text-[#29282B] mt-2">{activeSubRoom.name}</p>
+              <p className="text-lg font-bold text-[#29282B] mt-2">{subRoom.name}</p>
               <p className="text-sm text-[#29282B]/60">
-                {placedStudentsCount}/{students.length} élèves placés
+                {placedCount}/{studentList.length} élèves placés
               </p>
             </div>
 
             {/* Mini plan */}
             <div className="flex-1 flex justify-center">
-              {renderPlan(false)}
+              {renderPlan(false, subRoom, studentList, assignmentMap)}
             </div>
           </div>
         </CardContent>
       </Card>
+    )
+  }
 
-      {/* Dialog plein écran - Adaptatif */}
-      <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
+  // Dialog plein écran pour une sous-salle
+  const renderFullscreenDialog = (
+    isOpen: boolean,
+    onClose: (open: boolean) => void,
+    subRoom: ActiveSubRoom | null,
+    studentList: Student[],
+    assignmentMap: Map<number, string>,
+    isTemporary: boolean
+  ) => {
+    if (!subRoom) return null
+
+    const placedCount = Array.from(assignmentMap.values()).filter(id => 
+      studentList.some(s => s.id === id)
+    ).length
+
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-[95vw] w-fit max-h-[95vh] overflow-auto">
           <DialogHeader className="border-b border-[#D9DADC] pb-4">
             <DialogTitle className="flex items-center gap-4 text-[#29282B] flex-wrap">
-              <span className="text-xl font-bold">{activeSubRoom.name}</span>
-              <Badge className="bg-[#FDF6E9] text-[#E7A541] border border-[#E7A541]/20 text-sm px-3 py-1">
-                {activeSubRoom.roomName}
+              <span className="text-xl font-bold">{subRoom.name}</span>
+              {isTemporary && (
+                <Badge className="bg-orange-100 text-orange-700 border border-orange-300">
+                  Temporaire - Aujourd'hui uniquement
+                </Badge>
+              )}
+              <Badge className={cn(
+                "text-sm px-3 py-1",
+                isTemporary 
+                  ? "bg-orange-50 text-orange-600 border border-orange-200"
+                  : "bg-[#FDF6E9] text-[#E7A541] border border-[#E7A541]/20"
+              )}>
+                {subRoom.roomName}
               </Badge>
               <Badge className="bg-[#F5F5F6] text-[#29282B] text-sm px-3 py-1">
-                {activeSubRoom.className}
+                {subRoom.className}
               </Badge>
               <span className="text-sm text-[#29282B]/60 ml-auto">
-                {activeSubRoom.startTime} - {activeSubRoom.endTime} • {placedStudentsCount}/{students.length} élèves
+                {subRoom.startTime} - {subRoom.endTime} • {placedCount}/{studentList.length} élèves
               </span>
             </DialogTitle>
           </DialogHeader>
           
           <div className="py-6">
             {/* Tableau */}
-            <div className="w-full max-w-3xl mx-auto h-10 bg-[#E7A541] rounded-lg flex items-center justify-center mb-8 shadow-md">
+            <div className={cn(
+              "w-full max-w-3xl mx-auto h-10 rounded-lg flex items-center justify-center mb-8 shadow-md",
+              isTemporary ? "bg-orange-500" : "bg-[#E7A541]"
+            )}>
               <span className="text-white font-bold tracking-wide">TABLEAU</span>
             </div>
 
             {/* Plan adaptatif */}
-            {renderPlan(true)}
+            {renderPlan(true, subRoom, studentList, assignmentMap)}
 
             {/* Légende */}
             <div className="flex items-center justify-center gap-6 mt-8 pt-4 border-t border-[#D9DADC]">
@@ -538,6 +600,61 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    )
+  }
+
+  if (isLoading) {
+    return null
+  }
+
+  // Si aucune sous-salle active (ni normale ni temporaire), ne rien afficher
+  if (!activeSubRoom && !activeTemporarySubRoom) {
+    return null
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Section Cours temporaire en cours (PRIORITAIRE - Position 1) */}
+      {activeTemporarySubRoom && (
+        <>
+          {renderCourseCard(
+            activeTemporarySubRoom,
+            temporaryStudents,
+            temporarySeatAssignments,
+            true,
+            () => setShowTemporaryFullscreen(true)
+          )}
+          {renderFullscreenDialog(
+            showTemporaryFullscreen,
+            setShowTemporaryFullscreen,
+            activeTemporarySubRoom,
+            temporaryStudents,
+            temporarySeatAssignments,
+            true
+          )}
+        </>
+      )}
+
+      {/* Section Cours en cours (Position 2) */}
+      {activeSubRoom && (
+        <>
+          {renderCourseCard(
+            activeSubRoom,
+            students,
+            seatAssignments,
+            false,
+            () => setIsFullscreen(true)
+          )}
+          {renderFullscreenDialog(
+            isFullscreen,
+            setIsFullscreen,
+            activeSubRoom,
+            students,
+            seatAssignments,
+            false
+          )}
+        </>
+      )}
+    </div>
   )
 }
