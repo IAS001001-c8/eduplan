@@ -43,6 +43,8 @@ interface Proposal {
   className: string
   proposedBy: string
   createdAt: string
+  isTemporary?: boolean
+  temporaryDate?: string | null
 }
 
 const containerVariants = {
