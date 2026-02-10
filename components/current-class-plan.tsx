@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
-import { Maximize2, Clock, MapPin, Users } from "lucide-react"
+import { Maximize2, Clock, MapPin, Users, CalendarClock } from "lucide-react"
 import {
   Dialog,
   DialogContent,
