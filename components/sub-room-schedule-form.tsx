@@ -27,6 +27,8 @@ interface SubRoomScheduleFormProps {
   schedules: ScheduleSlot[]
   onChange: (schedules: ScheduleSlot[]) => void
   disabled?: boolean
+  maxSchedules?: number // Limite maximale de créneaux (null = illimité)
+  isTemporary?: boolean // Mode temporaire (masque semaine A/B)
 }
 
 const DAYS_OF_WEEK = [
