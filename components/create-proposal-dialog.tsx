@@ -264,7 +264,9 @@ export function CreateProposalDialog({
       setSelectedRoomId("")
       setSelectedSubRoomId("")
       setSelectedTeacherId("")
-      setUseExistingSubRoom(false)
+      setUseExistingSubRoom(isDelegateOrEco)
+      setIsTemporary(false)
+      setTemporaryDate("")
       onSuccess()
     } catch (error: any) {
       toast({
