@@ -92,6 +92,8 @@ export function CreateSubRoomDialog({
     schedules: [] as ScheduleSlot[],
     filterLv2: "all" as string, // LV2 filter
     selectedStudentIds: [] as string[], // Selected students for LV2 filtering
+    isTemporary: false, // Sous-salle temporaire
+    temporaryDate: "" as string, // Date de la sous-salle temporaire (YYYY-MM-DD)
   })
 
   const supabase = createClient()
