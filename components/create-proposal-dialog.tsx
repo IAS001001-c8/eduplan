@@ -248,6 +248,8 @@ export function CreateProposalDialog({
         is_submitted: false,
         seat_assignments: seatAssignments,
         sub_room_id: useExistingSubRoom ? selectedSubRoomId : null,
+        is_temporary: isTemporary,
+        temporary_date: isTemporary && temporaryDate ? temporaryDate : null,
       })
 
       if (error) throw error
