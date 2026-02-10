@@ -698,6 +698,8 @@ export function CreateSubRoomDialog({
             <SubRoomScheduleForm
               schedules={formData.schedules}
               onChange={(schedules) => setFormData({ ...formData, schedules })}
+              maxSchedules={formData.isTemporary ? 1 : undefined}
+              isTemporary={formData.isTemporary}}
             />
           </div>
         </div>
