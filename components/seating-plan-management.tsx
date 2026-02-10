@@ -329,7 +329,32 @@ export function SeatingPlanManagement({ establishmentId, userRole, userId, onBac
     // vie-scolaire sees all sub-rooms (no additional filter)
 
     const { data: subRoomsData } = await subRoomsQuery.order("created_at", { ascending: false })
-    if (subRoomsData) setSubRooms(subRoomsData)
+    
+    if (subRoomsData) {
+      // Filtrer les sous-salles temporaires expirées
+      const today = new Date().toISOString().split('T')[0]
+      const filteredSubRooms = subRoomsData.filter((sr: any) => {
+        // Si ce n'est pas temporaire, garder
+        if (!sr.is_temporary) return true
+        // Si c'est temporaire, garder seulement si la date est aujourd'hui ou dans le futur
+        return sr.temporary_date >= today
+      })
+      setSubRooms(filteredSubRooms)
+      
+      // Supprimer les sous-salles temporaires expirées de la base (nettoyage lazy)
+      const expiredIds = subRoomsData
+        .filter((sr: any) => sr.is_temporary && sr.temporary_date < today)
+        .map((sr: any) => sr.id)
+      
+      if (expiredIds.length > 0) {
+        // Supprimer en arrière-plan
+        supabase.from("sub_room_schedules").delete().in("sub_room_id", expiredIds).then(() => {
+          supabase.from("seating_assignments").delete().in("sub_room_id", expiredIds).then(() => {
+            supabase.from("sub_rooms").delete().in("id", expiredIds)
+          })
+        })
+      }
+    }
 
     await setAvailableOptions(supabase)
     
