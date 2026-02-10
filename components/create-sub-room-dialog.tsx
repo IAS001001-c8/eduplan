@@ -261,6 +261,12 @@ export function CreateSubRoomDialog({
       return
     }
 
+    // Validation pour les sous-salles temporaires
+    if (formData.isTemporary && !formData.temporaryDate) {
+      alert("Veuillez sélectionner une date pour la sous-salle temporaire")
+      return
+    }
+
     setIsLoading(true)
     try {
       const selectedRoom = rooms.find((r) => r.id === formData.roomId)
@@ -290,6 +296,8 @@ export function CreateSubRoomDialog({
           class_ids: formData.selectedClasses,
           filtered_student_ids: filteredStudentIds,
           lv2_filter: lv2Filter,
+          is_temporary: formData.isTemporary,
+          temporary_date: formData.isTemporary ? formData.temporaryDate : null,
         })
         .select()
         .single()
