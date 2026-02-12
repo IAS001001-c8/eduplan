@@ -1,71 +1,59 @@
-# EduPlan - Application Windows (Electron)
+# EduPlan - Application Windows (Microsoft Store)
 
-## Version: 1.0.4
+## Version actuelle : 1.0.6
 
-## Structure des dossiers
-
-```
-electron-app/
-├── build/              # Icônes pour Microsoft Store (AppX)
-│   ├── icon.png        # Icône principale 256x256
-│   ├── StoreLogo*.png  # Logo du Store (50-200px)
-│   ├── Square44x44Logo*.png    # Petites tuiles
-│   ├── Square71x71Logo*.png    # Tuiles moyennes (legacy)
-│   ├── Square150x150Logo*.png  # Tuiles moyennes
-│   ├── Square310x310Logo*.png  # Grandes tuiles
-│   ├── Wide310x150Logo*.png    # Tuiles larges
-│   ├── SplashScreen*.png       # Écran de démarrage
-│   ├── BadgeLogo*.png          # Badge notifications
-│   └── LockScreenLogo*.png     # Écran de verrouillage
-├── assets/             # Icônes pour installeur NSIS
-│   ├── icon.png
-│   └── icon.ico
-├── main.js             # Point d'entrée Electron
-└── package.json        # Configuration
-```
+## Prérequis
+- Node.js 18+
+- Windows 10/11 pour le build
 
 ## Build pour Microsoft Store
 
+### 1. Régénérer les icônes (si nécessaire)
 ```bash
-# 1. Nettoyer le cache
-rd /s /q dist
-
-# 2. Construire l'AppX
-yarn build:appx
+python3 generate_all_icons.py
 ```
 
-Le fichier `.appx` sera dans `dist/`.
-
-## Configuration AppX
-
-| Paramètre | Valeur |
-|-----------|--------|
-| identityName | mauboussin.597364587809B |
-| publisher | CN=1C530B69-D6AE-43AC-A089-794FC1E30BDB |
-| publisherDisplayName | mauboussin |
-| applicationId | EduPlan |
-| displayName | EduPlan-LNC |
-| backgroundColor | #E7A541 |
-
-## Icônes (59 fichiers)
-
-Toutes les icônes utilisent `icone-eduplan-sans-slogan.png` :
-- Fond doré (#E7A541)
-- Logo centré avec 20% de padding
-- Toutes les tailles requises par Microsoft (scale-100 à scale-400)
-- Versions targetsize pour la barre des tâches
-- Versions altform-unplated (fond transparent)
-
-## Dépannage
-
-### "Tile icons include a default image"
-- Vérifiez que le dossier `build/` contient tous les fichiers
-- Supprimez `dist/` et reconstruisez
-- Les icônes doivent être dans `build/`, pas `assets/`
-
-### Après git pull
+### 2. Installer les dépendances
 ```bash
-cd electron-app
-rd /s /q dist
-yarn build:appx
+npm install
 ```
+
+### 3. Build le package .appx
+```bash
+npm run build:win
+```
+
+Le fichier `.appx` sera créé dans le dossier `dist/`.
+
+## Structure des icônes
+
+Toutes les icônes sont générées à partir du logo EduPlan source et placées dans :
+- `assets/` - Icône principale (.ico et .png)
+- `build/` - Toutes les tailles requises par Microsoft Store
+
+### Icônes Microsoft Store requises
+| Type | Tailles |
+|------|---------|
+| Square44x44Logo | 44, 55, 66, 88, 176 + target sizes (16, 24, 32, 48, 256) |
+| Square71x71Logo | 71, 89, 107, 142, 284 |
+| Square150x150Logo | 150, 188, 225, 300, 600 |
+| Square310x310Logo | 310, 388, 465, 620 |
+| Wide310x150Logo | 310x150, 388x188, 465x225, 620x300 |
+| StoreLogo | 50, 63, 75, 100, 200 |
+| BadgeLogo | 24, 30, 36, 48, 96 |
+| LockScreenLogo | 24, 48 |
+| SplashScreen | 620x300, 775x375, 930x450, 1240x600 |
+
+## Soumettre au Microsoft Store
+
+1. Connectez-vous au [Microsoft Partner Center](https://partner.microsoft.com/)
+2. Allez dans Applications > EduPlan-LNC
+3. Créez une nouvelle soumission
+4. Téléchargez le fichier `dist/EduPlan-1.0.6.appx`
+5. Soumettez pour certification
+
+## Historique des versions
+- **1.0.6** - Régénération complète des icônes avec le logo EduPlan officiel
+- **1.0.5** - Tentative de fix des icônes avec manifest personnalisé
+- **1.0.4** - Tentative de fix des icônes
+- **1.0.0** - Version initiale
