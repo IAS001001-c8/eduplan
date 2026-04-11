@@ -147,28 +147,41 @@ export function SubRoomScheduleForm({ schedules, onChange, disabled = false, max
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                {/* Jour */}
-                <div className={isTemporary ? "col-span-2" : ""}>
-                  <Label className="text-xs text-[#29282B]/60">Jour</Label>
-                  <Select
-                    value={schedule.day_of_week.toString()}
-                    onValueChange={(value) =>
-                      updateSchedule(schedule.id, { day_of_week: parseInt(value) })
-                    }
-                    disabled={disabled}
-                  >
-                    <SelectTrigger className="border-[#D9DADC] mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {DAYS_OF_WEEK.map((day) => (
-                        <SelectItem key={day.value} value={day.value.toString()}>
-                          {day.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Jour - Masqué pour les sous-salles temporaires (auto-dérivé de la date) */}
+                {!isTemporary && (
+                  <div>
+                    <Label className="text-xs text-[#29282B]/60">Jour</Label>
+                    <Select
+                      value={schedule.day_of_week.toString()}
+                      onValueChange={(value) =>
+                        updateSchedule(schedule.id, { day_of_week: parseInt(value) })
+                      }
+                      disabled={disabled}
+                    >
+                      <SelectTrigger className="border-[#D9DADC] mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DAYS_OF_WEEK.map((day) => (
+                          <SelectItem key={day.value} value={day.value.toString()}>
+                            {day.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {/* Jour auto-dérivé pour temporaire */}
+                {isTemporary && (
+                  <div className="col-span-2">
+                    <Label className="text-xs text-[#29282B]/60">Jour</Label>
+                    <div className="mt-1 px-3 py-2 bg-orange-50 border border-orange-200 rounded-md text-sm text-orange-700">
+                      {DAYS_OF_WEEK.find(d => d.value === schedule.day_of_week)?.label || "Sélectionnez une date"}
+                      <span className="text-xs text-orange-500 ml-2">(dérivé automatiquement de la date)</span>
+                    </div>
+                  </div>
+                )}
 
                 {/* Semaine A/B - Masqué pour les sous-salles temporaires */}
                 {!isTemporary && (

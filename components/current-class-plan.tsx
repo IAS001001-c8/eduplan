@@ -136,22 +136,46 @@ export function CurrentClassPlan({ teacherId, establishmentId }: CurrentClassPla
       const normalSubRooms = subRooms.filter((sr: any) => !sr.is_temporary)
       const temporarySubRooms = subRooms.filter((sr: any) => sr.is_temporary && sr.temporary_date === todayStr)
 
-      // 3. Chercher les créneaux actifs pour ces sous-salles
-      const subRoomIds = subRooms.map(sr => sr.id)
-      
-      const { data: schedules, error: scheduleError } = await supabase
-        .from("sub_room_schedules")
-        .select("*")
-        .in("sub_room_id", subRoomIds)
-        .eq("day_of_week", currentDay)
-        .lte("start_time", currentTime + ":00")
-        .gte("end_time", currentTime + ":00")
+      // 3. Chercher les créneaux actifs
+      const normalSubRoomIds = normalSubRooms.map(sr => sr.id)
+      const temporarySubRoomIds = temporarySubRooms.map(sr => sr.id)
 
-      if (scheduleError) {
-        console.error("Error fetching schedules:", scheduleError)
-        setIsLoading(false)
-        return
+      // Pour les sous-salles normales : filtrer par jour de la semaine + horaire
+      let normalSchedules: any[] = []
+      if (normalSubRoomIds.length > 0) {
+        const { data, error } = await supabase
+          .from("sub_room_schedules")
+          .select("*")
+          .in("sub_room_id", normalSubRoomIds)
+          .eq("day_of_week", currentDay)
+          .lte("start_time", currentTime + ":00")
+          .gte("end_time", currentTime + ":00")
+        
+        if (error) {
+          console.error("Error fetching normal schedules:", error)
+        }
+        normalSchedules = data || []
       }
+
+      // Pour les sous-salles temporaires : NE PAS filtrer par jour (car le day_of_week peut être incorrect)
+      // On se base uniquement sur temporary_date === aujourd'hui + créneau horaire
+      let tempSchedules: any[] = []
+      if (temporarySubRoomIds.length > 0) {
+        const { data, error } = await supabase
+          .from("sub_room_schedules")
+          .select("*")
+          .in("sub_room_id", temporarySubRoomIds)
+          .lte("start_time", currentTime + ":00")
+          .gte("end_time", currentTime + ":00")
+        
+        if (error) {
+          console.error("Error fetching temporary schedules:", error)
+        }
+        tempSchedules = data || []
+      }
+
+      // Combiner pour la compatibilité avec le code existant
+      const schedules = [...normalSchedules, ...tempSchedules]
 
       // Fonction helper pour charger les données d'une sous-salle
       const loadSubRoomData = async (subRoom: any, schedule: any) => {

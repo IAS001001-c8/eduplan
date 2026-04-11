@@ -134,7 +134,9 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
           name,
           rooms (name),
           classes (name),
-          class_ids
+          class_ids,
+          is_temporary,
+          temporary_date
         `)
         .eq("teacher_id", teacherData.id)
         .eq("is_deleted", false)
@@ -142,20 +144,41 @@ export function ProfesseurDashboard({ establishmentId, userId, userName, onNavig
       setSubRoomCount(subRooms?.length || 0)
 
       if (subRooms && subRooms.length > 0) {
-        // Charger les créneaux de la journée
-        const subRoomIds = subRooms.map(sr => sr.id)
+        // Séparer les sous-salles normales et temporaires
+        const todayStr = today.toISOString().split('T')[0]
+        const normalSubRoomsList = subRooms.filter((sr: any) => !sr.is_temporary)
+        const temporarySubRoomsList = subRooms.filter((sr: any) => sr.is_temporary && sr.temporary_date === todayStr)
         
-        const { data: schedules } = await supabase
-          .from("sub_room_schedules")
-          .select("*")
-          .in("sub_room_id", subRoomIds)
-          .eq("day_of_week", currentDayOfWeek)
-          .order("start_time")
+        // Charger les créneaux des sous-salles NORMALES (avec filtre jour)
+        const normalIds = normalSubRoomsList.map((sr: any) => sr.id)
+        const temporaryIds = temporarySubRoomsList.map((sr: any) => sr.id)
+        
+        let allSchedules: any[] = []
+        
+        if (normalIds.length > 0) {
+          const { data: normalSchedules } = await supabase
+            .from("sub_room_schedules")
+            .select("*")
+            .in("sub_room_id", normalIds)
+            .eq("day_of_week", currentDayOfWeek)
+            .order("start_time")
+          allSchedules = [...(normalSchedules || [])]
+        }
+        
+        // Charger les créneaux des sous-salles TEMPORAIRES (SANS filtre jour)
+        if (temporaryIds.length > 0) {
+          const { data: tempSchedules } = await supabase
+            .from("sub_room_schedules")
+            .select("*")
+            .in("sub_room_id", temporaryIds)
+            .order("start_time")
+          allSchedules = [...allSchedules, ...(tempSchedules || [])]
+        }
 
         // Filtrer par type de semaine et formater
         const todayEvents: ScheduleEvent[] = []
         
-        schedules?.forEach((s: any) => {
+        allSchedules?.forEach((s: any) => {
           if (s.week_type !== "both" && s.week_type !== weekType) return
 
           const subRoom = subRooms.find(sr => sr.id === s.sub_room_id) as any

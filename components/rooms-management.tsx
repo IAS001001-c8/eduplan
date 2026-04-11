@@ -141,9 +141,6 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
   }
 
   useEffect(() => {
-    console.log("[v0] RoomsManagement rendering, initialRooms:", initialRooms?.length)
-    console.log("[v0] RoomsManagement userRole:", userRole)
-    console.log("[v0] RoomsManagement userId:", userId)
     loadRooms()
   }, [establishmentId])
 
@@ -405,19 +402,6 @@ export function RoomsManagement({ rooms: initialRooms = [], establishmentId, use
     })
     setShowCreateSubRoom(true)
   }
-
-  console.log("[v0] RoomsManagement component rendering with props:", { rooms: initialRooms, userRole, userId })
-
-  console.log("[v0] About to render Dialogs - state:", {
-    showCreateRoom,
-    editingRoom: editingRoom !== null,
-    selectedRoomIds: selectedRoomIds.length,
-    showTemplates,
-    showCreateSubRoom,
-    effectiveUserId,
-    effectiveUserRole,
-    establishmentId,
-  })
 
   return (
     <div className="h-full flex flex-col">

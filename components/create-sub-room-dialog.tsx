@@ -67,14 +67,6 @@ export function CreateSubRoomDialog({
   userRole,
   userId,
 }: CreateSubRoomDialogProps) {
-  console.log("[v0] CreateSubRoomDialog rendering with props:", {
-    open,
-    establishmentId,
-    selectedRoom,
-    userRole,
-    userId,
-  })
-
   const [rooms, setRooms] = useState<Room[]>([])
   const [teachers, setTeachers] = useState<Teacher[]>([])
   const [classes, setClasses] = useState<Class[]>([])
@@ -98,6 +90,13 @@ export function CreateSubRoomDialog({
 
   const supabase = createClient()
 
+  // Helper: Dériver le jour de la semaine (0=Lundi) depuis une date string
+  const getDayOfWeekFromDate = (dateStr: string): number => {
+    const date = new Date(dateStr + 'T12:00:00') // midi pour éviter les problèmes de timezone
+    const jsDay = date.getDay() // 0=Dimanche en JS
+    return jsDay === 0 ? 6 : jsDay - 1 // Convertir vers 0=Lundi
+  }
+
   useEffect(() => {
     async function loadCurrentTeacher() {
       if (userRole === "professeur" && userId) {
@@ -118,7 +117,6 @@ export function CreateSubRoomDialog({
             }
           }
 
-          console.log("[v0] Looking for teacher with profile_id:", profileId)
           
           const { data: teacher, error } = await supabase
             .from("teachers")
@@ -131,7 +129,6 @@ export function CreateSubRoomDialog({
           }
 
           if (teacher) {
-            console.log("[v0] Found teacher:", teacher.id)
             setCurrentTeacherId(teacher.id)
             setFormData((prev) => ({ ...prev, selectedTeachers: [teacher.id] }))
           } else {
@@ -246,9 +243,7 @@ export function CreateSubRoomDialog({
 
   useEffect(() => {
     if (formData.selectedTeachers.length > 0 && classes.length > 0) {
-      console.log("[v0] Filtering classes for teachers:", formData.selectedTeachers)
       getFilteredClasses().then((filtered) => {
-        console.log("[v0] Filtered classes result:", filtered)
         setFilteredClasses(filtered)
       })
     } else {
@@ -307,16 +302,20 @@ export function CreateSubRoomDialog({
         throw subRoomError
       }
 
-      console.log("[v0] Sub-room created successfully:", subRoom)
 
       // Sauvegarder les créneaux horaires
       if (formData.schedules.length > 0) {
+        // Pour les sous-salles temporaires, forcer le day_of_week depuis la date et week_type = "both"
+        const derivedDayOfWeek = formData.isTemporary && formData.temporaryDate
+          ? getDayOfWeekFromDate(formData.temporaryDate)
+          : null
+
         const schedulesToInsert = formData.schedules.map((schedule) => ({
           sub_room_id: subRoom.id,
-          day_of_week: schedule.day_of_week,
+          day_of_week: derivedDayOfWeek !== null ? derivedDayOfWeek : schedule.day_of_week,
           start_time: schedule.start_time,
           end_time: schedule.end_time,
-          week_type: schedule.week_type,
+          week_type: formData.isTemporary ? "both" : schedule.week_type,
         }))
 
         const { error: schedulesError } = await supabase
@@ -328,7 +327,6 @@ export function CreateSubRoomDialog({
           // Ne pas bloquer si la table n'existe pas encore
           console.warn("Les créneaux n'ont pas pu être sauvegardés - la table n'existe peut-être pas encore")
         } else {
-          console.log("[v0] Schedules saved successfully")
         }
       }
 
@@ -416,15 +414,6 @@ export function CreateSubRoomDialog({
     : formData.isCollaborative && isProfessor && currentTeacherId
       ? teachers.filter((t) => t.id !== currentTeacherId).slice(0, 3).sort((a, b) => a.last_name.localeCompare(b.last_name))
       : []
-
-  console.log("[v0] CreateSubRoomDialog state:", {
-    isVieScolaire,
-    isProfessor,
-    currentTeacherId,
-    teachersCount: teachers.length,
-    displayedTeachersCount: displayedTeachers.length,
-    selectedTeachers: formData.selectedTeachers
-  })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -694,7 +683,21 @@ export function CreateSubRoomDialog({
                     id="temporaryDate"
                     type="date"
                     value={formData.temporaryDate}
-                    onChange={(e) => setFormData({ ...formData, temporaryDate: e.target.value })}
+                    onChange={(e) => {
+                      const newDate = e.target.value
+                      // Auto-mettre à jour le day_of_week des créneaux existants
+                      const newDayOfWeek = newDate ? getDayOfWeekFromDate(newDate) : 0
+                      const updatedSchedules = formData.schedules.map(s => ({
+                        ...s,
+                        day_of_week: newDayOfWeek,
+                        week_type: "both" as const,
+                      }))
+                      setFormData({ 
+                        ...formData, 
+                        temporaryDate: newDate,
+                        schedules: updatedSchedules,
+                      })
+                    }}
                     min={new Date().toISOString().split('T')[0]}
                     className="mt-1 border-orange-300 focus:border-orange-500"
                   />
