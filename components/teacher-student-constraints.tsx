@@ -806,10 +806,10 @@ export function TeacherStudentConstraints({
               )}
             </DialogTitle>
             <DialogDescription>
-              {pendingConstraintType === "ensemble" && "Ces élèves seront placés côte à côte."}
+              {pendingConstraintType === "ensemble" && "Ces élèves seront placés sur la même table."}
               {pendingConstraintType === "separes" && "Ces élèves seront séparés de min. 2 places."}
               {pendingConstraintType === "devant" && "Ces élèves seront placés au 1er ou 2ème rang."}
-              {pendingConstraintType === "aesh" && "Une place libre sera gardée à côté de cet élève pour l'AESH."}
+              {pendingConstraintType === "aesh" && "Une place libre sera gardée sur la même table que cet élève pour l'AESH."}
             </DialogDescription>
           </DialogHeader>
 

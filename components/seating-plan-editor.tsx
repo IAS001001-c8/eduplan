@@ -1200,6 +1200,12 @@ export function SeatingPlanEditor({
     return bestTable
   }
   
+  // Compter les places libres sur la MÊME table physique (hors la place elle-même)
+  const countFreeSeatsOnSameTable = (seatNum: number, occupied: Map<number, string>, seatMap: Map<number, SeatInfo>): number => {
+    const sameTable = getSeatsOnSameTable(seatNum, seatMap)
+    return sameTable.filter(s => s.seatNumber !== seatNum && !occupied.has(s.seatNumber)).length
+  }
+  
   // Compter les voisins occupés
   const countOccupiedNeighbors = (seatNum: number, assignments: Map<number, string>, seatMap: Map<number, SeatInfo>): number => {
     const adjacent = getAdjacentSeatsV2(seatNum, seatMap)
@@ -1534,13 +1540,18 @@ export function SeatingPlanEditor({
         
         const adjacentSeats = getAdjacentSeatsV2(seatInfo.seatNumber, seatMap)
         const freeAdjacent = adjacentSeats.filter(s => !newAssignments.has(s)).length
+        const freeSameTable = countFreeSeatsOnSameTable(seatInfo.seatNumber, newAssignments, seatMap)
         const nextToEBP = isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)
         
         let score = 0
         // Bonus important si place libre adjacente
         if (freeAdjacent >= 1) score += 30
-        // Bonus AESH : priorité absolue pour la place libre
-        if (aeshStudentIds.has(student.id) && freeAdjacent >= 1) score += 50
+        // Bonus AESH : priorité absolue pour une place libre SUR LA MÊME TABLE
+        if (aeshStudentIds.has(student.id)) {
+          if (freeSameTable >= 1) score += 100       // même table : idéal
+          else if (freeAdjacent >= 1) score += 30    // fallback : voisin immédiat
+          else score -= 30                           // aucune place libre à proximité : pénaliser
+        }
         // Éviter d'être à côté d'un autre EBP
         if (nextToEBP) score -= 15
         // Préférer moins de voisins occupés
@@ -1579,14 +1590,19 @@ export function SeatingPlanEditor({
         
         const adjacentSeats = getAdjacentSeatsV2(seatInfo.seatNumber, seatMap)
         const freeAdjacent = adjacentSeats.filter(s => !newAssignments.has(s)).length
+        const freeSameTable = countFreeSeatsOnSameTable(seatInfo.seatNumber, newAssignments, seatMap)
         const nextToEBP = isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)
         const neighbors = countOccupiedNeighbors(seatInfo.seatNumber, newAssignments, seatMap)
         
         let score = 0
         // Bonus très important si place libre adjacente (pour AESH)
         if (freeAdjacent >= 1) score += 40
-        // Bonus AESH supplémentaire
-        if (aeshStudentIds.has(student.id) && freeAdjacent >= 1) score += 50
+        // Bonus AESH : priorité absolue pour une place libre SUR LA MÊME TABLE
+        if (aeshStudentIds.has(student.id)) {
+          if (freeSameTable >= 1) score += 100
+          else if (freeAdjacent >= 1) score += 30
+          else score -= 30
+        }
         // Préférer les bords (plus calme pour TSA)
         if (seatInfo.isEdge) score += 10
         // Éviter d'être à côté d'un autre EBP
@@ -1630,13 +1646,18 @@ export function SeatingPlanEditor({
         
         const adjacentSeats = getAdjacentSeatsV2(seatInfo.seatNumber, seatMap)
         const freeAdjacent = adjacentSeats.filter(s => !newAssignments.has(s)).length
+        const freeSameTable = countFreeSeatsOnSameTable(seatInfo.seatNumber, newAssignments, seatMap)
         const nextToEBP = isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)
         
         let score = 0
         // Bonus si place libre adjacente
         if (freeAdjacent >= 1) score += 20
-        // Bonus AESH
-        if (aeshStudentIds.has(student.id) && freeAdjacent >= 1) score += 50
+        // Bonus AESH : priorité absolue pour une place libre SUR LA MÊME TABLE
+        if (aeshStudentIds.has(student.id)) {
+          if (freeSameTable >= 1) score += 100
+          else if (freeAdjacent >= 1) score += 30
+          else score -= 30
+        }
         // Éviter d'être à côté d'un autre EBP
         if (nextToEBP) score -= 15
         // Bonus mixité
@@ -1720,10 +1741,12 @@ export function SeatingPlanEditor({
         score += getMixityScore(seatInfo.seatNumber, student.gender, newAssignments, seatMap) * 5
         // Éviter d'être à côté d'un EBP (garder les places libres pour eux)
         if (isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)) score -= 10
-        // AESH : priorité place libre adjacente
+        // AESH : priorité place libre SUR LA MÊME TABLE (fallback voisin)
         if (aeshStudentIds.has(student.id)) {
+          const freeSameTable = countFreeSeatsOnSameTable(seatInfo.seatNumber, newAssignments, seatMap)
           const freeAdj = getAdjacentSeatsV2(seatInfo.seatNumber, seatMap).filter(s => !newAssignments.has(s)).length
-          if (freeAdj >= 1) score += 50
+          if (freeSameTable >= 1) score += 100
+          else if (freeAdj >= 1) score += 30
           else score -= 30
         }
         
