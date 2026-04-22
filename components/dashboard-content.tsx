@@ -40,6 +40,7 @@ import { RoomsManagement } from "@/components/rooms-management"
 import { SeatingPlanManagement } from "@/components/seating-plan-management"
 import { SandboxManagement } from "@/components/sandbox-management"
 import { EstablishmentSettings } from "@/components/establishment-settings"
+import { TeacherStudentConstraints } from "@/components/teacher-student-constraints"
 
 interface DashboardContentProps {
   user: User
@@ -260,6 +261,17 @@ export function DashboardContent({ user, profile }: DashboardContentProps) {
   const renderContent = () => {
     switch (activeSection) {
       case "students":
+        // Pour les professeurs : vue contraintes de placement
+        if (profile.role === "professeur") {
+          return (
+            <TeacherStudentConstraints
+              establishmentId={profile.establishment_id}
+              userRole={profile.role}
+              userId={profile.id}
+              onBack={() => setActiveSection("home")}
+            />
+          )
+        }
         return (
           <StudentsManagement
             establishmentId={profile.establishment_id}

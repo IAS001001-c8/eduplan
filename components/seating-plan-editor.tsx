@@ -172,6 +172,13 @@ export function SeatingPlanEditor({
   const [clickedStudentInfo, setClickedStudentInfo] = useState<{student: Student, seatNumber: number} | null>(null) // Info popup for clicked student
   const [isHistoryOpen, setIsHistoryOpen] = useState(false) // History dialog state
   
+  // Placement constraints for this teacher
+  const [teacherConstraints, setTeacherConstraints] = useState<{
+    id: string
+    constraint_type: "ensemble" | "separes" | "devant"
+    student_ids: string[]
+  }[]>([])
+  
   // States for sandbox review actions (professors)
   const [showRejectDialog, setShowRejectDialog] = useState(false)
   const [showReturnDialog, setShowReturnDialog] = useState(false)
@@ -315,6 +322,31 @@ export function SeatingPlanEditor({
     const dontShow = localStorage.getItem("dontShowRemoveConfirmation")
     setDontShowAgain(dontShow === "true")
   }, [room, isLoadingRoom, roomError, fetchData]) // Dependencies for data fetching and preference loading
+
+  // Load teacher placement constraints
+  useEffect(() => {
+    if (!userId || userRole !== "professeur") return
+    const loadConstraints = async () => {
+      const supabase = createClient()
+      // Get teacher ID from profile
+      const { data: teacher } = await supabase
+        .from("teachers")
+        .select("id")
+        .eq("profile_id", userId)
+        .maybeSingle()
+      if (!teacher) return
+
+      const { data } = await supabase
+        .from("placement_constraints")
+        .select("id, constraint_type, student_ids")
+        .eq("teacher_id", teacher.id)
+
+      if (data) {
+        setTeacherConstraints(data as any)
+      }
+    }
+    loadConstraints().catch(() => setTeacherConstraints([]))
+  }, [userId, userRole])
 
   const getTotalSeats = () => {
     if (!room?.config?.columns) {
@@ -1259,6 +1291,146 @@ export function SeatingPlanEditor({
       }
     }
     
+    // ====== PRIORITÉ 0 : CONTRAINTES DU PROFESSEUR ======
+    // Les contraintes ont la priorité absolue sur toutes les autres règles
+    const constraintAlerts: string[] = []
+    
+    if (teacherConstraints.length > 0) {
+      // 0A. "Devant" — Placer au rang 1 ou 2
+      const devantConstraints = teacherConstraints.filter(c => c.constraint_type === "devant")
+      devantConstraints.forEach(constraint => {
+        constraint.student_ids.forEach(sid => {
+          if (placedStudents.has(sid)) return
+          const student = students.find(s => s.id === sid)
+          if (!student) return
+          
+          const frontSeats = allSeatsSorted.filter(s => s.distanceFromBoard <= 1 && !newAssignments.has(s.seatNumber))
+          let bestSeat: SeatInfo | null = null
+          let bestScore = -Infinity
+          
+          for (const seat of frontSeats) {
+            let score = 0
+            score += getMixityScore(seat.seatNumber, student.gender, newAssignments, seatMap) * 3
+            const freeAdj = getAdjacentSeatsV2(seat.seatNumber, seatMap).filter(s => !newAssignments.has(s)).length
+            if (freeAdj >= 1) score += 10
+            if (score > bestScore) { bestScore = score; bestSeat = seat }
+          }
+          
+          if (!bestSeat) {
+            bestSeat = allSeatsSorted.find(s => !newAssignments.has(s.seatNumber)) || null
+            if (bestSeat) constraintAlerts.push(`${student.first_name} ${student.last_name.charAt(0)}. : pas de place disponible devant, placé ailleurs`)
+          }
+          
+          if (bestSeat) {
+            newAssignments.set(bestSeat.seatNumber, sid)
+            placedStudents.add(sid)
+          }
+        })
+      })
+      
+      // 0B. "Ensemble" — Placer côte à côte
+      const ensembleConstraints = teacherConstraints.filter(c => c.constraint_type === "ensemble")
+      ensembleConstraints.forEach(constraint => {
+        const unplacedIds = constraint.student_ids.filter(id => !placedStudents.has(id) && students.some(s => s.id === id))
+        if (unplacedIds.length < 2) return
+        
+        // Trouver un groupe de places adjacentes
+        const availableSeats = allSeatsSorted.filter(s => !newAssignments.has(s.seatNumber))
+        let bestGroup: SeatInfo[] | null = null
+        let bestGroupScore = -Infinity
+        
+        for (const startSeat of availableSeats) {
+          // Essayer de former un groupe depuis cette place
+          const group: SeatInfo[] = [startSeat]
+          const used = new Set([startSeat.seatNumber])
+          
+          while (group.length < unplacedIds.length) {
+            let foundNext = false
+            for (const seat of group) {
+              const adjacent = getAdjacentSeatsV2(seat.seatNumber, seatMap)
+              for (const adjNum of adjacent) {
+                if (!used.has(adjNum) && !newAssignments.has(adjNum)) {
+                  const adjSeat = seatMap.get(adjNum)
+                  if (adjSeat) {
+                    group.push(adjSeat)
+                    used.add(adjNum)
+                    foundNext = true
+                    break
+                  }
+                }
+              }
+              if (foundNext) break
+            }
+            if (!foundNext) break
+          }
+          
+          if (group.length >= unplacedIds.length) {
+            let score = 0
+            // Préférer les places au milieu de la salle
+            score -= group.reduce((sum, s) => sum + s.distanceFromBoard, 0)
+            if (score > bestGroupScore) {
+              bestGroupScore = score
+              bestGroup = group
+            }
+          }
+        }
+        
+        if (bestGroup && bestGroup.length >= unplacedIds.length) {
+          unplacedIds.forEach((sid, idx) => {
+            if (idx < bestGroup!.length) {
+              newAssignments.set(bestGroup![idx].seatNumber, sid)
+              placedStudents.add(sid)
+            }
+          })
+        } else {
+          const names = unplacedIds.map(id => {
+            const s = students.find(st => st.id === id)
+            return s ? `${s.first_name} ${s.last_name.charAt(0)}.` : "?"
+          }).join(", ")
+          constraintAlerts.push(`Ensemble impossible : pas assez de places adjacentes pour ${names}`)
+          // Fallback: placer quand même à proximité
+          unplacedIds.forEach(sid => {
+            if (placedStudents.has(sid)) return
+            const seat = allSeatsSorted.find(s => !newAssignments.has(s.seatNumber))
+            if (seat) {
+              newAssignments.set(seat.seatNumber, sid)
+              placedStudents.add(sid)
+            }
+          })
+        }
+      })
+    }
+    // Stocker les contraintes "séparés" pour les respecter dans le placement suivant
+    const separesConstraints = teacherConstraints.filter(c => c.constraint_type === "separes")
+    
+    // Fonction helper: vérifie si un placement viole une contrainte "séparés"
+    const violatesSeparation = (seatNumber: number, studentId: string): boolean => {
+      for (const constraint of separesConstraints) {
+        if (!constraint.student_ids.includes(studentId)) continue
+        const otherIds = constraint.student_ids.filter(id => id !== studentId)
+        for (const otherId of otherIds) {
+          // Trouver où l'autre élève est placé
+          for (const [seatNum, sid] of newAssignments) {
+            if (sid === otherId) {
+              const seat1 = seatMap.get(seatNumber)
+              const seat2 = seatMap.get(seatNum)
+              if (seat1 && seat2) {
+                // Distance Manhattan : |row diff| + |col diff| doit être >= 2
+                const rowDiff = Math.abs(seat1.distanceFromBoard - seat2.distanceFromBoard)
+                const colDiff = Math.abs(seat1.distanceFromCenter - seat2.distanceFromCenter)
+                // Aussi vérifier adjacence directe
+                const adjacent = getAdjacentSeatsV2(seatNumber, seatMap)
+                if (adjacent.includes(seatNum) || (rowDiff + colDiff) < 2) {
+                  return true
+                }
+              }
+            }
+          }
+        }
+      }
+      return false
+    }
+    
     // Catégoriser les élèves non encore placés
     const ebpVisionHearing = students.filter(s => hasNeed(s, FRONT_ROW_NEEDS) && !placedStudents.has(s.id))
     const ebpTSA = students.filter(s => hasNeed(s, PERIPHERAL_NEEDS) && !hasNeed(s, FRONT_ROW_NEEDS) && !placedStudents.has(s.id))
@@ -1289,6 +1461,7 @@ export function SeatingPlanEditor({
       
       for (const seatInfo of firstRowSeats) {
         if (newAssignments.has(seatInfo.seatNumber)) continue
+        if (violatesSeparation(seatInfo.seatNumber, student.id)) continue
         
         const adjacentSeats = getAdjacentSeatsV2(seatInfo.seatNumber, seatMap)
         const freeAdjacent = adjacentSeats.filter(s => !newAssignments.has(s)).length
@@ -1331,6 +1504,7 @@ export function SeatingPlanEditor({
       
       for (const seatInfo of frontRows) {
         if (newAssignments.has(seatInfo.seatNumber)) continue
+        if (violatesSeparation(seatInfo.seatNumber, student.id)) continue
         
         const adjacentSeats = getAdjacentSeatsV2(seatInfo.seatNumber, seatMap)
         const freeAdjacent = adjacentSeats.filter(s => !newAssignments.has(s)).length
@@ -1379,6 +1553,7 @@ export function SeatingPlanEditor({
       // D'abord essayer les rangs 1-2
       for (const seatInfo of frontRows) {
         if (newAssignments.has(seatInfo.seatNumber)) continue
+        if (violatesSeparation(seatInfo.seatNumber, student.id)) continue
         
         const adjacentSeats = getAdjacentSeatsV2(seatInfo.seatNumber, seatMap)
         const freeAdjacent = adjacentSeats.filter(s => !newAssignments.has(s)).length
@@ -1404,6 +1579,7 @@ export function SeatingPlanEditor({
       if (!bestSeat) {
         for (const seatInfo of allSeatsSorted) {
           if (newAssignments.has(seatInfo.seatNumber)) continue
+          if (violatesSeparation(seatInfo.seatNumber, student.id)) continue
           if (!isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)) {
             bestSeat = seatInfo
             break
@@ -1459,6 +1635,8 @@ export function SeatingPlanEditor({
       
       for (const seatInfo of allSeatsSorted) {
         if (newAssignments.has(seatInfo.seatNumber)) continue
+        // Respecter les contraintes "séparés"
+        if (violatesSeparation(seatInfo.seatNumber, student.id)) continue
         
         const neighbors = countOccupiedNeighbors(seatInfo.seatNumber, newAssignments, seatMap)
         
@@ -1474,6 +1652,11 @@ export function SeatingPlanEditor({
         }
       }
       
+      // Fallback sans contrainte séparés si rien trouvé
+      if (!bestSeat) {
+        bestSeat = allSeatsSorted.find(s => !newAssignments.has(s.seatNumber)) || null
+      }
+      
       if (bestSeat) {
         newAssignments.set(bestSeat.seatNumber, student.id)
         placedStudents.add(student.id)
@@ -1482,16 +1665,28 @@ export function SeatingPlanEditor({
     
     setAssignments(newAssignments)
     
-    // Résumé
+    // Résumé avec alertes de contraintes
     const placedEBP = ebpVisionHearing.length + ebpTSA.length + ebpOther.length
+    const constraintCount = teacherConstraints.length
     
     toast({
-      title: "Placement intelligent V3 terminé",
-      description: `${placedStudents.size}/${numStudents} élèves placés (${placedEBP} EBP prioritaires${rotatedCount > 0 ? `, ${rotatedCount} élèves ont changé de rang` : ""}). Mixité optimisée.`,
+      title: "Placement intelligent V4 terminé",
+      description: `${placedStudents.size}/${numStudents} élèves placés (${constraintCount > 0 ? `${constraintCount} contraintes, ` : ""}${placedEBP} EBP${rotatedCount > 0 ? `, ${rotatedCount} rotations` : ""}).`,
     })
+    
+    // Alertes de contraintes non respectées
+    if (constraintAlerts.length > 0) {
+      setTimeout(() => {
+        toast({
+          title: "Alertes de placement",
+          description: constraintAlerts.join(" | "),
+          variant: "destructive",
+        })
+      }, 1000)
+    }
   }
   
-  // COMPLÉTION INTELLIGENTE V3 - Sans rotation (Règle 3 exclue)
+  // COMPLÉTION INTELLIGENTE V4 - Sans rotation, avec contraintes professeur
   const handleIntelligentComplete = () => {
     const seatMap = buildSeatMap()
     const newAssignments = new Map(assignments)
@@ -1510,6 +1705,7 @@ export function SeatingPlanEditor({
     const totalSeats = getTotalSeats()
     const remainingSeats = totalSeats - newAssignments.size
     const shouldSpace = remainingSeats > unassigned.length
+    const constraintAlerts: string[] = []
     
     // Toutes les places triées par distance au tableau
     const allSeatsSorted = Array.from(seatMap.values())
@@ -1517,97 +1713,140 @@ export function SeatingPlanEditor({
         ? a.distanceFromBoard - b.distanceFromBoard 
         : a.seatNumber - b.seatNumber)
     
-    // Catégoriser les non-placés
-    const unassignedEBPVision = unassigned.filter(s => hasNeed(s, FRONT_ROW_NEEDS))
-    const unassignedEBPTSA = unassigned.filter(s => hasNeed(s, PERIPHERAL_NEEDS) && !hasNeed(s, FRONT_ROW_NEEDS))
+    // Helper: vérifie contrainte séparés
+    const separesConstraints = teacherConstraints.filter(c => c.constraint_type === "separes")
+    const violatesSep = (seatNumber: number, studentId: string): boolean => {
+      for (const constraint of separesConstraints) {
+        if (!constraint.student_ids.includes(studentId)) continue
+        for (const otherId of constraint.student_ids) {
+          if (otherId === studentId) continue
+          for (const [seatNum, sid] of newAssignments) {
+            if (sid === otherId) {
+              const s1 = seatMap.get(seatNumber)
+              const s2 = seatMap.get(seatNum)
+              if (s1 && s2) {
+                const adjacent = getAdjacentSeatsV2(seatNumber, seatMap)
+                const dist = Math.abs(s1.distanceFromBoard - s2.distanceFromBoard) + Math.abs(s1.distanceFromCenter - s2.distanceFromCenter)
+                if (adjacent.includes(seatNum) || dist < 2) return true
+              }
+            }
+          }
+        }
+      }
+      return false
+    }
+
+    // PRIORITÉ 0: Contraintes professeur pour les non-placés
+    // 0A. Devant
+    const devantConstraints = teacherConstraints.filter(c => c.constraint_type === "devant")
+    devantConstraints.forEach(constraint => {
+      constraint.student_ids.forEach(sid => {
+        if (placedStudents.has(sid) || alreadyPlaced.has(sid)) return
+        if (!students.some(s => s.id === sid)) return
+        const student = students.find(s => s.id === sid)!
+        const frontSeats = allSeatsSorted.filter(s => s.distanceFromBoard <= 1 && !newAssignments.has(s.seatNumber))
+        const seat = frontSeats[0] || allSeatsSorted.find(s => !newAssignments.has(s.seatNumber))
+        if (seat) { newAssignments.set(seat.seatNumber, sid); placedStudents.add(sid) }
+      })
+    })
+
+    // 0B. Ensemble
+    const ensembleConstraints = teacherConstraints.filter(c => c.constraint_type === "ensemble")
+    ensembleConstraints.forEach(constraint => {
+      const unplacedIds = constraint.student_ids.filter(id => !placedStudents.has(id) && !alreadyPlaced.has(id) && students.some(s => s.id === id))
+      if (unplacedIds.length < 2) return
+      const availableSeats = allSeatsSorted.filter(s => !newAssignments.has(s.seatNumber))
+      for (const startSeat of availableSeats) {
+        const group: SeatInfo[] = [startSeat]
+        const used = new Set([startSeat.seatNumber])
+        while (group.length < unplacedIds.length) {
+          let found = false
+          for (const s of group) {
+            for (const adj of getAdjacentSeatsV2(s.seatNumber, seatMap)) {
+              if (!used.has(adj) && !newAssignments.has(adj)) {
+                const adjSeat = seatMap.get(adj)
+                if (adjSeat) { group.push(adjSeat); used.add(adj); found = true; break }
+              }
+            }
+            if (found) break
+          }
+          if (!found) break
+        }
+        if (group.length >= unplacedIds.length) {
+          unplacedIds.forEach((sid, idx) => {
+            if (idx < group.length) { newAssignments.set(group[idx].seatNumber, sid); placedStudents.add(sid) }
+          })
+          break
+        }
+      }
+    })
+    
+    // Catégoriser les non-placés restants
+    const unassignedEBPVision = unassigned.filter(s => hasNeed(s, FRONT_ROW_NEEDS) && !placedStudents.has(s.id))
+    const unassignedEBPTSA = unassigned.filter(s => hasNeed(s, PERIPHERAL_NEEDS) && !hasNeed(s, FRONT_ROW_NEEDS) && !placedStudents.has(s.id))
     const unassignedEBPOther = unassigned.filter(s => 
       s.special_needs && s.special_needs.length > 0 && 
-      !hasNeed(s, FRONT_ROW_NEEDS) && 
-      !hasNeed(s, PERIPHERAL_NEEDS)
+      !hasNeed(s, FRONT_ROW_NEEDS) && !hasNeed(s, PERIPHERAL_NEEDS) && !placedStudents.has(s.id)
     )
-    const unassignedRegular = unassigned.filter(s => !s.special_needs || s.special_needs.length === 0)
-    
-    // 1. EBP Vue/Audition → Rang 1 avec place libre adjacente si possible
-    const firstRowSeats = allSeatsSorted.filter(s => s.distanceFromBoard === 0 && !newAssignments.has(s.seatNumber))
+    const unassignedRegular = unassigned.filter(s => (!s.special_needs || s.special_needs.length === 0) && !placedStudents.has(s.id))
+
+    // 1. EBP Vue/Audition → Rang 1
+    const firstRowSeats = allSeatsSorted.filter(s => s.distanceFromBoard === 0)
     unassignedEBPVision.forEach((student) => {
       let bestSeat: SeatInfo | null = null
       let bestScore = -Infinity
-      
       for (const seatInfo of firstRowSeats) {
         if (newAssignments.has(seatInfo.seatNumber)) continue
+        if (violatesSep(seatInfo.seatNumber, student.id)) continue
         const freeAdjacent = getAdjacentSeatsV2(seatInfo.seatNumber, seatMap).filter(s => !newAssignments.has(s)).length
         let score = freeAdjacent >= 1 ? 30 : 0
         if (isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)) score -= 15
         if (score > bestScore) { bestScore = score; bestSeat = seatInfo }
       }
-      
       if (!bestSeat) bestSeat = firstRowSeats.find(s => !newAssignments.has(s.seatNumber)) || null
       if (!bestSeat) bestSeat = allSeatsSorted.find(s => !newAssignments.has(s.seatNumber)) || null
-      
-      if (bestSeat) {
-        newAssignments.set(bestSeat.seatNumber, student.id)
-        placedStudents.add(student.id)
-      }
+      if (bestSeat) { newAssignments.set(bestSeat.seatNumber, student.id); placedStudents.add(student.id) }
     })
     
-    // 2. TSA → Rangs 1-2 avec place libre adjacente
+    // 2. TSA → Rangs 1-2
     const frontRows = allSeatsSorted.filter(s => s.distanceFromBoard <= 1)
     unassignedEBPTSA.forEach((student) => {
       let bestSeat: SeatInfo | null = null
       let bestScore = -Infinity
-      
       for (const seatInfo of frontRows) {
         if (newAssignments.has(seatInfo.seatNumber)) continue
+        if (violatesSep(seatInfo.seatNumber, student.id)) continue
         const freeAdjacent = getAdjacentSeatsV2(seatInfo.seatNumber, seatMap).filter(s => !newAssignments.has(s)).length
-        const nextToEBP = isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)
-        let score = 0
-        if (freeAdjacent >= 1) score += 40
+        let score = freeAdjacent >= 1 ? 40 : 0
         if (seatInfo.isEdge) score += 10
-        if (nextToEBP) score -= 15
+        if (isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)) score -= 15
         score -= countOccupiedNeighbors(seatInfo.seatNumber, newAssignments, seatMap) * 5
         if (score > bestScore) { bestScore = score; bestSeat = seatInfo }
       }
-      
       if (!bestSeat) bestSeat = frontRows.find(s => !newAssignments.has(s.seatNumber)) || null
       if (!bestSeat) bestSeat = allSeatsSorted.find(s => !newAssignments.has(s.seatNumber)) || null
-      
-      if (bestSeat) {
-        newAssignments.set(bestSeat.seatNumber, student.id)
-        placedStudents.add(student.id)
-      }
+      if (bestSeat) { newAssignments.set(bestSeat.seatNumber, student.id); placedStudents.add(student.id) }
     })
     
-    // 3. Autres EBP → Rangs 1-2 avec place libre
+    // 3. Autres EBP
     unassignedEBPOther.forEach((student) => {
       let bestSeat: SeatInfo | null = null
       let bestScore = -Infinity
-      
       for (const seatInfo of frontRows) {
         if (newAssignments.has(seatInfo.seatNumber)) continue
+        if (violatesSep(seatInfo.seatNumber, student.id)) continue
         const freeAdjacent = getAdjacentSeatsV2(seatInfo.seatNumber, seatMap).filter(s => !newAssignments.has(s)).length
-        let score = 0
-        if (freeAdjacent >= 1) score += 20
+        let score = freeAdjacent >= 1 ? 20 : 0
         if (isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)) score -= 15
         score += getMixityScore(seatInfo.seatNumber, student.gender, newAssignments, seatMap) * 3
         if (score > bestScore) { bestScore = score; bestSeat = seatInfo }
       }
-      
-      if (!bestSeat) {
-        for (const seatInfo of allSeatsSorted) {
-          if (!newAssignments.has(seatInfo.seatNumber) && !isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)) {
-            bestSeat = seatInfo; break
-          }
-        }
-      }
+      if (!bestSeat) bestSeat = allSeatsSorted.find(s => !newAssignments.has(s.seatNumber) && !violatesSep(s.seatNumber, student.id)) || null
       if (!bestSeat) bestSeat = allSeatsSorted.find(s => !newAssignments.has(s.seatNumber)) || null
-      
-      if (bestSeat) {
-        newAssignments.set(bestSeat.seatNumber, student.id)
-        placedStudents.add(student.id)
-      }
+      if (bestSeat) { newAssignments.set(bestSeat.seatNumber, student.id); placedStudents.add(student.id) }
     })
     
-    // 4. Réguliers avec mixité
+    // 4. Réguliers avec mixité et respect des séparations
     const boys = unassignedRegular.filter(s => s.gender === 1 && !placedStudents.has(s.id))
     const girls = unassignedRegular.filter(s => s.gender === 2 && !placedStudents.has(s.id))
     const others = unassignedRegular.filter(s => (!s.gender || s.gender === 3) && !placedStudents.has(s.id))
@@ -1625,26 +1864,24 @@ export function SeatingPlanEditor({
     mixedOrder.forEach((student) => {
       let bestSeat: SeatInfo | null = null
       let bestScore = -Infinity
-      
       for (const seatInfo of allSeatsSorted) {
         if (newAssignments.has(seatInfo.seatNumber)) continue
+        if (violatesSep(seatInfo.seatNumber, student.id)) continue
         const neighbors = countOccupiedNeighbors(seatInfo.seatNumber, newAssignments, seatMap)
         let score = shouldSpace ? -neighbors * 3 : 0
         score += getMixityScore(seatInfo.seatNumber, student.gender, newAssignments, seatMap) * 5
         if (isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)) score -= 10
         if (score > bestScore) { bestScore = score; bestSeat = seatInfo }
       }
-      
-      if (bestSeat) {
-        newAssignments.set(bestSeat.seatNumber, student.id)
-        placedStudents.add(student.id)
-      }
+      if (!bestSeat) bestSeat = allSeatsSorted.find(s => !newAssignments.has(s.seatNumber)) || null
+      if (bestSeat) { newAssignments.set(bestSeat.seatNumber, student.id); placedStudents.add(student.id) }
     })
     
     setAssignments(newAssignments)
+    const cCount = teacherConstraints.length
     toast({
-      title: "Complétion intelligente V3 terminée",
-      description: `${placedStudents.size} élèves ajoutés avec priorités EBP et mixité`,
+      title: "Complétion intelligente V4 terminée",
+      description: `${placedStudents.size} élèves ajoutés${cCount > 0 ? ` (${cCount} contraintes respectées)` : ""} avec priorités EBP et mixité`,
     })
   }
 
@@ -2079,10 +2316,10 @@ export function SeatingPlanEditor({
                     {(userRole === "vie-scolaire" || userRole === "professeur") && (
                       <div className="pt-2 border-t border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-900/20 -mx-3 px-3 py-3 rounded-b-lg">
                         <Label className="text-xs text-violet-700 dark:text-violet-300 mb-2 block font-medium">
-                          Placement Intelligent V3
+                          Placement Intelligent V4
                         </Label>
                         <p className="text-[10px] text-violet-600 dark:text-violet-400 mb-2">
-                          3 règles : 1) EBP au 1er-2e rang avec place libre, 2) Mixité G/F, 3) Rotation des rangs (placement uniquement)
+                          4 règles : 0) Contraintes prof, 1) EBP rang 1-2, 2) Mixité G/F, 3) Rotation
                         </p>
                         <Button
                           size="sm"
