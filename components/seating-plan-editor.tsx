@@ -175,7 +175,7 @@ export function SeatingPlanEditor({
   // Placement constraints for this teacher
   const [teacherConstraints, setTeacherConstraints] = useState<{
     id: string
-    constraint_type: "ensemble" | "separes" | "devant"
+    constraint_type: "ensemble" | "separes" | "devant" | "aesh"
     student_ids: string[]
   }[]>([])
   
@@ -1148,6 +1148,58 @@ export function SeatingPlanEditor({
     return adjacent
   }
   
+  // Obtenir les places sur la MÊME table physique (même colIndex + tableIndex)
+  const getSeatsOnSameTable = (seatNum: number, seatMap: Map<number, SeatInfo>): SeatInfo[] => {
+    const seatInfo = seatMap.get(seatNum)
+    if (!seatInfo) return []
+    const result: SeatInfo[] = []
+    seatMap.forEach((info) => {
+      if (info.colIndex === seatInfo.colIndex && info.tableIndex === seatInfo.tableIndex) {
+        result.push(info)
+      }
+    })
+    return result
+  }
+  
+  // Trouver la meilleure table (même colIndex + tableIndex) pouvant accueillir `groupSize` élèves
+  // Retourne la liste des SeatInfo de la table trouvée (toutes libres), ou null si aucune table n'a assez de places libres
+  const findTableForGroup = (
+    groupSize: number,
+    occupied: Map<number, string>,
+    seatMap: Map<number, SeatInfo>
+  ): SeatInfo[] | null => {
+    // Grouper les places par table (colIndex-tableIndex)
+    const tablesMap = new Map<string, SeatInfo[]>()
+    seatMap.forEach((info) => {
+      const key = `${info.colIndex}-${info.tableIndex}`
+      if (!tablesMap.has(key)) tablesMap.set(key, [])
+      tablesMap.get(key)!.push(info)
+    })
+    
+    // Chercher une table avec assez de places libres (préférer celles proches du centre / rang moyen)
+    let bestTable: SeatInfo[] | null = null
+    let bestScore = -Infinity
+    
+    tablesMap.forEach((tableSeats) => {
+      const freeSeats = tableSeats.filter(s => !occupied.has(s.seatNumber))
+      if (freeSeats.length < groupSize) return
+      
+      // Score : préférer tables dont la capacité correspond (pas trop grande) et placées ni trop devant ni trop derrière
+      const avgBoardDist = tableSeats.reduce((sum, s) => sum + s.distanceFromBoard, 0) / tableSeats.length
+      // Bonus si la table a exactement la bonne taille
+      const sizeBonus = tableSeats.length === groupSize ? 10 : 0
+      // Préférer rang moyen (ni trop devant ni trop derrière)
+      const score = sizeBonus - Math.abs(avgBoardDist - 1) * 2
+      
+      if (score > bestScore) {
+        bestScore = score
+        bestTable = freeSeats.slice(0, groupSize)
+      }
+    })
+    
+    return bestTable
+  }
+  
   // Compter les voisins occupés
   const countOccupiedNeighbors = (seatNum: number, assignments: Map<number, string>, seatMap: Map<number, SeatInfo>): number => {
     const adjacent = getAdjacentSeatsV2(seatNum, seatMap)
@@ -1336,19 +1388,30 @@ export function SeatingPlanEditor({
         })
       })
       
-      // 0B. "Ensemble" — Placer côte à côte
+      // 0B. "Ensemble" — Placer sur la MÊME table physique
       const ensembleConstraints = teacherConstraints.filter(c => c.constraint_type === "ensemble")
       ensembleConstraints.forEach(constraint => {
         const unplacedIds = constraint.student_ids.filter(id => !placedStudents.has(id) && students.some(s => s.id === id))
         if (unplacedIds.length < 2) return
         
-        // Trouver un groupe de places adjacentes
+        // Priorité 1 : chercher une table physique entière capable d'accueillir tout le groupe
+        const sameTableSeats = findTableForGroup(unplacedIds.length, newAssignments, seatMap)
+        
+        if (sameTableSeats && sameTableSeats.length >= unplacedIds.length) {
+          unplacedIds.forEach((sid, idx) => {
+            newAssignments.set(sameTableSeats[idx].seatNumber, sid)
+            placedStudents.add(sid)
+          })
+          return
+        }
+        
+        // Priorité 2 (fallback) : si aucune table n'a assez de places (ex : groupe de 3 sur tables de 2),
+        // construire un groupe adjacent en privilégiant la même colonne
         const availableSeats = allSeatsSorted.filter(s => !newAssignments.has(s.seatNumber))
         let bestGroup: SeatInfo[] | null = null
         let bestGroupScore = -Infinity
         
         for (const startSeat of availableSeats) {
-          // Essayer de former un groupe depuis cette place
           const group: SeatInfo[] = [startSeat]
           const used = new Set([startSeat.seatNumber])
           
@@ -1373,8 +1436,9 @@ export function SeatingPlanEditor({
           }
           
           if (group.length >= unplacedIds.length) {
-            let score = 0
-            // Préférer les places au milieu de la salle
+            // Bonus fort si tout le groupe est dans la même colonne (tables voisines = proches physiquement)
+            const sameColumn = group.every(s => s.colIndex === group[0].colIndex)
+            let score = sameColumn ? 50 : 0
             score -= group.reduce((sum, s) => sum + s.distanceFromBoard, 0)
             if (score > bestGroupScore) {
               bestGroupScore = score
@@ -1384,19 +1448,21 @@ export function SeatingPlanEditor({
         }
         
         if (bestGroup && bestGroup.length >= unplacedIds.length) {
+          const names = unplacedIds.map(id => {
+            const s = students.find(st => st.id === id)
+            return s ? `${s.first_name} ${s.last_name.charAt(0)}.` : "?"
+          }).join(", ")
+          constraintAlerts.push(`Ensemble : aucune table assez grande pour ${names}, placés sur tables voisines`)
           unplacedIds.forEach((sid, idx) => {
-            if (idx < bestGroup!.length) {
-              newAssignments.set(bestGroup![idx].seatNumber, sid)
-              placedStudents.add(sid)
-            }
+            newAssignments.set(bestGroup![idx].seatNumber, sid)
+            placedStudents.add(sid)
           })
         } else {
           const names = unplacedIds.map(id => {
             const s = students.find(st => st.id === id)
             return s ? `${s.first_name} ${s.last_name.charAt(0)}.` : "?"
           }).join(", ")
-          constraintAlerts.push(`Ensemble impossible : pas assez de places adjacentes pour ${names}`)
-          // Fallback: placer quand même à proximité
+          constraintAlerts.push(`Ensemble impossible : pas assez de places pour ${names}`)
           unplacedIds.forEach(sid => {
             if (placedStudents.has(sid)) return
             const seat = allSeatsSorted.find(s => !newAssignments.has(s.seatNumber))
@@ -1765,11 +1831,23 @@ export function SeatingPlanEditor({
       })
     })
 
-    // 0B. Ensemble
+    // 0B. Ensemble — Même table physique (fallback adjacent)
     const ensembleConstraints = teacherConstraints.filter(c => c.constraint_type === "ensemble")
     ensembleConstraints.forEach(constraint => {
       const unplacedIds = constraint.student_ids.filter(id => !placedStudents.has(id) && !alreadyPlaced.has(id) && students.some(s => s.id === id))
       if (unplacedIds.length < 2) return
+      
+      // Priorité 1 : même table physique
+      const sameTableSeats = findTableForGroup(unplacedIds.length, newAssignments, seatMap)
+      if (sameTableSeats && sameTableSeats.length >= unplacedIds.length) {
+        unplacedIds.forEach((sid, idx) => {
+          newAssignments.set(sameTableSeats[idx].seatNumber, sid)
+          placedStudents.add(sid)
+        })
+        return
+      }
+      
+      // Fallback : tables adjacentes
       const availableSeats = allSeatsSorted.filter(s => !newAssignments.has(s.seatNumber))
       for (const startSeat of availableSeats) {
         const group: SeatInfo[] = [startSeat]

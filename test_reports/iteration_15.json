@@ -1,0 +1,87 @@
+{
+  "summary": "E2E frontend tests for the 4 placement-constraints bug fixes. Bug 1 (filter by class) verified via code + UI. Bug 3 (AESH save) STILL FAILING with Supabase 400 — the SQL fix script was NOT actually applied (or applied in wrong project). Bug 4 (same-table Ensemble algorithm) verified via code review only — could not be UI-tested because the Professeur user only has access to a single class with no existing seating-plan UI flow accessible from this session. Regression for Ensemble create/delete works.",
+
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "POST https://bdvdrzohbieqeisxwmwh.supabase.co/rest/v1/placement_constraints",
+        "issue": "AESH constraint insert returns 400 with body {\"code\":\"23514\",\"message\":\"new row for relation \\\"placement_constraints\\\" violates check constraint \\\"placement_constraints_constraint_type_check\\\"\"} — the CHECK constraint in Supabase still does NOT accept 'aesh'. The user reported having run /app/scripts/fix_placement_constraints.sql but the live DB clearly still has the old CHECK without 'aesh'. Either the script was not executed against this Supabase project (bdvdrzohbieqeisxwmwh) or the transaction was rolled back. Bug #3 is NOT fixed.",
+        "priority": "CRITICAL"
+      }
+    ],
+    "minor": []
+  },
+
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Create AESH placement constraint",
+        "issue": "On Save, Supabase 400 → toast 'Erreur — Impossible de créer la contrainte'. Caused by missing CHECK constraint update in production DB.",
+        "affected_selectors": ["[data-testid=\"btn-aesh\"]", "[data-testid=\"save-constraint-btn\"]"]
+      }
+    ],
+    "design_issues": [
+      {"screen": "All pages", "issues": ["Pre-existing 3 React 19 ref warnings shown in bottom-left toast (Radix-UI compat) — already known, ignore."]}
+    ]
+  },
+
+  "features_tested": {
+    "bug_1_class_filter": {
+      "status": "VERIFIED (code) / PARTIAL (UI)",
+      "details": "Code in /app/components/teacher-student-constraints.tsx lines 453-464 correctly derives classConstraints by intersecting constraint.student_ids with currently-loaded students of selectedClassId, and allConstraintsGrouped is built from classConstraints. Header at line 702 uses classConstraints.length and empty-state line 713 says 'Aucune contrainte pour cette classe'. UI test confirmed: after creating an Ensemble for 2 students of class 6A, header showed 'Contraintes (1)'. Could NOT verify cross-class isolation in UI because DUBOIS.emma teacher only has 1 class assigned (6A). Logic is sound; recommend assigning a 2nd class to DUBOIS.emma for full regression.",
+      "code_location": "teacher-student-constraints.tsx:453-464, 701-717"
+    },
+    "bug_3_aesh_save": {
+      "status": "FAIL — Bug NOT fixed in live DB",
+      "details": "AESH button correctly enables when exactly 1 student is selected. Reason dialog opens. On Save, POST to placement_constraints returns 400 (CHECK violation). The frontend code is correct (sends constraint_type: 'aesh') — the bug is in Supabase DB. SQL script /app/scripts/fix_placement_constraints.sql has the right ALTER TABLE statements but evidently was not successfully applied to project bdvdrzohbieqeisxwmwh.",
+      "evidence_response_body": "{\"code\":\"23514\",\"message\":\"new row for relation \\\"placement_constraints\\\" violates check constraint \\\"placement_constraints_constraint_type_check\\\"\"}"
+    },
+    "bug_4_same_table_ensemble": {
+      "status": "VERIFIED (code only) — NOT UI-tested",
+      "details": "Code review of /app/components/seating-plan-editor.tsx confirms helpers getSeatsOnSameTable + findTableForGroup exist (lines 1149-1205) and are invoked first in handleIntelligentPlacement (lines 1391-1476) and handleIntelligentComplete (lines 1834-1876) before falling back to adjacent-tables logic with score penalty. teacherConstraints type now includes 'aesh' at line 178. UI test of Placement Intelligent was not performed in this session because the Professeur DUBOIS.emma role does not appear to expose a seating-plan editor entry point on the dashboard sidebar (only Tableau de bord, Mes élèves, Mes collègues, Salles, Plans de classe, Bac à sable). Should be re-tested as Vie Scolaire (vs.stmarie) navigating to Plans de classe → expand class → click eye icon, then ensure an Ensemble constraint exists for 2 of the room's students before clicking Placement Intelligent.",
+      "code_location": "seating-plan-editor.tsx:178, 1149-1205, 1391-1476, 1834-1876"
+    },
+    "regression_ensemble_create_delete": {
+      "status": "VERIFIED",
+      "details": "Created Ensemble constraint with 2 students → header went from 'Contraintes (0)' to 'Contraintes (1)' and 1 constraint card appeared with delete button. Delete via [data-testid=\"delete-constraint-*\"] + confirm-delete-btn worked → list returned to (0)."
+    },
+    "regression_ebp_violet_ring_and_pills": {
+      "status": "VERIFIED (visual)",
+      "details": "Screenshot shows 3 EBP students (Arthur F., Noé M., Inès N.) with violet ring border on pills as expected."
+    }
+  },
+
+  "test_report_links": [],
+  "action_items": [
+    "[CRITICAL Bug #3] Re-run /app/scripts/fix_placement_constraints.sql against Supabase project bdvdrzohbieqeisxwmwh — the CHECK constraint placement_constraints_constraint_type_check still rejects 'aesh'. After running, verify with: SELECT pg_get_constraintdef(oid) FROM pg_constraint WHERE conname='placement_constraints_constraint_type_check'; expected output should include 'aesh'.",
+    "[Bug 1 retest] Assign a 2nd class to teacher DUBOIS.emma (or test with another professor having ≥2 classes) so cross-class filter isolation can be visually verified.",
+    "[Bug 4 retest] Re-test Placement Intelligent same-table Ensemble logic by logging in as Vie Scolaire (vs.stmarie) → Plans de classe → open a plan → seed an Ensemble constraint for 2 students of that class → click Placement Intelligent → verify the 2 students land on consecutive seat numbers within the same physical table (floor((N-1)/seatsPerTable + offset) equal)."
+  ],
+  "critical_code_review_comments": [
+    "teacher-student-constraints.tsx is 887 lines — borderline for split (recommended <700). Constraint dialog + delete dialog + main grid could be 3 sub-components.",
+    "Frontend correctly handles the 400 error (toast shown), but does not surface the underlying Supabase code (23514). Consider showing 'AESH non supporté par la DB — contactez l\\'administrateur' when error.code === '23514' to help users diagnose schema-drift faster.",
+    "loadConstraints fetches ALL teacher constraints, then filters client-side per class. Acceptable for a single-teacher use case but should be paginated/scoped server-side if a teacher ever has >500 constraints."
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A (Supabase live; only the placement_constraints insert path tested — 0/1 succeeded for 'aesh' due to schema-drift)",
+    "frontend": "75% — 3/4 bug-fixes verified; Bug #3 blocked by DB schema not actually being patched"
+  },
+  "test_credentials": {
+    "professor": {"establishment_code": "stm001", "username": "DUBOIS.emma", "password": "Prof2024!", "status": "WORKING"},
+    "vie_scolaire": {"establishment_code": "stm001", "username": "vs.stmarie", "password": "VieScol2024!", "status": "NOT TESTED THIS RUN"}
+  },
+  "seed_data_creation": "Created and then deleted 1 TEST_ensemble_class1 Ensemble constraint in class 6A (clean state). 1 failed AESH POST attempt (no row inserted due to 400).",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "External preview URL was returning 'Preview Unavailable' from Emergent — used http://localhost:3000 directly which works. Next.js supervisor program is 'nextjs' (NOT 'frontend' which is FATAL). To navigate to the constraints UI: login → dashboard → click chevron in aside (top-left) to expand sidebar → click 'Mes élèves'. Bug #3 root cause is on the Supabase side — the SQL fix was not actually applied to project bdvdrzohbieqeisxwmwh, the DB still has the old CHECK constraint without 'aesh'. The fix script /app/scripts/fix_placement_constraints.sql is correct; user just needs to actually execute it. Bug #4 (same-table algorithm) should be retested via Vie Scolaire login → Plans de classe → open a plan in editor → set up Ensemble constraint → click Placement Intelligent → inspect seat numbers.",
+  "rca_of_the_issue": {
+    "bug_3_aesh_400": {
+      "reproduction": "1) Login as DUBOIS.emma. 2) Mes élèves. 3) Click any student pill. 4) Click '+ AESH'. 5) Fill reason. 6) Click 'Créer la contrainte'.",
+      "observed": "Red toast 'Erreur — Impossible de créer la contrainte'. Network: POST .../rest/v1/placement_constraints → 400.",
+      "root_cause": "Supabase Postgres CHECK constraint placement_constraints_constraint_type_check does NOT include 'aesh' — only ('ensemble','separes','devant'). The /app/scripts/fix_placement_constraints.sql which would patch this was reportedly run but the live behaviour proves otherwise.",
+      "mitigation": "Re-run the SQL in the Supabase SQL editor against project bdvdrzohbieqeisxwmwh and verify with: SELECT conname, pg_get_constraintdef(oid) FROM pg_constraint WHERE conname='placement_constraints_constraint_type_check';"
+    }
+  }
+}

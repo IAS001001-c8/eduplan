@@ -450,17 +450,17 @@ export function TeacherStudentConstraints({
     return fullName.includes(searchQuery.toLowerCase())
   })
 
-  // Constraints for current class
+  // Constraints for current class (students currently loaded = students of selectedClassId)
   const classConstraints = constraints.filter((c) =>
     c.student_ids.some((id) => students.some((s) => s.id === id))
   )
 
-  // All constraints (for panel)
+  // Grouped by type, filtered to current class only
   const allConstraintsGrouped = {
-    ensemble: constraints.filter((c) => c.constraint_type === "ensemble"),
-    separes: constraints.filter((c) => c.constraint_type === "separes"),
-    devant: constraints.filter((c) => c.constraint_type === "devant"),
-    aesh: constraints.filter((c) => c.constraint_type === "aesh"),
+    ensemble: classConstraints.filter((c) => c.constraint_type === "ensemble"),
+    separes: classConstraints.filter((c) => c.constraint_type === "separes"),
+    devant: classConstraints.filter((c) => c.constraint_type === "devant"),
+    aesh: classConstraints.filter((c) => c.constraint_type === "aesh"),
   }
 
   if (isLoading) {
@@ -699,18 +699,18 @@ export function TeacherStudentConstraints({
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-semibold text-[#29282B]">
-                  Contraintes ({constraints.length})
+                  Contraintes ({classConstraints.length})
                 </CardTitle>
               </div>
               <p className="text-xs text-[#29282B]/50">
-                S'appliquent à tous vos plans de classe
+                Classe sélectionnée uniquement
               </p>
             </CardHeader>
             <CardContent className="space-y-3 max-h-[calc(100vh-280px)] overflow-y-auto">
-              {constraints.length === 0 ? (
+              {classConstraints.length === 0 ? (
                 <div className="text-center py-8 text-[#29282B]/40">
                   <AlertTriangle className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm">Aucune contrainte définie</p>
+                  <p className="text-sm">Aucune contrainte pour cette classe</p>
                   <p className="text-xs mt-1">
                     Sélectionnez des élèves pour créer une contrainte
                   </p>
