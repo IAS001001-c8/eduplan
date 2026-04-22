@@ -37,6 +37,7 @@ import {
   Search,
   X,
   Clock,
+  UserCheck,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -61,7 +62,7 @@ interface PlacementConstraint {
   id: string
   teacher_id: string
   establishment_id: string
-  constraint_type: "ensemble" | "separes" | "devant"
+  constraint_type: "ensemble" | "separes" | "devant" | "aesh"
   student_ids: string[]
   reason: string | null
   created_at: string
@@ -110,6 +111,15 @@ const CONSTRAINT_CONFIG = {
     minStudents: 1,
     maxStudents: 4,
   },
+  aesh: {
+    label: "AESH",
+    icon: UserCheck,
+    color: "bg-amber-100 text-amber-700 border-amber-200",
+    buttonColor: "bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200",
+    dotColor: "bg-amber-400",
+    minStudents: 1,
+    maxStudents: 1,
+  },
 } as const
 
 export function TeacherStudentConstraints({
@@ -130,7 +140,7 @@ export function TeacherStudentConstraints({
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [reasonDialogOpen, setReasonDialogOpen] = useState(false)
-  const [pendingConstraintType, setPendingConstraintType] = useState<"ensemble" | "separes" | "devant" | null>(null)
+  const [pendingConstraintType, setPendingConstraintType] = useState<"ensemble" | "separes" | "devant" | "aesh" | null>(null)
   const [constraintReason, setConstraintReason] = useState("")
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [constraintToDelete, setConstraintToDelete] = useState<string | null>(null)
@@ -263,7 +273,7 @@ export function TeacherStudentConstraints({
 
   // Conflict detection
   const detectConflicts = (
-    type: "ensemble" | "separes" | "devant",
+    type: "ensemble" | "separes" | "devant" | "aesh",
     studentIds: string[]
   ): ConflictInfo[] => {
     const conflicts: ConflictInfo[] = []
@@ -322,7 +332,7 @@ export function TeacherStudentConstraints({
   }
 
   // Initiate constraint creation (opens reason dialog)
-  const initiateConstraint = (type: "ensemble" | "separes" | "devant") => {
+  const initiateConstraint = (type: "ensemble" | "separes" | "devant" | "aesh") => {
     const config = CONSTRAINT_CONFIG[type]
 
     if (selectedStudents.length < config.minStudents) {
@@ -450,6 +460,7 @@ export function TeacherStudentConstraints({
     ensemble: constraints.filter((c) => c.constraint_type === "ensemble"),
     separes: constraints.filter((c) => c.constraint_type === "separes"),
     devant: constraints.filter((c) => c.constraint_type === "devant"),
+    aesh: constraints.filter((c) => c.constraint_type === "aesh"),
   }
 
   if (isLoading) {
@@ -545,7 +556,7 @@ export function TeacherStudentConstraints({
                             ? "bg-[#E7A541]/15 border-2 border-[#E7A541] text-[#29282B] shadow-sm"
                             : "bg-white border border-[#D9DADC] text-[#29282B]/80 hover:border-[#E7A541]/50 hover:bg-[#E7A541]/5"
                           }
-                          ${hasEBP ? "ring-1 ring-blue-300" : ""}
+                          ${hasEBP ? "ring-1 ring-violet-400" : ""}
                         `}
                       >
                         {/* Constraint dots */}
@@ -602,9 +613,26 @@ export function TeacherStudentConstraints({
                       </Button>
                     </div>
 
-                    <p className="text-xs text-[#29282B]/50 mb-2">
-                      Choisissez une action pour créer une contrainte :
-                    </p>
+                    {/* Affichage des EBP des élèves sélectionnés */}
+                    {(() => {
+                      const selectedWithEBP = selectedStudents
+                        .map(id => students.find(s => s.id === id))
+                        .filter(s => s && s.special_needs && s.special_needs.length > 0)
+                      
+                      if (selectedWithEBP.length === 0) return null
+                      return (
+                        <div className="mb-3 space-y-1" data-testid="ebp-display">
+                          {selectedWithEBP.map(student => {
+                            if (!student) return null
+                            return (
+                              <p key={student.id} className="text-xs text-violet-600 font-medium">
+                                {student.first_name} {student.last_name.charAt(0)}. : <span className="text-violet-500">{student.special_needs.join(", ")}</span>
+                              </p>
+                            )
+                          })}
+                        </div>
+                      )
+                    })()}
 
                     <div className="flex flex-wrap gap-2">
                       {/* Ensemble - min 2 */}
@@ -644,6 +672,19 @@ export function TeacherStudentConstraints({
                         <Eye className="h-4 w-4 mr-1.5" />
                         Devant
                       </Button>
+
+                      {/* AESH - exactement 1 élève */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={selectedStudents.length !== 1}
+                        onClick={() => initiateConstraint("aesh")}
+                        className={CONSTRAINT_CONFIG.aesh.buttonColor}
+                        data-testid="btn-aesh"
+                      >
+                        <UserCheck className="h-4 w-4 mr-1.5" />
+                        + AESH
+                      </Button>
                     </div>
                   </motion.div>
                 )}
@@ -677,7 +718,7 @@ export function TeacherStudentConstraints({
               ) : (
                 <>
                   {/* Group by type */}
-                  {(["ensemble", "separes", "devant"] as const).map((type) => {
+                  {(["ensemble", "separes", "devant", "aesh"] as const).map((type) => {
                     const typeConstraints = allConstraintsGrouped[type]
                     if (typeConstraints.length === 0) return null
                     const config = CONSTRAINT_CONFIG[type]
@@ -764,6 +805,7 @@ export function TeacherStudentConstraints({
               {pendingConstraintType === "ensemble" && "Ces élèves seront placés côte à côte."}
               {pendingConstraintType === "separes" && "Ces élèves seront séparés de min. 2 places."}
               {pendingConstraintType === "devant" && "Ces élèves seront placés au 1er ou 2ème rang."}
+              {pendingConstraintType === "aesh" && "Une place libre sera gardée à côté de cet élève pour l'AESH."}
             </DialogDescription>
           </DialogHeader>
 

@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS public.placement_constraints (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   teacher_id uuid NOT NULL,
   establishment_id uuid NOT NULL,
-  constraint_type text NOT NULL CHECK (constraint_type IN ('ensemble', 'separes', 'devant')),
+  constraint_type text NOT NULL CHECK (constraint_type IN ('ensemble', 'separes', 'devant', 'aesh')),
   student_ids uuid[] NOT NULL,
   reason text,
   created_at timestamp with time zone DEFAULT now(),
@@ -33,6 +33,6 @@ CREATE POLICY "Teachers manage own constraints" ON public.placement_constraints
 
 -- Commentaire
 COMMENT ON TABLE public.placement_constraints IS 'Contraintes de placement définies par chaque professeur pour ses élèves. S''appliquent à tous les plans de classe du professeur contenant les élèves concernés.';
-COMMENT ON COLUMN public.placement_constraints.constraint_type IS 'ensemble = côte à côte, separes = min 2 places écart, devant = rang 1 ou 2';
+COMMENT ON COLUMN public.placement_constraints.constraint_type IS 'ensemble = côte à côte, separes = min 2 places écart, devant = rang 1 ou 2, aesh = garder une place libre à côté';
 COMMENT ON COLUMN public.placement_constraints.student_ids IS 'Liste des élèves concernés par la contrainte (2-4 pour ensemble/separes, 1+ pour devant)';
 COMMENT ON COLUMN public.placement_constraints.reason IS 'Raison optionnelle pour l''historique (conseil de classe, etc.)';

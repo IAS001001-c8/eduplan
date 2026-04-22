@@ -1220,6 +1220,14 @@ export function SeatingPlanEditor({
     const rowDistances = [...new Set(Array.from(seatMap.values()).map(s => s.distanceFromBoard))].sort((a, b) => a - b)
     const numRows = rowDistances.length
     
+    // Toutes les places triées par distance au tableau (nécessaire pour les contraintes ET le placement)
+    const allSeatsSorted = Array.from(seatMap.values())
+      .sort((a, b) => a.distanceFromBoard !== b.distanceFromBoard 
+        ? a.distanceFromBoard - b.distanceFromBoard 
+        : a.seatNumber - b.seatNumber)
+    const firstRowSeats = allSeatsSorted.filter(s => s.distanceFromBoard === 0)
+    const frontRows = allSeatsSorted.filter(s => s.distanceFromBoard <= 1)
+    
     // ====== RÈGLE 3 : ROTATION DES ÉLÈVES NON-EBP DÉJÀ PLACÉS ======
     // (Exécutée en premier pour repositionner avant le placement des nouveaux élèves)
     const previouslyPlaced = new Map<number, string>(assignments)
@@ -1442,17 +1450,12 @@ export function SeatingPlanEditor({
     )
     const regularStudents = students.filter(s => (!s.special_needs || s.special_needs.length === 0) && !placedStudents.has(s.id))
     
-    // Toutes les places triées par distance au tableau
-    const allSeatsSorted = Array.from(seatMap.values())
-      .sort((a, b) => a.distanceFromBoard !== b.distanceFromBoard 
-        ? a.distanceFromBoard - b.distanceFromBoard 
-        : a.seatNumber - b.seatNumber)
-    
-    // Places du rang 1 (distanceFromBoard === 0)
-    const firstRowSeats = allSeatsSorted.filter(s => s.distanceFromBoard === 0)
-    
-    // Places des rangs 1-2 (distanceFromBoard <= 1)
-    const frontRows = allSeatsSorted.filter(s => s.distanceFromBoard <= 1)
+    // Identifier les élèves AESH (contrainte type 'aesh') — garder une place libre à côté
+    const aeshStudentIds = new Set(
+      teacherConstraints
+        .filter(c => c.constraint_type === "aesh" as any)
+        .flatMap(c => c.student_ids)
+    )
     
     // ====== RÈGLE 1A : EBP VUE/AUDITION → RANG 1 avec place libre adjacente si possible ======
     ebpVisionHearing.forEach((student) => {
@@ -1470,6 +1473,8 @@ export function SeatingPlanEditor({
         let score = 0
         // Bonus important si place libre adjacente
         if (freeAdjacent >= 1) score += 30
+        // Bonus AESH : priorité absolue pour la place libre
+        if (aeshStudentIds.has(student.id) && freeAdjacent >= 1) score += 50
         // Éviter d'être à côté d'un autre EBP
         if (nextToEBP) score -= 15
         // Préférer moins de voisins occupés
@@ -1514,6 +1519,8 @@ export function SeatingPlanEditor({
         let score = 0
         // Bonus très important si place libre adjacente (pour AESH)
         if (freeAdjacent >= 1) score += 40
+        // Bonus AESH supplémentaire
+        if (aeshStudentIds.has(student.id) && freeAdjacent >= 1) score += 50
         // Préférer les bords (plus calme pour TSA)
         if (seatInfo.isEdge) score += 10
         // Éviter d'être à côté d'un autre EBP
@@ -1562,6 +1569,8 @@ export function SeatingPlanEditor({
         let score = 0
         // Bonus si place libre adjacente
         if (freeAdjacent >= 1) score += 20
+        // Bonus AESH
+        if (aeshStudentIds.has(student.id) && freeAdjacent >= 1) score += 50
         // Éviter d'être à côté d'un autre EBP
         if (nextToEBP) score -= 15
         // Bonus mixité
@@ -1645,6 +1654,12 @@ export function SeatingPlanEditor({
         score += getMixityScore(seatInfo.seatNumber, student.gender, newAssignments, seatMap) * 5
         // Éviter d'être à côté d'un EBP (garder les places libres pour eux)
         if (isNextToEBPV2(seatInfo.seatNumber, newAssignments, seatMap)) score -= 10
+        // AESH : priorité place libre adjacente
+        if (aeshStudentIds.has(student.id)) {
+          const freeAdj = getAdjacentSeatsV2(seatInfo.seatNumber, seatMap).filter(s => !newAssignments.has(s)).length
+          if (freeAdj >= 1) score += 50
+          else score -= 30
+        }
         
         if (score > bestScore) {
           bestScore = score
@@ -2319,7 +2334,7 @@ export function SeatingPlanEditor({
                           Placement Intelligent V4
                         </Label>
                         <p className="text-[10px] text-violet-600 dark:text-violet-400 mb-2">
-                          4 règles : 0) Contraintes prof, 1) EBP rang 1-2, 2) Mixité G/F, 3) Rotation
+                          Contraintes prof, EBP rang Mixité G/F Rotation
                         </p>
                         <Button
                           size="sm"
