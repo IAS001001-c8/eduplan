@@ -394,9 +394,13 @@ export function TeacherStudentConstraints({
     })
 
     if (error) {
+      // Code 23514 = CHECK constraint violation (ex: DB n'accepte pas encore 'aesh')
+      const isSchemaDrift = (error as any)?.code === "23514"
       toast({
         title: "Erreur",
-        description: "Impossible de créer la contrainte",
+        description: isSchemaDrift
+          ? "Ce type de contrainte n'est pas encore supporté par la base. Contactez l'administrateur (migration SQL requise)."
+          : "Impossible de créer la contrainte",
         variant: "destructive",
       })
       return

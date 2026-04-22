@@ -1,62 +1,59 @@
-# EduPlan - PRD (Product Requirements Document)
+# EduPlan (plan-de-classe) — Product Requirements
 
-## Problème original
-Application de gestion de plans de classe scolaires avec placement intelligent des élèves, gestion des EBP, sous-salles, et déploiement Windows via Electron.
+## Original Problem Statement
+Next.js 15 + Supabase full-stack app for French middle/high schools to manage classrooms, students, and intelligent seating plans. Roles: Vie Scolaire (admin), Professeur, Délégué.
 
-## Architecture
-- **Frontend** : Next.js 15 + React 19 + TypeScript + Tailwind CSS + Shadcn UI
-- **Backend** : Supabase (PostgreSQL) - requêtes directes via client
-- **Desktop** : Electron pour Windows (.appx pour Microsoft Store)
+## Core Requirements
+1. **Intelligent Placement V4 (3-tier)**:
+   - Priority 0: Teacher-defined constraints (Ensemble, Séparés, Devant, AESH)
+   - Priority 1: EBP students (violet coding, row-specific placement)
+   - Priority 2: Gender mix
+   - Priority 3: Row rotation
+2. **Teacher Constraints UI**: Per-class student selection → apply 1 of 4 constraint types with optional reason
+3. **Temporary Sub-Rooms**: Visible on professor dashboard
+4. **Desktop app (Electron)**: Microsoft Store distribution
 
-## Rôles utilisateurs
-1. **Vie Scolaire (CPE)** : Administration complète, pas d'accès aux contraintes prof
-2. **Professeur** : Gestion de ses plans + contraintes de placement par élève
-3. **Délégué de classe** : Propositions de modifications
+## Implementation Status (2026-02-22)
 
-## Fonctionnalités implémentées
+### ✅ Completed
+- [x] Intelligent Placement V4 algorithm (3-tier) — seating-plan-editor.tsx
+- [x] Temporary sub-room visibility on Professor Dashboard
+- [x] Teacher Constraints UI (Ensemble / Séparés / Devant / AESH) — teacher-student-constraints.tsx
+- [x] EBP violet color coding + AESH free-seat logic
+- [x] Fixed `allSeatsSorted` initialization bug
+- [x] UX Recommendations Report (/app/docs/RAPPORT_UX_RECOMMANDATIONS.md)
+- [x] Microsoft Store custom icons (user verification pending)
+- [x] Bug fix: constraint panel now filters by currently selected class only
+- [x] Bug fix: Ensemble algorithm now places students on SAME physical table (same colIndex + tableIndex) with adjacent-table fallback
+- [x] Improved error message for schema-drift (23514 CHECK violation)
 
-### Session actuelle (Avril 2026)
-- [x] Section "Mes élèves & contraintes" (Professeur)
-  - Grille d'élèves (Prénom I.), sélection multi, contraintes (Ensemble/Séparés/Devant/AESH)
-  - Affichage EBP en violet quand sélectionnés (ex: "Arthur F. : PAP")
-  - AESH : place libre à côté de l'élève (1 élève max à la fois)
-  - EBP entourés en violet (pas bleu)
-  - Gestion des conflits robuste
-- [x] Algorithme Placement V4 avec 4 priorités :
-  - P0 : Contraintes prof (devant/ensemble/séparés/AESH)
-  - P1 : EBP (vue/audition→R1, TSA→R1-2, autre→R1-2)
-  - P2 : Mixité G/F
-  - P3 : Rotation
-- [x] Bug fix : allSeatsSorted déclaré avant utilisation
-- [x] Bug fix : sous-salles temporaires (day_of_week auto-dérivé)
-- [x] Error Boundary dashboard
-- [x] Rapport UX complet
+### 🔴 Blocker (user action required)
+- User must verify `/app/scripts/fix_placement_constraints.sql` actually ran in Supabase project `bdvdrzohbieqeisxwmwh`. Testing agent confirmed the CHECK constraint still rejects `aesh`. Re-run script and verify with:
+  ```sql
+  SELECT pg_get_constraintdef(oid) FROM pg_constraint WHERE conname='placement_constraints_constraint_type_check';
+  ```
 
-### Sessions antérieures
-- [x] Auth par rôle, CRUD élèves/profs/classes/salles
-- [x] Import Excel, drag-and-drop éditeur
-- [x] Sous-salles (normales + temporaires)
-- [x] Propositions délégués, priorité couleur EBP
-- [x] Partage plans, calendrier A/B, dashboard multi-rôle
-- [x] Plan en cours dashboard professeur, sandbox
+### 🟡 Awaiting User Verification
+- Microsoft Store submission (icons replaced)
+- Cross-class constraint isolation UI (teacher DUBOIS.emma only has 1 class)
+- Bug 4 UI retest (Vie Scolaire → Plans de classe → editor → test same-table algorithm)
 
-## Backlog
+## Roadmap / Backlog
+- **P2**: Constraint templates (reusable "Bavards à séparer" groups across classes)
+- **P3**: Projection mode (F11 fullscreen) + QR code for substitute teachers
+- **P3**: Collaborative plan sharing between teachers
+- **Refactor**: seating-plan-editor.tsx is 3300+ lines — split into editor / algorithm / dialogs
 
-### P0 (Bloquant)
-- [ ] EXÉCUTER `/app/scripts/add_placement_constraints.sql` sur Supabase
-- [ ] EXÉCUTER `/app/scripts/add_lv2_column.sql` sur Supabase
-- [ ] Soumission Microsoft Store
+## Key Files
+- `/app/components/teacher-student-constraints.tsx` — Teacher constraints UI
+- `/app/components/seating-plan-editor.tsx` — Main editor + V4 algorithm + new `findTableForGroup` helper
+- `/app/scripts/add_placement_constraints.sql` — Initial schema
+- `/app/scripts/fix_placement_constraints.sql` — Patch for `aesh` CHECK + RLS policy (MUST be run in Supabase)
 
-### P1
-- [ ] Templates de contraintes (concept documenté)
-- [ ] Badge "3 errors" React 19/Radix-UI
-- [ ] Responsive éditeur
+## DB Schema
+- `placement_constraints`: `id`, `teacher_id`, `establishment_id`, `constraint_type` ∈ {ensemble, separes, devant, aesh}, `student_ids uuid[]`, `reason`, `created_at`, `updated_at`
 
-### P2
-- [ ] Mode projection, QR code remplaçants
-- [ ] Binômes/groupes TP, Export PDF
-- [ ] Undo/redo, mode sombre
-
-### P3
-- [ ] Système collaboratif, Resend emails
-- [ ] Polices (Insigna, Univers), statistiques mixité
+## 3rd Party
+- Supabase (Auth + Postgres + RLS)
+- Vercel (hosting)
+- Electron (Desktop, Microsoft Store)
