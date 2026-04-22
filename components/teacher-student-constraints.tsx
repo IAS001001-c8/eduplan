@@ -38,8 +38,11 @@ import {
   X,
   Clock,
   UserCheck,
+  FileDown,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import jsPDF from "jspdf"
+import autoTable from "jspdf-autotable"
 
 // Types
 interface Student {
@@ -467,6 +470,180 @@ export function TeacherStudentConstraints({
     aesh: classConstraints.filter((c) => c.constraint_type === "aesh"),
   }
 
+  // Export PDF des contraintes de la classe courante
+  const exportConstraintsToPDF = () => {
+    if (classConstraints.length === 0) {
+      toast({
+        title: "Aucune contrainte à exporter",
+        description: "Créez des contraintes avant d'exporter",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const className = classes.find((c) => c.id === selectedClassId)?.name || "Classe"
+    const now = new Date()
+    const dateStr = now.toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" })
+    const timeStr = now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
+
+    // A4 portrait, 210x297 mm, marges 15mm
+    const doc = new jsPDF({ unit: "mm", format: "a4" })
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    const margin = 15
+
+    // ===== En-tête branded =====
+    // Bandeau couleur EduPlan
+    doc.setFillColor(231, 165, 65) // #E7A541
+    doc.rect(0, 0, pageWidth, 28, "F")
+
+    // Logo texte "EduPlan"
+    doc.setTextColor(255, 255, 255)
+    doc.setFont("helvetica", "bold")
+    doc.setFontSize(20)
+    doc.text("EduPlan", margin, 13)
+
+    // Tagline
+    doc.setFont("helvetica", "normal")
+    doc.setFontSize(8)
+    doc.setTextColor(255, 255, 255)
+    doc.text("Une école. Un Plan.", margin, 19)
+
+    // Date à droite
+    doc.setFontSize(9)
+    doc.text(`${dateStr} — ${timeStr}`, pageWidth - margin, 13, { align: "right" })
+    doc.setFontSize(8)
+    doc.text("Document confidentiel", pageWidth - margin, 19, { align: "right" })
+
+    // ===== Titre principal =====
+    let y = 40
+    doc.setTextColor(41, 40, 43) // #29282B
+    doc.setFont("helvetica", "bold")
+    doc.setFontSize(16)
+    doc.text("Contraintes de placement", margin, y)
+
+    y += 7
+    doc.setFont("helvetica", "normal")
+    doc.setFontSize(11)
+    doc.setTextColor(100, 100, 100)
+    doc.text(`Classe : ${className}  •  ${classConstraints.length} contrainte${classConstraints.length > 1 ? "s" : ""}`, margin, y)
+
+    y += 10
+
+    // ===== Stats en ligne =====
+    const stats = [
+      { label: "Ensemble", count: allConstraintsGrouped.ensemble.length, color: [16, 185, 129] as [number, number, number] },
+      { label: "Séparés", count: allConstraintsGrouped.separes.length, color: [244, 63, 94] as [number, number, number] },
+      { label: "Devant", count: allConstraintsGrouped.devant.length, color: [139, 92, 246] as [number, number, number] },
+      { label: "AESH", count: allConstraintsGrouped.aesh.length, color: [245, 158, 11] as [number, number, number] },
+    ]
+    const statBoxWidth = (pageWidth - 2 * margin - 9) / 4 // 3 gaps de 3mm
+    stats.forEach((stat, idx) => {
+      const x = margin + idx * (statBoxWidth + 3)
+      doc.setFillColor(stat.color[0], stat.color[1], stat.color[2])
+      doc.setDrawColor(stat.color[0], stat.color[1], stat.color[2])
+      doc.roundedRect(x, y, statBoxWidth, 14, 2, 2, "F")
+      doc.setTextColor(255, 255, 255)
+      doc.setFont("helvetica", "bold")
+      doc.setFontSize(12)
+      doc.text(String(stat.count), x + 3, y + 7)
+      doc.setFont("helvetica", "normal")
+      doc.setFontSize(9)
+      doc.text(stat.label, x + 3, y + 11.5)
+    })
+
+    y += 22
+
+    // ===== Tableau des contraintes =====
+    const typeLabels: Record<string, string> = {
+      ensemble: "Ensemble",
+      separes: "Séparés",
+      devant: "Devant",
+      aesh: "AESH",
+    }
+    const typeColors: Record<string, [number, number, number]> = {
+      ensemble: [16, 185, 129],
+      separes: [244, 63, 94],
+      devant: [139, 92, 246],
+      aesh: [245, 158, 11],
+    }
+
+    const rows = classConstraints.map((c) => {
+      const elevesList = c.student_ids.map((sid) => getStudentNameById(sid)).join(", ")
+      const dateCreated = new Date(c.created_at).toLocaleDateString("fr-FR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+      return [typeLabels[c.constraint_type] || c.constraint_type, elevesList, c.reason || "—", dateCreated]
+    })
+
+    autoTable(doc, {
+      startY: y,
+      head: [["Type", "Élèves concernés", "Raison", "Créée le"]],
+      body: rows,
+      theme: "grid",
+      margin: { left: margin, right: margin },
+      styles: {
+        font: "helvetica",
+        fontSize: 10,
+        cellPadding: 3,
+        textColor: [41, 40, 43],
+        lineColor: [217, 218, 220],
+        lineWidth: 0.2,
+        overflow: "linebreak",
+        valign: "middle",
+      },
+      headStyles: {
+        fillColor: [41, 40, 43],
+        textColor: [255, 255, 255],
+        fontStyle: "bold",
+        fontSize: 10,
+        halign: "left",
+      },
+      alternateRowStyles: { fillColor: [250, 250, 250] },
+      columnStyles: {
+        0: { cellWidth: 28, fontStyle: "bold" },
+        1: { cellWidth: "auto" },
+        2: { cellWidth: 50, textColor: [100, 100, 100], fontStyle: "italic" },
+        3: { cellWidth: 25, halign: "center", fontSize: 9 },
+      },
+      didParseCell: (data) => {
+        // Colorer la 1ère colonne (type) selon le type
+        if (data.section === "body" && data.column.index === 0) {
+          const type = classConstraints[data.row.index]?.constraint_type
+          if (type && typeColors[type]) {
+            data.cell.styles.textColor = typeColors[type]
+          }
+        }
+      },
+    })
+
+    // ===== Pied de page sur chaque page =====
+    const pageCount = doc.getNumberOfPages()
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i)
+      doc.setDrawColor(217, 218, 220)
+      doc.setLineWidth(0.2)
+      doc.line(margin, pageHeight - 12, pageWidth - margin, pageHeight - 12)
+      doc.setFont("helvetica", "normal")
+      doc.setFontSize(8)
+      doc.setTextColor(150, 150, 150)
+      doc.text("EduPlan — Document généré automatiquement", margin, pageHeight - 7)
+      doc.text(`Page ${i} / ${pageCount}`, pageWidth - margin, pageHeight - 7, { align: "right" })
+    }
+
+    // ===== Sauvegarde =====
+    const safeClassName = className.replace(/[^a-zA-Z0-9]/g, "_")
+    const fileDate = now.toISOString().slice(0, 10)
+    doc.save(`EduPlan_Contraintes_${safeClassName}_${fileDate}.pdf`)
+
+    toast({
+      title: "PDF exporté",
+      description: `${classConstraints.length} contrainte${classConstraints.length > 1 ? "s" : ""} exportée${classConstraints.length > 1 ? "s" : ""}`,
+    })
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -705,6 +882,17 @@ export function TeacherStudentConstraints({
                 <CardTitle className="text-base font-semibold text-[#29282B]">
                   Contraintes ({classConstraints.length})
                 </CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={exportConstraintsToPDF}
+                  disabled={classConstraints.length === 0}
+                  className="h-8 gap-1.5 text-xs border-[#E7A541]/40 text-[#E7A541] hover:bg-[#E7A541]/10 hover:text-[#E7A541]"
+                  data-testid="export-pdf-btn"
+                >
+                  <FileDown className="h-3.5 w-3.5" />
+                  PDF
+                </Button>
               </div>
               <p className="text-xs text-[#29282B]/50">
                 Classe sélectionnée uniquement
