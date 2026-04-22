@@ -25,14 +25,21 @@ CREATE INDEX IF NOT EXISTS idx_placement_constraints_establishment ON public.pla
 -- Activer RLS
 ALTER TABLE public.placement_constraints ENABLE ROW LEVEL SECURITY;
 
--- Politique : les professeurs peuvent gérer leurs propres contraintes
+-- Supprimer l'ancienne politique si elle existe
+DROP POLICY IF EXISTS "Teachers manage own constraints" ON public.placement_constraints;
+
+-- Politique : accès complet (géré côté application)
 CREATE POLICY "Teachers manage own constraints" ON public.placement_constraints
   FOR ALL
   USING (true)
   WITH CHECK (true);
 
--- Commentaire
-COMMENT ON TABLE public.placement_constraints IS 'Contraintes de placement définies par chaque professeur pour ses élèves. S''appliquent à tous les plans de classe du professeur contenant les élèves concernés.';
-COMMENT ON COLUMN public.placement_constraints.constraint_type IS 'ensemble = côte à côte, separes = min 2 places écart, devant = rang 1 ou 2, aesh = garder une place libre à côté';
-COMMENT ON COLUMN public.placement_constraints.student_ids IS 'Liste des élèves concernés par la contrainte (2-4 pour ensemble/separes, 1+ pour devant)';
-COMMENT ON COLUMN public.placement_constraints.reason IS 'Raison optionnelle pour l''historique (conseil de classe, etc.)';
+-- Si la table existait déjà SANS le type 'aesh', mettre à jour le CHECK constraint :
+-- (Décommentez si besoin)
+-- ALTER TABLE public.placement_constraints DROP CONSTRAINT IF EXISTS placement_constraints_constraint_type_check;
+-- ALTER TABLE public.placement_constraints ADD CONSTRAINT placement_constraints_constraint_type_check CHECK (constraint_type IN ('ensemble', 'separes', 'devant', 'aesh'));
+
+COMMENT ON TABLE public.placement_constraints IS 'Contraintes de placement définies par chaque professeur pour ses élèves.';
+COMMENT ON COLUMN public.placement_constraints.constraint_type IS 'ensemble = même table côte à côte, separes = min 2 places écart, devant = rang 1 ou 2, aesh = garder une place libre à côté';
+COMMENT ON COLUMN public.placement_constraints.student_ids IS 'Liste des élèves concernés (2-4 pour ensemble/separes, 1+ pour devant, 1 pour aesh)';
+COMMENT ON COLUMN public.placement_constraints.reason IS 'Raison optionnelle pour l''historique';
